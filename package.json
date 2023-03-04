@@ -1,0 +1,27 @@
+{
+  "scripts": {
+    "start": "yarn tsc && node ./dist"
+  },
+  "dependencies": {
+    "@fastify/cors": "^8.2.0",
+    "@prisma/client": "^4.11.0",
+    "fastify": "^4.14.0",
+    "fastify-socket.io": "^4.0.0",
+    "prisma": "^4.11.0",
+    "socket.io": "^4.6.1"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.44.0",
+    "@typescript-eslint/parser": "^5.44.0",
+    "eslint": "^8.35.0",
+    "eslint-config-prettier": "^8.6.0",
+    "eslint-plugin-jest": "^27.1.6",
+    "eslint-plugin-jest-dom": "^4.0.3",
+    "eslint-plugin-jsx-a11y": "^6.6.1",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-simple-import-sort": "^8.0.0",
+    "eslint-plugin-unused-imports": "^2.0.0",
+    "prettier": "^2.8.4",
+    "typescript": "^4.9.5"
+  }
+}
