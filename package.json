@@ -1,6 +1,8 @@
 {
   "scripts": {
-    "start": "yarn tsc && node ./dist"
+    "build": "yarn tsc",
+    "dev": "yarn tsc && node ./dist",
+    "start": "node ./dist"
   },
   "dependencies": {
     "@fastify/cors": "^8.2.0",

@@ -42,6 +42,7 @@ server.ready().then(() => {
           },
         });
         socket.emit('new message');
+        socket.broadcast.emit('new message');
       } catch (error) {
         console.log({ error });
       }
@@ -49,5 +50,5 @@ server.ready().then(() => {
   });
 });
 
-const port = Number(process.env.PORT) || 3000;
+const port = Number(process.env.PORT) || 3001;
 server.listen({ port });
