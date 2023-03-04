@@ -1,7 +1,7 @@
-import cors from "@fastify/cors";
-import { PrismaClient } from "@prisma/client";
-import fastify from "fastify";
-import fastifyIO from "fastify-socket.io";
+import cors from '@fastify/cors';
+import { PrismaClient } from '@prisma/client';
+import fastify from 'fastify';
+import fastifyIO from 'fastify-socket.io';
 
 const server = fastify();
 
@@ -10,20 +10,24 @@ const prisma = new PrismaClient();
 server.register(cors, {
   origin: (origin, cb) => {
     const hostname = new URL(origin).hostname;
-    if (hostname === "localhost") {
+    if (
+      hostname === 'photo-app-develop.vercel.app' ||
+      hostname === 'photo-app-orpin.vercel.app' ||
+      hostname === 'localhost'
+    ) {
       cb(null, true);
       return;
     }
-    cb(new Error("Not allowed"), false);
+    cb(new Error('Not allowed'), false);
   },
-  methods: ["GET", "POST"],
+  methods: ['GET', 'POST'],
 });
 
 server.register(fastifyIO);
 
 server.ready().then(() => {
-  server.io.on("connection", (socket) => {
-    socket.on("send message", async (arg) => {
+  server.io.on('connection', (socket) => {
+    socket.on('send message', async (arg) => {
       const { receiver, sender, message } = arg;
       try {
         await prisma.message.create({
@@ -37,7 +41,7 @@ server.ready().then(() => {
             id: true,
           },
         });
-        socket.emit("new message");
+        socket.emit('new message');
       } catch (error) {
         console.log({ error });
       }
