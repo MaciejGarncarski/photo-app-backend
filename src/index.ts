@@ -27,6 +27,10 @@ server.register(fastifyIO);
 
 server.ready().then(() => {
   server.io.on('connection', (socket) => {
+    socket.on('join chat room', async (arg) => {
+      socket.join(`chatRoom-${arg.chatRoomId}`);
+    });
+
     socket.on('send message', async (arg) => {
       const { receiver, sender, message } = arg;
 
@@ -46,9 +50,6 @@ server.ready().then(() => {
           },
         });
 
-        const roomName = `chatRoom-${chatRoom?.id}`;
-        socket.join(roomName);
-
         await prisma.message.create({
           data: {
             receiver,
@@ -60,6 +61,8 @@ server.ready().then(() => {
             id: true,
           },
         });
+
+        const roomName = `chatRoom-${chatRoom?.id}`;
         server.io.to(roomName).emit('new message', { sender, receiver });
       } catch (error) {
         console.log({ error });
