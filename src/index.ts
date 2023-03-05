@@ -41,8 +41,7 @@ server.ready().then(() => {
             id: true,
           },
         });
-        socket.emit('new message');
-        socket.broadcast.emit('new message');
+        server.io.emit('new message', { sender, receiver });
       } catch (error) {
         console.log({ error });
       }
