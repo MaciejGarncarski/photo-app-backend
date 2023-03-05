@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "build": "yarn tsc",
+    "build": "yarn prisma generate && yarn tsc",
     "dev": "yarn tsc && node ./dist",
     "start": "node ./dist"
   },
