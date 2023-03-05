@@ -27,6 +27,10 @@ server.register(fastifyIO);
 
 server.ready().then(() => {
   server.io.on('connection', (socket) => {
+    socket.on('new post', () => {
+      server.io.emit('new post');
+    });
+
     socket.on('join chat room', async (arg) => {
       socket.join(`chatRoom-${arg.chatRoomId}`);
     });
