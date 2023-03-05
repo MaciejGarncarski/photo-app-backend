@@ -29,7 +29,26 @@ server.ready().then(() => {
   server.io.on('connection', (socket) => {
     socket.on('send message', async (arg) => {
       const { receiver, sender, message } = arg;
+
       try {
+        const chatRoom = await prisma.chatRoom.findFirst({
+          where: {
+            OR: [
+              {
+                userOne_id: receiver,
+                userTwo_id: sender,
+              },
+              {
+                userOne_id: sender,
+                userTwo_id: receiver,
+              },
+            ],
+          },
+        });
+
+        const roomName = `chatRoom-${chatRoom?.id}`;
+        socket.join(roomName);
+
         await prisma.message.create({
           data: {
             receiver,
@@ -41,7 +60,7 @@ server.ready().then(() => {
             id: true,
           },
         });
-        server.io.emit('new message', { sender, receiver });
+        server.io.to(roomName).emit('new message', { sender, receiver });
       } catch (error) {
         console.log({ error });
       }

@@ -60,6 +60,9 @@ model User {
 
   sentMessages     Message[] @relation("Sent")
   receivedMessages Message[] @relation("Received")
+
+  userOne ChatRoom[] @relation("UserOne")
+  userTwo ChatRoom[] @relation("UserTwo")
 }
 
 model VerificationToken {
@@ -158,13 +161,24 @@ model Follower {
   @@index([from])
 }
 
+model ChatRoom {
+  id         Int    @id @default(autoincrement()) @db.Int
+  userOne    User   @relation(fields: [userOne_id], references: [id], name: "UserOne", onDelete: Cascade)
+  userOne_id String
+  userTwo    User   @relation(fields: [userTwo_id], references: [id], name: "UserTwo", onDelete: Cascade)
+  userTwo_id String
+
+  @@index([userOne_id])
+  @@index([userTwo_id])
+}
+
 model Message {
   id          String   @id @default(cuid())
   text        String
-  sender_id   User     @relation(fields: [sender], references: [id], name: "Sent", onDelete: Cascade)
-  sender      String
-  receiver_id User     @relation(fields: [receiver], references: [id], name: "Received", onDelete: Cascade)
-  receiver    String
+  sender_id      User     @relation(fields: [sender], references: [id], name: "Sent", onDelete: Cascade)
+  sender   String
+  receiver_id    User     @relation(fields: [receiver], references: [id], name: "Received", onDelete: Cascade)
+  receiver String
   created_at  DateTime @default(now()) @db.Timestamp(0)
 
   @@index([sender])
