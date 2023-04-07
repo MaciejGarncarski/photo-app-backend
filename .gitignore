@@ -2,3 +2,13 @@ node_modules
 .vscode
 dist
 .env
+/node_modules
+/.pnp
+.pnp.js
+.yarn/*
+.yarn/cache
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions

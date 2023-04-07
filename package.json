@@ -1,16 +1,19 @@
 {
   "scripts": {
     "build": "yarn prisma generate && yarn tsc",
-    "dev": "yarn tsc && node ./dist",
-    "start": "node ./dist"
+    "dev": "tsnd --respawn --transpile-only --exit-child ./src/index.ts"
   },
   "dependencies": {
+    "@fastify/cookie": "^8.3.0",
     "@fastify/cors": "^8.2.0",
     "@prisma/client": "^4.11.0",
     "fastify": "^4.14.0",
     "fastify-socket.io": "^4.0.0",
+    "fastify-zod": "^1.2.0",
     "prisma": "^4.11.0",
-    "socket.io": "^4.6.1"
+    "socket.io": "^4.6.1",
+    "zod": "^3.21.4",
+    "zod-to-json-schema": "^3.20.4"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.44.0",
