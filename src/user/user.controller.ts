@@ -1,10 +1,8 @@
-import { FastifyReply } from 'fastify';
-import { FastifyRequest } from 'fastify';
+import { FastifyReply, FastifyRequest } from 'fastify';
 
 import { GetUserInput, GetUserInputByUsername } from './user.schema';
 import { getUser } from './user.service';
 import { httpCodes } from '../consts/httpStatus';
-import { getServerSession } from '../utils/getServerSession';
 
 export const getUserHandler = async (
   request: FastifyRequest<{
@@ -13,18 +11,17 @@ export const getUserHandler = async (
   reply: FastifyReply,
 ) => {
   const {
-    params: { userId },
+    params: { userId, sessionUser },
   } = request;
 
   try {
-    const serverSession = await getServerSession(request);
-    const userData = await getUser({ id: userId }, serverSession);
+    const userData = await getUser({ id: userId }, sessionUser);
 
     if (userData) {
       return reply.code(httpCodes.SUCCESS).send(userData);
     }
 
-    return reply.code(httpCodes.SERVER_ERROR).send('Invalid user data');
+    return reply.code(httpCodes.NOT_FOUND).send('User not found.');
   } catch (error) {
     return reply.code(httpCodes.SERVER_ERROR).send(error);
   }
@@ -37,13 +34,11 @@ export const getUserByUsernameHandler = async (
   reply: FastifyReply,
 ) => {
   const {
-    params: { username },
+    params: { username, sessionUser },
   } = request;
 
   try {
-    const serverSession = await getServerSession(request);
-    console.log({ serverSession222: serverSession });
-    const userData = await getUser({ username: username }, serverSession);
+    const userData = await getUser({ username: username }, sessionUser);
 
     if (userData) {
       return reply.code(httpCodes.SUCCESS).send(userData);

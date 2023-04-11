@@ -11,8 +11,12 @@ type Config =
       id: string;
     };
 
-export const getUser = async (config: Config, serverSession?: User | null) => {
-  const currentUserId = serverSession?.id;
+export const getUser = async (config: Config, sessionUser?: string | null) => {
+  const sessionUserData = await db.user.findFirst({
+    where: {
+      username: sessionUser,
+    },
+  });
 
   const userData = await db.user.findFirst({
     where: config,
@@ -47,8 +51,8 @@ export const getUser = async (config: Config, serverSession?: User | null) => {
   } = userData;
 
   const isFollowing =
-    currentUserId !== userData.id &&
-    userData.toUser.find((follower) => currentUserId && follower.from === currentUserId);
+    sessionUserData?.id !== userData.id &&
+    userData.toUser.find((follower) => sessionUserData && follower.from === sessionUserData.id);
 
   const user = {
     bio,

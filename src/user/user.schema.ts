@@ -3,10 +3,12 @@ import { z } from 'zod';
 
 const getUserInputSchema = z.object({
   userId: z.string(),
+  sessionUser: z.string().nullish(),
 });
 
 export const getUserByUsernameInputSchema = z.object({
   username: z.string(),
+  sessionUser: z.string().nullish(),
 });
 
 export type GetUserInput = z.infer<typeof getUserInputSchema>;
