@@ -1,7 +1,7 @@
 {
   "scripts": {
     "build": "yarn install && yarn prisma generate && yarn tsc",
-    "start": "node ./dist/",
+    "start": "node ./dist",
     "dev": "tsnd --respawn --transpile-only --exit-child ./src/index.ts"
   },
   "dependencies": {
