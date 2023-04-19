@@ -8,5 +8,8 @@
     "strict": true,
     "skipLibCheck": true,
     "outDir": "dist",
-  }
+    "typeRoots": [
+      "types"
+    ]
+  },
 }

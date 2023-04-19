@@ -29,11 +29,10 @@ model Account {
 }
 
 model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id      String   @id @unique
+  expires DateTime
+  userId  String
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
 }
@@ -43,6 +42,7 @@ model User {
   email          String?       @unique
   emailVerified  DateTime?
   name           String?
+  password       String?
   username       String?       @default(cuid())
   bio            String?
   image          String?
@@ -79,9 +79,7 @@ model Post {
   author_id      String
   description    String        @db.MediumText
   created_at     DateTime      @default(now()) @db.Timestamp(0)
-  image1         Int
-  image2         Int?
-  image3         Int?
+  images         PostImage[]
   posts_likes    PostLike[]
   posts_comments PostComment[]
   post_saved     SavedPost[]
@@ -98,6 +96,11 @@ model PostImage {
   width        Int
   height       Int
   size         Int
+
+  Post   Post? @relation(fields: [postId], references: [id])
+  postId Int?  @db.Int
+
+  @@index([postId])
 }
 
 model SavedPost {
@@ -163,22 +166,22 @@ model Follower {
 
 model ChatRoom {
   id         Int    @id @default(autoincrement()) @db.Int
-  userOne    User   @relation(fields: [userOne_id], references: [id], name: "UserOne", onDelete: Cascade)
-  userOne_id String
-  userTwo    User   @relation(fields: [userTwo_id], references: [id], name: "UserTwo", onDelete: Cascade)
-  userTwo_id String
+  sender    User   @relation(fields: [sender_id], references: [id], name: "UserOne", onDelete: Cascade)
+  sender_id String
+  userTwo    User   @relation(fields: [receiver_id], references: [id], name: "UserTwo", onDelete: Cascade)
+  receiver_id String
 
-  @@index([userOne_id])
-  @@index([userTwo_id])
+  @@index([sender_id])
+  @@index([receiver_id])
 }
 
 model Message {
   id          String   @id @default(cuid())
   text        String
-  sender_id      User     @relation(fields: [sender], references: [id], name: "Sent", onDelete: Cascade)
-  sender   String
-  receiver_id    User     @relation(fields: [receiver], references: [id], name: "Received", onDelete: Cascade)
-  receiver String
+  sender      String
+  sender_id   User     @relation(fields: [sender], references: [id], name: "Sent", onDelete: Cascade)
+  receiver    String
+  receiver_id User     @relation(fields: [receiver], references: [id], name: "Received", onDelete: Cascade)
   created_at  DateTime @default(now()) @db.Timestamp(0)
 
   @@index([sender])
