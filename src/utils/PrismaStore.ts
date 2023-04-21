@@ -2,6 +2,7 @@ import { PrismaClient, Session as PrismaSession } from '@prisma/client';
 import { Session } from 'fastify';
 import ms from 'ms';
 
+import { cookie } from '../consts/cookie';
 export class PrismaStore {
   constructor(private readonly prisma: PrismaClient) {}
 
@@ -57,13 +58,7 @@ export class PrismaStore {
 
       const session = {
         user: sessionData.user,
-        cookie: {
-          path: '/',
-          httpOnly: true,
-          sameSite: 'none',
-          maxAge: ms('7 days'),
-          secure: true,
-        },
+        cookie,
       };
 
       return callback(undefined, session as Session);

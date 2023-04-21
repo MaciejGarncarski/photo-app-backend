@@ -3,13 +3,13 @@ import cors from '@fastify/cors';
 import fastifyMultipart from '@fastify/multipart';
 import { fastifySession, SessionStore } from '@fastify/session';
 import fastify from 'fastify';
-import ms from 'ms';
 
 import { authRoutes } from './auth/auth.route';
 import { googleAuthPlugin } from './auth/googleAuth.plugin';
 import { chatPlugin } from './chat/chat.plugin';
 import { chatRoutes } from './chat/chat.route';
 import { chatSchemas } from './chat/chat.schema';
+import { cookie } from './consts/cookie';
 import { followerStatsRoutes } from './follower-stats/follower-stats.route';
 import { followersSchemas } from './follower-stats/follower-stats.schema';
 import { homeRoutes } from './home/home.route';
@@ -50,13 +50,7 @@ const sessionStore = new PrismaStore(db);
 server.register(fastifySession, {
   secret: envVariables.SECRET,
   store: sessionStore as SessionStore,
-  cookie: {
-    path: '/',
-    httpOnly: true,
-    sameSite: 'none',
-    maxAge: ms('7 days'),
-    secure: true,
-  },
+  cookie,
 });
 
 server.register(userRoutes, { prefix: 'api/users' });
