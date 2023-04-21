@@ -3,7 +3,7 @@ import { buildJsonSchemas } from 'fastify-zod';
 import { z } from 'zod';
 
 const getHomepagePostsInputSchema = z.object({
-  skip: z.string().transform((str) => parseInt(str)),
+  skip: z.string(),
 });
 
 export type GetHomepagePostsInput = z.infer<typeof getHomepagePostsInputSchema>;

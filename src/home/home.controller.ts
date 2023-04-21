@@ -1,8 +1,9 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 
-import { GetHomepagePostsInput } from './home.schema';
-import { getHomepagePosts, getNewestUsers } from './home.service';
+import { getNewestUsers } from './home.service';
 import { httpCodes } from '../consts/httpStatus';
+import { GetHomepagePostsInput } from '../post/post.schema';
+import { getHomepagePosts } from '../post/post.service';
 import { getServerSession } from '../utils/getServerSession';
 
 export const getHomepagePostsHandler = async (

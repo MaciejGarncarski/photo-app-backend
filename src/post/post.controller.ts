@@ -27,7 +27,7 @@ export const getHomepagePostsHandler = async (
   reply: FastifyReply,
 ) => {
   try {
-    const postsData = await getHomepagePosts(request.query.skip, request);
+    const postsData = await getHomepagePosts(parseInt(request.query.skip), request);
     return reply.code(httpCodes.SUCCESS).send(postsData);
   } catch (error) {
     return reply.code(httpCodes.SERVER_ERROR).send(error);
