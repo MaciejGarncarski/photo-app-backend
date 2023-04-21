@@ -62,7 +62,7 @@ export class PrismaStore {
           httpOnly: true,
           sameSite: 'none',
           maxAge: ms('7 days'),
-          secure: false,
+          secure: true,
         },
       };
 
