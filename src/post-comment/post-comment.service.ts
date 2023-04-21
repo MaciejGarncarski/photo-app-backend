@@ -97,3 +97,34 @@ export const getComments = async (postId: number, skip: number, sessionUserId?: 
 
   return response;
 };
+
+export const addCommentLike = async (commentId: number, sessionUserId: string) => {
+  const isAlreadyLiked = await db.commentLike.findFirst({
+    where: {
+      comment_id: commentId,
+      user_id: sessionUserId,
+    },
+  });
+
+  if (isAlreadyLiked) {
+    return null;
+  }
+
+  await db.commentLike.create({
+    data: {
+      comment_id: commentId,
+      user_id: sessionUserId,
+    },
+  });
+
+  return 'ok';
+};
+
+export const deleteCommentLike = async (commentId: number, sessionUserId: string) => {
+  await db.commentLike.deleteMany({
+    where: {
+      comment_id: commentId,
+      user_id: sessionUserId,
+    },
+  });
+};

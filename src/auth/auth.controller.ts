@@ -4,6 +4,7 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import { SignInValues } from './auth.schema';
 import { httpCodes } from '../consts/httpStatus';
 import { db } from '../prisma/db';
+import { registerIfNotExists } from '../utils/registerIfNotExists';
 
 export const signInCredentialsHandler = async (
   request: FastifyRequest<{
@@ -19,11 +20,15 @@ export const signInCredentialsHandler = async (
     },
   });
 
-  if (!user || !user.password) {
-    return reply.status(httpCodes.FORBIDDEN).send('Invalid email - user not found.');
+  if (!user) {
+    const registeredUser = await registerIfNotExists({ email, password });
+
+    await request.session.regenerate();
+    request.session.user = registeredUser;
+    return reply.code(httpCodes.SUCCESS).send({ redirect: '/' });
   }
 
-  const isPasswordEqual = await verify(user.password, password);
+  const isPasswordEqual = await verify(user?.password || '', password);
 
   if (!isPasswordEqual) {
     return reply.status(httpCodes.FORBIDDEN).send('Passwords do not match.');

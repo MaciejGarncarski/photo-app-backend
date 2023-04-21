@@ -46,6 +46,12 @@ const commentResponseSchema = z.object({
 
 export type CommentResponse = z.infer<typeof commentResponseSchema>;
 
+const commentLikeInputSchema = z.object({
+  commentId: z.string(),
+});
+
+export type CommentLikeInput = z.infer<typeof commentLikeInputSchema>;
+
 export const { $ref, schemas: postCommentSchemas } = buildJsonSchemas(
   {
     addPostCommentInputSchema,
@@ -53,6 +59,7 @@ export const { $ref, schemas: postCommentSchemas } = buildJsonSchemas(
     getPostCommentsInputSchema,
     getPostCommentsQuerySchema,
     commentResponseSchema,
+    commentLikeInputSchema,
   },
   { $id: 'postCommentSchema' },
 );

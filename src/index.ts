@@ -6,7 +6,12 @@ import fastify from 'fastify';
 import ms from 'ms';
 
 import { authRoutes } from './auth/auth.route';
-import { chatRoute } from './chat/chat.route';
+import { googleAuthPlugin } from './auth/googleAuth.plugin';
+import { chatPlugin } from './chat/chat.plugin';
+import { chatRoutes } from './chat/chat.route';
+import { chatSchemas } from './chat/chat.schema';
+import { followerStatsRoutes } from './follower-stats/follower-stats.route';
+import { followersSchemas } from './follower-stats/follower-stats.schema';
 import { homeRoutes } from './home/home.route';
 import { postRoutes } from './post/post.route';
 import { postSchemas } from './post/post.schema';
@@ -17,17 +22,25 @@ import { sessionUserRoutes } from './session-user/session-user.route';
 import { sessionUserSchemas } from './session-user/session-user.schema';
 import { userRoutes } from './user/user.route';
 import { userSchemas } from './user/user.schema';
+import { envVariables } from './utils/envVariables';
 import { PrismaStore } from './utils/PrismaStore';
 
 const server = fastify();
 
-for (const schema of [...userSchemas, ...sessionUserSchemas, ...postSchemas, ...postCommentSchemas]) {
+for (const schema of [
+  ...userSchemas,
+  ...sessionUserSchemas,
+  ...postSchemas,
+  ...postCommentSchemas,
+  ...followersSchemas,
+  ...chatSchemas,
+]) {
   server.addSchema(schema);
 }
 
 server.register(cors, {
   credentials: true,
-  origin: 'http://localhost:3000',
+  origin: `${envVariables.APP_URL}`,
   methods: ['OPTIONS', 'GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
 });
 server.register(fastifyCookie);
@@ -35,7 +48,7 @@ server.register(fastifyMultipart, { attachFieldsToBody: true });
 
 const sessionStore = new PrismaStore(db);
 server.register(fastifySession, {
-  secret: process.env.SECRET as string,
+  secret: envVariables.SECRET,
   store: sessionStore as SessionStore,
   cookie: {
     path: '/',
@@ -48,11 +61,14 @@ server.register(fastifySession, {
 
 server.register(userRoutes, { prefix: 'api/users' });
 server.register(sessionUserRoutes, { prefix: 'api/session-user' });
+server.register(googleAuthPlugin);
 server.register(authRoutes, { prefix: 'api/auth' });
 server.register(postRoutes, { prefix: 'api/post' });
 server.register(postCommentRoutes, { prefix: 'api/post-comment' });
 server.register(homeRoutes, { prefix: 'api/home' });
-server.register(chatRoute);
+server.register(followerStatsRoutes, { prefix: 'api/follower-stats' });
+server.register(chatRoutes, { prefix: 'api/chat' });
+server.register(chatPlugin);
 
 const port = Number(process.env.PORT) || 3001;
 server.listen({ port });

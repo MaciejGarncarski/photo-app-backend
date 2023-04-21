@@ -1,6 +1,12 @@
 import { FastifyInstance } from 'fastify';
 
-import { addPostCommentHandler, deletePostCommentHandler, getCommentsHandler } from './post-comment.controller';
+import {
+  addCommentLikeHandler,
+  addPostCommentHandler,
+  deleteCommentLikeHandler,
+  deletePostCommentHandler,
+  getCommentsHandler,
+} from './post-comment.controller';
 import { $ref } from './post-comment.schema';
 
 export const postCommentRoutes = async (server: FastifyInstance) => {
@@ -35,5 +41,23 @@ export const postCommentRoutes = async (server: FastifyInstance) => {
       },
     },
     getCommentsHandler,
+  );
+  server.put(
+    '/:commentId/like',
+    {
+      schema: {
+        params: $ref('commentLikeInputSchema'),
+      },
+    },
+    addCommentLikeHandler,
+  );
+  server.delete(
+    '/:commentId/like',
+    {
+      schema: {
+        params: $ref('commentLikeInputSchema'),
+      },
+    },
+    deleteCommentLikeHandler,
   );
 };
