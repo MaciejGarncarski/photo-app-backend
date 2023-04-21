@@ -1,4 +1,5 @@
 import fastifyOauth2 from '@fastify/oauth2';
+import axios from 'axios';
 import { FastifyInstance } from 'fastify';
 
 import { googleUserSchema } from './auth.schema';
@@ -27,9 +28,8 @@ export const googleAuthPlugin = async (server: FastifyInstance) => {
       const { token } = await this.googleOAuth2.getAccessTokenFromAuthorizationCodeFlow(request);
 
       const googleAPiUrl = `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${token.access_token}`;
-      const userInfoRequest = await fetch(googleAPiUrl, { method: 'GET' });
-      const userInfo = await userInfoRequest.json();
-      const response = googleUserSchema.safeParse(userInfo);
+      const { data } = await axios.get(googleAPiUrl);
+      const response = googleUserSchema.safeParse(data);
 
       if (!response.success) {
         return reply.redirect(`${envVariables.APP_URL}/auth/signin`);
