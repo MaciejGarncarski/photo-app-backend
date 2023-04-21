@@ -53,7 +53,7 @@ server.register(fastifySession, {
   cookie: {
     path: '/',
     httpOnly: true,
-    sameSite: 'lax',
+    sameSite: 'none',
     maxAge: ms('7 days'),
     secure: false,
   },
