@@ -25,7 +25,7 @@ export const signInCredentialsHandler = async (
 
     await request.session.regenerate();
     request.session.user = registeredUser;
-    return reply.code(httpCodes.SUCCESS).send({ redirect: '/' });
+    return reply.code(httpCodes.SUCCESS).send('ok');
   }
 
   const isPasswordEqual = await verify(user?.password || '', password);
@@ -37,7 +37,7 @@ export const signInCredentialsHandler = async (
   await request.session.regenerate();
   request.session.user = user;
 
-  return reply.code(httpCodes.SUCCESS).send({ redirect: '/' });
+  return reply.code(httpCodes.SUCCESS).send('ok');
 };
 
 export const getCurrentUserHandler = async (request: FastifyRequest, reply: FastifyReply) => {
