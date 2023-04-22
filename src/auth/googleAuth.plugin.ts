@@ -44,7 +44,7 @@ export const googleAuthPlugin = async (server: FastifyInstance) => {
       await request.session.regenerate();
       request.session.user = user;
 
-      return reply.redirect(`${envVariables.APP_URL}/api/auth/google-auth`);
+      return reply.redirect(`${envVariables.APP_URL}`);
     },
   });
 };
