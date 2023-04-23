@@ -18,3 +18,18 @@ export const getFollowersStatsHandler = async (
     return reply.code(httpCodes.SERVER_ERROR).send(error);
   }
 };
+
+export const getFriendsStatsHandler = async (
+  request: FastifyRequest<{ Querystring: FollowersInput }>,
+  reply: FastifyReply,
+) => {
+  const { skip, userId } = request.query;
+  const sessionUserId = request.session.user?.id;
+
+  try {
+    const users = await getFollowersStats(userId, parseInt(skip), sessionUserId);
+    return reply.code(httpCodes.SUCCESS).send(users);
+  } catch (error) {
+    return reply.code(httpCodes.SERVER_ERROR).send(error);
+  }
+};

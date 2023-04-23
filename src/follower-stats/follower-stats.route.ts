@@ -1,11 +1,11 @@
 import { FastifyInstance } from 'fastify';
 
-import { getFollowersStatsHandler } from './follower-stats.controller';
+import { getFollowersStatsHandler, getFriendsStatsHandler } from './follower-stats.controller';
 import { $ref } from './follower-stats.schema';
 
 export const followerStatsRoutes = async (server: FastifyInstance) => {
   server.get(
-    '/follower',
+    '/followers',
     {
       schema: {
         querystring: $ref('followersInputSchema'),
@@ -17,7 +17,7 @@ export const followerStatsRoutes = async (server: FastifyInstance) => {
     getFollowersStatsHandler,
   );
   server.get(
-    '/friend',
+    '/friends',
     {
       schema: {
         querystring: $ref('followersInputSchema'),
@@ -26,6 +26,6 @@ export const followerStatsRoutes = async (server: FastifyInstance) => {
         },
       },
     },
-    getFollowersStatsHandler,
+    getFriendsStatsHandler,
   );
 };
