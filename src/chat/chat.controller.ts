@@ -40,7 +40,7 @@ export const chatRoomMessagesHandler = async (
   }
 
   if (sessionUser.id === receiverId) {
-    return reply.code(httpCodes.BAD_REQUEST).send('invalid receiverId');
+    return reply.code(httpCodes.UNAUTHORIZED).send('invalid user');
   }
 
   try {

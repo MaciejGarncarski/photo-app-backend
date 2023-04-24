@@ -83,7 +83,7 @@ export const getFriendsStats = async (userId: string, skip: number, sessionUserI
         include: {
           toUser: {
             where: {
-              to: sessionUserId,
+              to: userId,
             },
           },
           _count: { select: { posts: true, fromUser: true, toUser: true } },

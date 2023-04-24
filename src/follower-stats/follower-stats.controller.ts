@@ -1,7 +1,7 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 
 import { FollowersInput } from './follower-stats.schema';
-import { getFollowersStats } from './follower-stats.service';
+import { getFollowersStats, getFriendsStats } from './follower-stats.service';
 import { httpCodes } from '../consts/httpStatus';
 
 export const getFollowersStatsHandler = async (
@@ -27,7 +27,7 @@ export const getFriendsStatsHandler = async (
   const sessionUserId = request.session.user?.id;
 
   try {
-    const users = await getFollowersStats(userId, parseInt(skip), sessionUserId);
+    const users = await getFriendsStats(userId, parseInt(skip), sessionUserId);
     return reply.code(httpCodes.SUCCESS).send(users);
   } catch (error) {
     return reply.code(httpCodes.SERVER_ERROR).send(error);

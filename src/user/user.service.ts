@@ -3,6 +3,7 @@ import { FastifyRequest } from 'fastify';
 import { GetUserPostsInput, User } from './user.schema';
 import { Post, PostsResponse } from '../post/post.schema';
 import { db } from '../prisma/db';
+import { getCount } from '../utils/getCount';
 import { getServerSession } from '../utils/getServerSession';
 
 type Config =
@@ -29,9 +30,6 @@ export const getUser = async (config: Config, request: FastifyRequest) => {
       name: true,
       username: true,
       toUser: true,
-      _count: {
-        select: { posts: true, fromUser: true, toUser: true },
-      },
     },
   });
 
@@ -39,16 +37,9 @@ export const getUser = async (config: Config, request: FastifyRequest) => {
     return null;
   }
 
-  const {
-    _count: { fromUser, toUser, posts },
-    bio,
-    created_at,
-    customImage,
-    id,
-    image,
-    name,
-    username,
-  } = userData;
+  const { bio, created_at, customImage, id, image, name, username } = userData;
+
+  const counts = await getCount(userData.id);
 
   const isFollowing =
     sessionUser &&
@@ -59,9 +50,7 @@ export const getUser = async (config: Config, request: FastifyRequest) => {
     bio,
     createdAt: created_at.toString(),
     customImage,
-    followersCount: toUser,
-    friendsCount: fromUser,
-    postsCount: posts,
+    ...counts,
     id,
     image,
     isFollowing: isFollowing || false,
