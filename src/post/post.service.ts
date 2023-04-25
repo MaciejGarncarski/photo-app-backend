@@ -12,7 +12,7 @@ const POSTS_PER_SCROLL = 4;
 export const getHomepagePosts = async (skip: number, request: FastifyRequest) => {
   const { sessionUser } = await getServerSession(request);
 
-  const posts = await db.post.findMany({
+  const postsRequest = db.post.findMany({
     skip: skip * POSTS_PER_SCROLL,
     take: POSTS_PER_SCROLL,
 
@@ -36,7 +36,10 @@ export const getHomepagePosts = async (skip: number, request: FastifyRequest) =>
     },
   });
 
-  const postsCount = await db.post.count();
+  const postsCountRequest = db.post.count();
+
+  const [posts, postsCount] = await Promise.all([postsRequest, postsCountRequest]);
+
   const maxPages = postsCount / POSTS_PER_SCROLL;
   const roundedMaxPages = Math.round(maxPages);
   const totalPages = roundedMaxPages;
@@ -79,7 +82,6 @@ export const createPost = async (
 
   for await (const image of images) {
     const imageBuffer = await image.toBuffer();
-
     const { fileId, width, height, thumbnailUrl, url, size, name } = await imageKit.upload({
       file: imageBuffer,
       fileName: `${v4()}.webp`,

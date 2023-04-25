@@ -57,13 +57,14 @@ export const chatRoomUsersHandler = async (
 ) => {
   const { sessionUser } = await getServerSession(request);
   const skip = parseInt(request.query.skip);
+  const { searchedUser } = request.query;
 
   if (!sessionUser) {
     return reply.code(httpCodes.UNAUTHORIZED).send('unauthorized');
   }
 
   try {
-    const chatUsersData = await chatUsers(sessionUser.id, skip);
+    const chatUsersData = await chatUsers(sessionUser.id, searchedUser, skip);
     return reply.code(httpCodes.SUCCESS).send(chatUsersData);
   } catch (error) {
     return reply.code(httpCodes.SERVER_ERROR).send(error);

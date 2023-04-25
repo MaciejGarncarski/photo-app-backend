@@ -23,6 +23,7 @@ const chatMessagesParamsSchema = z.object({
 
 const chatMessagesQuerySchema = z.object({
   skip: z.string(),
+  searchedUser: z.string(),
 });
 
 export type ChatMessagesParams = z.infer<typeof chatMessagesParamsSchema>;

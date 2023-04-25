@@ -195,11 +195,12 @@ export const chatMessages = async (sessionUserId: string, receiverId: string, sk
 
 const CHAT_USERS_PER_REQUEST = 7;
 
-export const chatUsers = async (sessionUserId: string, skip: number) => {
+export const chatUsers = async (sessionUserId: string, searchedUser: string, skip: number) => {
   const users = await db.user.findMany({
     skip: skip * CHAT_USERS_PER_REQUEST,
     take: CHAT_USERS_PER_REQUEST,
     where: {
+      OR: [{ username: { contains: searchedUser } }, { name: { contains: searchedUser } }],
       NOT: [{ id: sessionUserId }],
     },
     include: {
