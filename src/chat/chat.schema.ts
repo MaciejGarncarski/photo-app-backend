@@ -23,11 +23,16 @@ const chatMessagesParamsSchema = z.object({
 
 const chatMessagesQuerySchema = z.object({
   skip: z.string(),
+});
+
+const chatUsersQuerySchema = z.object({
+  skip: z.string(),
   searchedUser: z.string(),
 });
 
 export type ChatMessagesParams = z.infer<typeof chatMessagesParamsSchema>;
 export type ChatMessagesQuery = z.infer<typeof chatMessagesQuerySchema>;
+export type ChatUsersQuery = z.infer<typeof chatUsersQuerySchema>;
 
 const chatMessageSchema = z.object({
   sender: z.custom<User>(),
@@ -72,6 +77,7 @@ export const { $ref, schemas: chatSchemas } = buildJsonSchemas(
     chatMessagesQuerySchema,
     chatMessagesResponseSchema,
     chatMessagesParamsSchema,
+    chatUsersQuerySchema,
     chatUsersResponseSchema,
     deleteMessageParamsSchema,
   },

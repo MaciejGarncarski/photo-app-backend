@@ -1,6 +1,12 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 
-import { ChatMessagesParams, ChatMessagesQuery, ChatRoomInput, DeleteMessageParams } from './chat.schema';
+import {
+  ChatMessagesParams,
+  ChatMessagesQuery,
+  ChatRoomInput,
+  ChatUsersQuery,
+  DeleteMessageParams,
+} from './chat.schema';
 import { chatMessages, chatUsers, createChatRoom, deleteMessage } from './chat.service';
 import { httpCodes } from '../consts/httpStatus';
 import { getServerSession } from '../utils/getServerSession';
@@ -52,7 +58,7 @@ export const chatRoomMessagesHandler = async (
 };
 
 export const chatRoomUsersHandler = async (
-  request: FastifyRequest<{ Querystring: ChatMessagesQuery }>,
+  request: FastifyRequest<{ Querystring: ChatUsersQuery }>,
   reply: FastifyReply,
 ) => {
   const { sessionUser } = await getServerSession(request);

@@ -27,7 +27,7 @@ export const chatRoutes = async (server: FastifyInstance) => {
     '/chatUsers',
     {
       schema: {
-        querystring: $ref('chatMessagesQuerySchema'),
+        querystring: $ref('chatUsersQuerySchema'),
         response: {
           200: $ref('chatUsersResponseSchema'),
         },
