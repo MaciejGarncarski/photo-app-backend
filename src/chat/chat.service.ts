@@ -16,6 +16,14 @@ export const createChatRoom = async (receiverId: string, senderId: string) => {
     return chatRoom;
   }
 
+  const senderRequest = db.user.findFirst({ where: { id: senderId } });
+  const receiverRequest = db.user.findFirst({ where: { id: receiverId } });
+  const [sender, receiver] = await Promise.all([senderRequest, receiverRequest]);
+
+  if (!sender || !receiver) {
+    return null;
+  }
+
   const createdChatRoom = await db.chatRoom.create({
     data: {
       sender_id: senderId,

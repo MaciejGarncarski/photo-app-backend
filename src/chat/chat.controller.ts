@@ -28,6 +28,11 @@ export const createChatRoomHandler = async (
 
   try {
     const chatRoom = await createChatRoom(receiverId, sessionUser.id);
+
+    if (!chatRoom) {
+      return reply.code(httpCodes.BAD_REQUEST).send('cannot find chat room');
+    }
+
     return reply.code(httpCodes.SUCCESS).send(chatRoom);
   } catch (error) {
     return reply.code(httpCodes.SERVER_ERROR).send(error);
