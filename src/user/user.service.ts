@@ -93,7 +93,7 @@ export const getUserPosts = async ({ skip, authorId }: GetUserPostsInput, reques
     return null;
   }
 
-  const posts = await db.post.findMany({
+  const postsRequest = db.post.findMany({
     skip: skip * POSTS_PER_SCROLL,
     take: POSTS_PER_SCROLL,
 
@@ -120,12 +120,13 @@ export const getUserPosts = async ({ skip, authorId }: GetUserPostsInput, reques
     },
   });
 
-  const postsCount = await db.post.count({
+  const postsCountRequest = db.post.count({
     where: {
       author_id: authorId,
     },
   });
 
+  const [postsCount, posts] = await Promise.all([postsCountRequest, postsRequest]);
   const maxPages = postsCount / POSTS_PER_SCROLL;
   const roundedMaxPages = Math.round(maxPages);
   const totalPages = roundedMaxPages;
