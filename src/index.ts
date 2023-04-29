@@ -62,6 +62,7 @@ server.register(postCommentRoutes, { prefix: 'api/post-comment' });
 server.register(homeRoutes, { prefix: 'api/home' });
 server.register(followerStatsRoutes, { prefix: 'api/follower-stats' });
 server.register(chatRoutes, { prefix: 'api/chat' });
+server.get('/api/ping', (req, rep) => rep.code(200).send('pong'));
 server.register(chatPlugin);
 
 const port = Number(process.env.PORT) || 3001;
