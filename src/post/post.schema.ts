@@ -8,12 +8,14 @@ const getHomepagePostsInputSchema = z.object({
 
 export type GetHomepagePostsInput = z.infer<typeof getHomepagePostsInputSchema>;
 
+export const postDescriptionSchema = z.string().min(1).max(100);
+
 export const postSchema = z.object({
   commentsCount: z.number(),
   likesCount: z.number(),
   images: z.array(z.custom<PostImage>()),
   createdAt: z.date(),
-  description: z.string(),
+  description: postDescriptionSchema,
   id: z.number(),
   isLiked: z.boolean(),
   authorId: z.string(),
@@ -53,7 +55,7 @@ const postLikeInputSchema = z.object({
 export type PostLikeInputSchema = z.infer<typeof postLikeInputSchema>;
 
 const editPostInputSchema = z.object({
-  description: z.string(),
+  description: postDescriptionSchema,
   postId: z.string(),
 });
 

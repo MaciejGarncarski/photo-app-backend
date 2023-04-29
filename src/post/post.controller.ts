@@ -6,6 +6,7 @@ import {
   EditPostInput,
   GetHomepagePostsInput,
   PostByIdInput,
+  postDescriptionSchema,
   PostLikeInputSchema,
 } from './post.schema';
 import {
@@ -36,7 +37,14 @@ export const getHomepagePostsHandler = async (
 
 export const createPostHandler = async (request: FastifyRequest<{ Body: RequestBody }>, reply: FastifyReply) => {
   const images = request.body.images;
-  const description = request.body.description.value;
+
+  const result = postDescriptionSchema.safeParse(request.body.description.value);
+
+  if (!result.success) {
+    return reply.code(httpCodes.BAD_REQUEST).send('Invalid description provided.');
+  }
+
+  const description = result.data;
 
   const { sessionUser } = await getServerSession(request);
 
@@ -50,7 +58,6 @@ export const createPostHandler = async (request: FastifyRequest<{ Body: RequestB
 
   try {
     const imagesArray = Array.isArray(images) ? images : [images];
-
     await createPost({ description }, sessionUser.id, imagesArray);
 
     return reply.code(httpCodes.SUCCESS).send('created');
@@ -134,6 +141,7 @@ export const deletePostLikeHandler = async (
 
 export const editPostHandler = async (request: FastifyRequest<{ Body: EditPostInput }>, reply: FastifyReply) => {
   const { description, postId } = request.body;
+  console.log({ description });
   const { sessionUser } = await getServerSession(request);
 
   if (!sessionUser?.id) {
