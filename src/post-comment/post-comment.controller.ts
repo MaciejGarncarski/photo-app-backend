@@ -3,6 +3,7 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import {
   AddPostCommentInput,
   CommentLikeInput,
+  commentTextSchema,
   DeletePostCommentInput,
   GetPostCommentsInput,
   GetPostCommentsQuery,
@@ -21,8 +22,14 @@ export const addPostCommentHandler = async (
     return reply.code(httpCodes.UNAUTHORIZED).send('unauthorized');
   }
 
+  const result = commentTextSchema.safeParse(request.body.commentText);
+
+  if (!result.success) {
+    return reply.code(httpCodes.BAD_REQUEST).send('Cannot add comment');
+  }
+
   try {
-    await addComment(request.body.commentText, parseInt(request.body.postId), sessionUser.id);
+    await addComment(result.data, parseInt(request.body.postId), sessionUser.id);
     return reply.code(httpCodes.SUCCESS).send('created post comment');
   } catch (error) {
     return reply.code(httpCodes.SERVER_ERROR).send(error);

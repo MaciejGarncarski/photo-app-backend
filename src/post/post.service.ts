@@ -37,9 +37,7 @@ export const getHomepagePosts = async (skip: number, request: FastifyRequest) =>
   });
 
   const postsCountRequest = db.post.count();
-
   const [posts, postsCount] = await Promise.all([postsRequest, postsCountRequest]);
-
   const maxPages = postsCount / POSTS_PER_SCROLL;
   const roundedMaxPages = Math.round(maxPages);
   const totalPages = roundedMaxPages;
