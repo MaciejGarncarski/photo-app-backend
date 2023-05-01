@@ -50,5 +50,5 @@ export const getCurrentUserHandler = async (request: FastifyRequest, reply: Fast
 
 export const signOutHandler = async (request: FastifyRequest, reply: FastifyReply) => {
   await request.session.destroy();
-  return reply.code(httpCodes.SUCCESS).send({ redirect: '/' });
+  return reply.code(httpCodes.SUCCESS).send('ok');
 };

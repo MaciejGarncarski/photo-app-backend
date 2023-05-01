@@ -141,7 +141,6 @@ export const deletePostLikeHandler = async (
 
 export const editPostHandler = async (request: FastifyRequest<{ Body: EditPostInput }>, reply: FastifyReply) => {
   const { description, postId } = request.body;
-  console.log({ description });
   const { sessionUser } = await getServerSession(request);
 
   if (!sessionUser?.id) {
