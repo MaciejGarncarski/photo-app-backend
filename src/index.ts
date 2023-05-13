@@ -65,5 +65,5 @@ server.register(chatRoutes, { prefix: 'api/chat' });
 server.get('/api/ping', (req, rep) => rep.code(200).send('pong'));
 server.register(chatPlugin);
 
-const port = Number(process.env.PORT) || 3001;
+const port = parseInt(envVariables.PORT) || 3001;
 server.listen({ port });
