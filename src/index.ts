@@ -65,5 +65,7 @@ server.register(chatRoutes, { prefix: 'api/chat' });
 server.get('/api/ping', (req, rep) => rep.code(200).send('pong'));
 server.register(chatPlugin);
 
-const port = parseInt(envVariables.PORT) || 3001;
-server.listen({ port });
+const port = parseInt(process.env.PORT || '3001');
+server.listen({ port }, () => {
+  console.log('App running on port: ', port);
+});
