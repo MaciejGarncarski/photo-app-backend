@@ -136,8 +136,16 @@ export const chatMessages = async (sessionUserId: string, receiverId: string, sk
       },
     },
     where: {
-      receiver_id: receiverId,
-      sender_id: sessionUserId,
+      OR: [
+        {
+          receiver_id: receiverId,
+          sender_id: sessionUserId,
+        },
+        {
+          receiver_id: sessionUserId,
+          sender_id: receiverId,
+        },
+      ],
     },
   });
 
