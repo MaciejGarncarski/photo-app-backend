@@ -39,12 +39,13 @@ In this app, you can create posts, comment them and chat with other users. It wa
 
 ```bash
 yarn install
+yarn global add ts-node-dev typescript
 ```
 
 ### Add .env
 
 ```
-# .env 
+# .env
 
 DATABASE_URL=
 SECRET=
@@ -75,6 +76,7 @@ yarn dev
 ## Tech used
 
 ### Frontend
+
 [Frontend repo](https://github.com/MaciejGarncarski/photo-app)
 
 - TypeScript
@@ -106,19 +108,22 @@ yarn dev
 
 ## Screenshots
 
-
 ### Home
+
 ![home](https://raw.githubusercontent.com/MaciejGarncarski/photo-app/main/.github/screenshots/home.png)
 
 ### Chat selection
+
 ![chat](https://raw.githubusercontent.com/MaciejGarncarski/photo-app/main/.github/screenshots/chat.png)
 
 ### Chat room
+
 ![create post](https://raw.githubusercontent.com/MaciejGarncarski/photo-app/main/.github/screenshots/chat-room.png)
 
 ### Create post
+
 ![create post](https://raw.githubusercontent.com/MaciejGarncarski/photo-app/main/.github/screenshots/create-post.png)
 
 ### Profile
-![profile](https://raw.githubusercontent.com/MaciejGarncarski/photo-app/main/.github/screenshots/profile.png)
 
+![profile](https://raw.githubusercontent.com/MaciejGarncarski/photo-app/main/.github/screenshots/profile.png)
