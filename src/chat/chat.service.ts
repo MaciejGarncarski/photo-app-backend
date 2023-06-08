@@ -1,6 +1,7 @@
 import { ChatMessage, ChatMessagesResponse, ChatUsersResponse, CreateMessage } from './chat.schema';
 import { db } from '../prisma/db';
 import { User } from '../user/user.schema';
+import { getChatUsersByName } from '../utils/getChatUsersByName';
 
 export const createChatRoom = async (receiverId: string, senderId: string) => {
   const chatRoom = await db.chatRoom.findFirst({
@@ -212,23 +213,7 @@ export const chatMessages = async (sessionUserId: string, receiverId: string, sk
 const CHAT_USERS_PER_REQUEST = 7;
 
 export const chatUsers = async (sessionUserId: string, searchedUser: string, skip: number) => {
-  const users = await db.user.findMany({
-    skip: skip * CHAT_USERS_PER_REQUEST,
-    take: CHAT_USERS_PER_REQUEST,
-    where: {
-      OR: [{ username: { contains: searchedUser } }, { name: { contains: searchedUser } }],
-      NOT: [{ id: sessionUserId }],
-    },
-    include: {
-      _count: {
-        select: {
-          posts: true,
-          fromUser: true,
-          toUser: true,
-        },
-      },
-    },
-  });
+  const { users, usersCount } = await getChatUsersByName(searchedUser, skip, sessionUserId);
 
   const mappedUsers = users.map(
     ({ bio, created_at, customImage, image, id, name, username, _count: { fromUser, posts, toUser } }) => {
@@ -249,12 +234,6 @@ export const chatUsers = async (sessionUserId: string, searchedUser: string, ski
       return mappedUser;
     },
   );
-
-  const usersCount = await db.user.count({
-    where: {
-      NOT: [{ id: sessionUserId }],
-    },
-  });
 
   const maxPages = usersCount / CHAT_USERS_PER_REQUEST;
   const totalPages = Math.round(maxPages);
