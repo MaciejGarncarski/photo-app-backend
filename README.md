@@ -1,5 +1,5 @@
 <p align="center">
-  <img width="192" height="192" src="https://raw.githubusercontent.com/MaciejGarncarski/photo-app/main/.github/screenshots/logo.png">
+  <img width="192" height="192" src="https://raw.githubusercontent.com/MaciejGarncarski/photo-app/main/.github/logo.png">
 </p>
 
 # PhotoApp - backend
