@@ -28,7 +28,7 @@ export const getHomepagePostsHandler = async (
   reply: FastifyReply,
 ) => {
   try {
-    const postsData = await getHomepagePosts(parseInt(request.query.skip), request);
+    const postsData = await getHomepagePosts(parseInt(request.query.skip));
     return reply.code(httpCodes.SUCCESS).send(postsData);
   } catch (error) {
     return reply.code(httpCodes.SERVER_ERROR).send(error);
@@ -105,17 +105,17 @@ export const addPostLikeHandler = async (
   const { sessionUser } = await getServerSession(request);
 
   if (!sessionUser?.id) {
-    return reply.code(httpCodes.FORBIDDEN).send('unauthorized');
+    return reply.code(httpCodes.FORBIDDEN).send({ error: 'unauthorized' });
   }
 
   try {
     const response = await addPostLike(parseInt(request.params.postId), sessionUser.id);
 
     if (response === 'ok') {
-      return reply.code(httpCodes.SUCCESS).send('like added');
+      return reply.code(httpCodes.SUCCESS).send({ message: 'added' });
     }
 
-    return reply.code(httpCodes.BAD_REQUEST).send('post is already liked');
+    return reply.code(httpCodes.BAD_REQUEST).send({ message: 'already liked' });
   } catch (error) {
     return reply.code(httpCodes.SERVER_ERROR).send(error);
   }
@@ -133,7 +133,7 @@ export const deletePostLikeHandler = async (
 
   try {
     await deletePostLike(parseInt(request.params.postId), sessionUser.id);
-    return reply.code(httpCodes.SUCCESS).send('like deleted');
+    return reply.code(httpCodes.SUCCESS).send({ message: 'deleted' });
   } catch (error) {
     return reply.code(httpCodes.SERVER_ERROR).send(error);
   }

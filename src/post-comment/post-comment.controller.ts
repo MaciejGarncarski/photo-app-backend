@@ -90,10 +90,10 @@ export const addCommentLikeHandler = async (
     const response = await addCommentLike(parseInt(request.params.commentId), sessionUser.id);
 
     if (response === 'ok') {
-      return reply.code(httpCodes.SUCCESS).send('comment like added');
+      return reply.code(httpCodes.SUCCESS).send({ message: 'added' });
     }
 
-    return reply.code(httpCodes.BAD_REQUEST).send('comment is already liked');
+    return reply.code(httpCodes.BAD_REQUEST).send({ message: 'already liked' });
   } catch (error) {
     return reply.code(httpCodes.SERVER_ERROR).send(error);
   }
@@ -111,7 +111,7 @@ export const deleteCommentLikeHandler = async (
 
   try {
     await deleteCommentLike(parseInt(request.params.commentId), sessionUser.id);
-    return reply.code(httpCodes.SUCCESS).send('comment like deleted');
+    return reply.code(httpCodes.SUCCESS).send({ message: 'deleted' });
   } catch (error) {
     return reply.code(httpCodes.SERVER_ERROR).send(error);
   }

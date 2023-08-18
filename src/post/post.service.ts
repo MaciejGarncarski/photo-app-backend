@@ -2,67 +2,48 @@ import { MultipartFile } from '@fastify/multipart';
 import { FastifyRequest } from 'fastify';
 import { v4 } from 'uuid';
 
-import { CreatePostInput, Post, PostsResponse } from './post.schema';
+import { CreatePostInput, PostDetails, PostsResponse } from './post.schema';
 import { db } from '../prisma/db';
 import { getServerSession } from '../utils/getServerSession';
 import { imageKit } from '../utils/imagekit';
 
 const POSTS_PER_SCROLL = 4;
 
-export const getHomepagePosts = async (skip: number, request: FastifyRequest) => {
-  const { sessionUser } = await getServerSession(request);
-
+export const getHomepagePosts = async (skip: number) => {
   const postsRequest = db.post.findMany({
     skip: skip * POSTS_PER_SCROLL,
     take: POSTS_PER_SCROLL,
-
-    include: {
-      author: true,
-      images: true,
-      posts_likes: {
-        where: {
-          user_id: sessionUser?.id || '',
-        },
-      },
-      _count: {
-        select: {
-          posts_likes: true,
-          posts_comments: true,
-        },
-      },
+    select: {
+      author_id: true,
+      created_at: true,
+      id: true,
     },
     orderBy: {
-      id: 'desc',
+      created_at: 'desc',
     },
   });
 
   const postsCountRequest = db.post.count();
-  const [posts, postsCount] = await Promise.all([postsRequest, postsCountRequest]);
+  const [postsList, postsCount] = await Promise.all([postsRequest, postsCountRequest]);
   const maxPages = postsCount / POSTS_PER_SCROLL;
   const roundedMaxPages = Math.round(maxPages);
   const totalPages = roundedMaxPages;
 
-  const transformedPosts = posts.map(({ _count, created_at, description, images, id, posts_likes, author_id }) => {
-    const transformedPost: Post = {
-      authorId: author_id,
-      isLiked: Boolean(posts_likes[0]),
+  const posts = postsList.map(({ author_id, created_at, id }) => {
+    return {
       id,
-      commentsCount: _count.posts_comments,
-      likesCount: _count.posts_likes,
-      images,
       createdAt: created_at,
-      description,
+      authorId: author_id,
     };
-
-    return transformedPost;
   });
 
   const response: PostsResponse = {
     postsCount,
     totalPages,
     currentPage: skip,
-    posts: transformedPosts,
+    posts: posts,
   };
+
   return response;
 };
 
@@ -174,7 +155,7 @@ export const getPostById = async (postId: number, request: FastifyRequest) => {
     posts_likes,
   } = postFromDb;
 
-  const post: Post = {
+  const post: PostDetails = {
     authorId: author_id,
     commentsCount,
     likesCount,

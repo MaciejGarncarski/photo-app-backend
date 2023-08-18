@@ -5,7 +5,7 @@ import { envVariables } from '../utils/envVariables';
 
 export const cookie: CookieOptions = {
   httpOnly: true,
-  maxAge: ms('3 weeks'),
-  sameSite: envVariables.PRODUCTION === 'false' ? 'lax' : 'none',
-  secure: envVariables.PRODUCTION === 'false' ? false : true,
+  maxAge: ms('1 week'),
+  sameSite: envVariables.PRODUCTION === 'true' ? 'none' : 'lax',
+  secure: envVariables.PRODUCTION === 'true' ? true : false,
 };

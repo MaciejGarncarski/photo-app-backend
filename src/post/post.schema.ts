@@ -11,6 +11,12 @@ export type GetHomepagePostsInput = z.infer<typeof getHomepagePostsInputSchema>;
 export const postDescriptionSchema = z.string().min(1).max(100);
 
 export const postSchema = z.object({
+  createdAt: z.date(),
+  id: z.number(),
+  authorId: z.string(),
+});
+
+export const postDetailsSchema = z.object({
   commentsCount: z.number(),
   likesCount: z.number(),
   images: z.array(z.custom<PostImage>()),
@@ -29,6 +35,7 @@ export const postsResponseSchema = z.object({
 });
 
 export type Post = z.infer<typeof postSchema>;
+export type PostDetails = z.infer<typeof postDetailsSchema>;
 export type PostsResponse = z.infer<typeof postsResponseSchema>;
 
 const createPostInputSchema = z.object({
@@ -69,6 +76,7 @@ export const { schemas: postSchemas, $ref } = buildJsonSchemas(
     deletePostInputSchema,
     postByIdInputSchema,
     postSchema,
+    postDetailsSchema,
     editPostInputSchema,
   },
   { $id: 'postSchema' },
