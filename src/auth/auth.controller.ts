@@ -25,24 +25,24 @@ export const signInCredentialsHandler = async (
 
     await request.session.regenerate();
     request.session.user = registeredUser;
-    return reply.code(httpCodes.SUCCESS).send('ok');
+    return reply.code(httpCodes.SUCCESS).send({ status: 'ok' });
   }
 
   const isPasswordEqual = await verify(user?.password || '', password);
 
   if (!isPasswordEqual) {
-    return reply.status(httpCodes.FORBIDDEN).send('Passwords do not match.');
+    return reply.status(httpCodes.FORBIDDEN).send({ status: 'Passwords do not mach' });
   }
 
   await request.session.regenerate();
   request.session.user = user;
 
-  return reply.code(httpCodes.SUCCESS).send('ok');
+  return reply.code(httpCodes.SUCCESS).send({ status: 'ok' });
 };
 
 export const getCurrentUserHandler = async (request: FastifyRequest, reply: FastifyReply) => {
   if (!request.session.user) {
-    return reply.code(httpCodes.SUCCESS).send('no user data');
+    return reply.code(httpCodes.SUCCESS).send({ status: 'No user data' });
   }
 
   return reply.code(httpCodes.SUCCESS).send(request.session.user);
@@ -50,5 +50,5 @@ export const getCurrentUserHandler = async (request: FastifyRequest, reply: Fast
 
 export const signOutHandler = async (request: FastifyRequest, reply: FastifyReply) => {
   await request.session.destroy();
-  return reply.code(httpCodes.SUCCESS).send('ok');
+  return reply.code(httpCodes.SUCCESS).send({ status: 'ok' });
 };

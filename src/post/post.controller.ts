@@ -41,7 +41,7 @@ export const createPostHandler = async (request: FastifyRequest<{ Body: RequestB
   const result = postDescriptionSchema.safeParse(request.body.description.value);
 
   if (!result.success) {
-    return reply.code(httpCodes.BAD_REQUEST).send('Invalid description provided.');
+    return reply.code(httpCodes.BAD_REQUEST).send({ status: 'Invalid description provided.' });
   }
 
   const description = result.data;
@@ -49,18 +49,18 @@ export const createPostHandler = async (request: FastifyRequest<{ Body: RequestB
   const { sessionUser } = await getServerSession(request);
 
   if (!images) {
-    return reply.code(httpCodes.BAD_REQUEST).send('no images provided');
+    return reply.code(httpCodes.BAD_REQUEST).send({ status: 'no images provided' });
   }
 
   if (!sessionUser?.id) {
-    return reply.code(httpCodes.FORBIDDEN).send('unauthorized');
+    return reply.code(httpCodes.FORBIDDEN).send({ status: 'unauthorized' });
   }
 
   try {
     const imagesArray = Array.isArray(images) ? images : [images];
     await createPost({ description }, sessionUser.id, imagesArray);
 
-    return reply.code(httpCodes.SUCCESS).send('created');
+    return reply.code(httpCodes.SUCCESS).send({ status: 'created' });
   } catch (error) {
     return reply.code(httpCodes.SERVER_ERROR).send(error);
   }
@@ -70,17 +70,17 @@ export const deletePostHandler = async (request: FastifyRequest<{ Params: Delete
   const { sessionUser } = await getServerSession(request);
 
   if (!sessionUser?.id) {
-    return reply.code(httpCodes.FORBIDDEN).send('unauthorized');
+    return reply.code(httpCodes.FORBIDDEN).send({ status: 'unauthorized' });
   }
 
   try {
     const response = await deletePost(parseInt(request.params.postId), request);
 
     if (response === 'deleted') {
-      return reply.code(httpCodes.SUCCESS).send('deleted');
+      return reply.code(httpCodes.SUCCESS).send({ status: 'deleted' });
     }
 
-    return reply.code(httpCodes.BAD_REQUEST).send('cannot delete post');
+    return reply.code(httpCodes.BAD_REQUEST).send({ status: 'cannot delete post' });
   } catch (error) {}
 };
 
@@ -89,7 +89,7 @@ export const getPostByIdHandler = async (request: FastifyRequest<{ Params: PostB
     const postData = await getPostById(parseInt(request.params.postId), request);
 
     if (!postData) {
-      return reply.code(httpCodes.NOT_FOUND).send('post not found');
+      return reply.code(httpCodes.NOT_FOUND).send({ status: 'post not found' });
     }
 
     return reply.code(httpCodes.SUCCESS).send(postData);
@@ -105,7 +105,7 @@ export const addPostLikeHandler = async (
   const { sessionUser } = await getServerSession(request);
 
   if (!sessionUser?.id) {
-    return reply.code(httpCodes.FORBIDDEN).send({ error: 'unauthorized' });
+    return reply.code(httpCodes.FORBIDDEN).send({ status: 'unauthorized' });
   }
 
   try {
@@ -128,7 +128,7 @@ export const deletePostLikeHandler = async (
   const { sessionUser } = await getServerSession(request);
 
   if (!sessionUser?.id) {
-    return reply.code(httpCodes.FORBIDDEN).send('unauthorized');
+    return reply.code(httpCodes.FORBIDDEN).send({ status: 'unauthorized' });
   }
 
   try {
@@ -144,16 +144,16 @@ export const editPostHandler = async (request: FastifyRequest<{ Body: EditPostIn
   const { sessionUser } = await getServerSession(request);
 
   if (!sessionUser?.id) {
-    return reply.code(httpCodes.UNAUTHORIZED).send('unauthorized');
+    return reply.code(httpCodes.UNAUTHORIZED).send({ status: 'unauthorized' });
   }
 
   try {
     const response = await editPost(parseInt(postId), sessionUser.id, description);
     if (response === 'ok') {
-      return reply.code(httpCodes.SUCCESS).send('post edited');
+      return reply.code(httpCodes.SUCCESS).send({ status: 'post edited' });
     }
 
-    return reply.code(httpCodes.FORBIDDEN).send('cannot edit post');
+    return reply.code(httpCodes.FORBIDDEN).send({ status: 'cannot edit post' });
   } catch (error) {
     return reply.code(httpCodes.SERVER_ERROR).send(error);
   }

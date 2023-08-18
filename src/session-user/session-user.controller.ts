@@ -13,18 +13,18 @@ export const updateAvatarHandler = async (
   const { sessionUser } = await getServerSession(request);
 
   if (!sessionUser?.id) {
-    return reply.code(httpCodes.UNAUTHORIZED).send('unauthorized');
+    return reply.code(httpCodes.UNAUTHORIZED).send({ status: 'unauthorized' });
   }
 
   const fileData = request.body.image;
 
   if (!fileData) {
-    return reply.code(httpCodes.BAD_REQUEST).send('no image provided');
+    return reply.code(httpCodes.BAD_REQUEST).send({ status: 'no image provided' });
   }
 
   try {
     await updateAvatar(sessionUser?.id, fileData);
-    return reply.code(httpCodes.SUCCESS).send('updated');
+    return reply.code(httpCodes.SUCCESS).send({ status: 'updated' });
   } catch (error) {
     return reply.code(httpCodes.SERVER_ERROR).send(error);
   }
@@ -34,12 +34,12 @@ export const deleteAvatarHandler = async (request: FastifyRequest, reply: Fastif
   const { sessionUser } = await getServerSession(request);
 
   if (!sessionUser?.id) {
-    return reply.code(httpCodes.UNAUTHORIZED).send('unauthorized');
+    return reply.code(httpCodes.UNAUTHORIZED).send({ status: 'unauthorized' });
   }
 
   try {
     await deleteAvatar(sessionUser.id);
-    return reply.code(httpCodes.SUCCESS).send('deleted');
+    return reply.code(httpCodes.SUCCESS).send({ status: 'deleted' });
   } catch (error) {
     return reply.code(httpCodes.SERVER_ERROR).send(error);
   }
@@ -49,12 +49,12 @@ export const editAccountHandler = async (request: FastifyRequest<{ Body: EditAcc
   const { sessionUser } = await getServerSession(request);
 
   if (!sessionUser?.id) {
-    return reply.code(httpCodes.UNAUTHORIZED).send('unauthorized');
+    return reply.code(httpCodes.UNAUTHORIZED).send({ status: 'unauthorized' });
   }
 
   try {
     await editAccount(sessionUser.id, request.body);
-    return reply.code(httpCodes.SUCCESS).send('success');
+    return reply.code(httpCodes.SUCCESS).send({ status: 'success' });
   } catch (error) {
     return reply.code(httpCodes.SERVER_ERROR).send(error);
   }

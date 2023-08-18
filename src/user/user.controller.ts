@@ -28,7 +28,7 @@ export const getUserHandler = async (
       return reply.code(httpCodes.SUCCESS).send(userData);
     }
 
-    return reply.code(httpCodes.NOT_FOUND).send('User not found.');
+    return reply.code(httpCodes.NOT_FOUND).send({ status: 'User not found.' });
   } catch (error) {
     return reply.code(httpCodes.SERVER_ERROR).send(error);
   }
@@ -51,7 +51,7 @@ export const getUserByUsernameHandler = async (
       return reply.code(httpCodes.SUCCESS).send(userData);
     }
 
-    return reply.code(httpCodes.SERVER_ERROR).send('Invalid user data');
+    return reply.code(httpCodes.SERVER_ERROR).send({ status: 'Invalid user data' });
   } catch (error) {
     return reply.code(httpCodes.SERVER_ERROR).send(error);
   }
@@ -61,12 +61,12 @@ export const followUserHandler = async (request: FastifyRequest<{ Params: Follow
   const { sessionUser } = await getServerSession(request);
 
   if (!sessionUser?.id) {
-    return reply.code(httpCodes.UNAUTHORIZED).send('unauthorized');
+    return reply.code(httpCodes.UNAUTHORIZED).send({ status: 'unauthorized' });
   }
 
   try {
     await followUser(request.params.userId, sessionUser.id);
-    return reply.code(httpCodes.SUCCESS).send('success');
+    return reply.code(httpCodes.SUCCESS).send({ status: 'success' });
   } catch (error) {
     return reply.code(httpCodes.SERVER_ERROR).send(error);
   }
@@ -79,12 +79,12 @@ export const unfollowUserHandler = async (
   const { sessionUser } = await getServerSession(request);
 
   if (!sessionUser?.id) {
-    return reply.code(httpCodes.UNAUTHORIZED).send('unauthorized');
+    return reply.code(httpCodes.UNAUTHORIZED).send({ status: 'unauthorized' });
   }
 
   try {
     await unfollowUser(request.params.userId, sessionUser.id);
-    return reply.code(httpCodes.SUCCESS).send('success');
+    return reply.code(httpCodes.SUCCESS).send({ status: 'success' });
   } catch (error) {
     return reply.code(httpCodes.SERVER_ERROR).send(error);
   }
@@ -106,7 +106,7 @@ export const getUserPostsHandler = async (
     const response = await getUserPosts({ authorId, skip }, request);
 
     if (!response) {
-      return reply.code(httpCodes.NOT_FOUND).send('Posts not found');
+      return reply.code(httpCodes.NOT_FOUND).send({ status: 'Posts not found' });
     }
 
     return reply.code(httpCodes.SUCCESS).send(response);

@@ -19,18 +19,18 @@ export const addPostCommentHandler = async (
   const { sessionUser } = await getServerSession(request);
 
   if (!sessionUser?.id) {
-    return reply.code(httpCodes.UNAUTHORIZED).send('unauthorized');
+    return reply.code(httpCodes.UNAUTHORIZED).send({ status: 'unauthorized' });
   }
 
   const result = commentTextSchema.safeParse(request.body.commentText);
 
   if (!result.success) {
-    return reply.code(httpCodes.BAD_REQUEST).send('Cannot add comment');
+    return reply.code(httpCodes.BAD_REQUEST).send({ status: 'Cannot add comment' });
   }
 
   try {
     await addComment(result.data, parseInt(request.body.postId), sessionUser.id);
-    return reply.code(httpCodes.SUCCESS).send('created post comment');
+    return reply.code(httpCodes.SUCCESS).send({ status: 'created post comment' });
   } catch (error) {
     return reply.code(httpCodes.SERVER_ERROR).send(error);
   }
@@ -44,15 +44,15 @@ export const deletePostCommentHandler = async (
   const { commentId } = request.params;
 
   if (!sessionUser?.id) {
-    return reply.code(httpCodes.UNAUTHORIZED).send('unauthorized');
+    return reply.code(httpCodes.UNAUTHORIZED).send({ status: 'unauthorized' });
   }
 
   try {
     const response = await deleteComment(parseInt(commentId), sessionUser.id);
     if (response === 'ok') {
-      return reply.code(httpCodes.SUCCESS).send('comment deleted');
+      return reply.code(httpCodes.SUCCESS).send({ status: 'comment deleted' });
     }
-    return reply.code(httpCodes.BAD_REQUEST).send('cannot delete comment');
+    return reply.code(httpCodes.BAD_REQUEST).send({ status: 'cannot delete comment' });
   } catch (error) {
     return reply.code(httpCodes.SERVER_ERROR).send(error);
   }
@@ -83,7 +83,7 @@ export const addCommentLikeHandler = async (
   const { sessionUser } = await getServerSession(request);
 
   if (!sessionUser?.id) {
-    return reply.code(httpCodes.FORBIDDEN).send('unauthorized');
+    return reply.code(httpCodes.FORBIDDEN).send({ status: 'unauthorized' });
   }
 
   try {
@@ -106,7 +106,7 @@ export const deleteCommentLikeHandler = async (
   const { sessionUser } = await getServerSession(request);
 
   if (!sessionUser?.id) {
-    return reply.code(httpCodes.FORBIDDEN).send('unauthorized');
+    return reply.code(httpCodes.FORBIDDEN).send({ status: 'unauthorized' });
   }
 
   try {

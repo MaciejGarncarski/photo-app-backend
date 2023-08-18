@@ -7,7 +7,7 @@ export const routeWithAuth = async <T extends FastifyRequest>(request: T, reply:
   const { sessionUser } = await getServerSession(request);
 
   if (!sessionUser) {
-    return reply.code(httpCodes.UNAUTHORIZED).send('unauthorized');
+    return reply.code(httpCodes.UNAUTHORIZED).send({ status: 'unauthorized' });
   }
 
   next();

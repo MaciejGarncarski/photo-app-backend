@@ -19,18 +19,18 @@ export const createChatRoomHandler = async (
   const { sessionUser } = await getServerSession(request);
 
   if (!sessionUser) {
-    return reply.code(httpCodes.UNAUTHORIZED).send('unauthorized');
+    return reply.code(httpCodes.UNAUTHORIZED).send({ status: 'unauthorized' });
   }
 
   if (sessionUser.id === receiverId) {
-    return reply.code(httpCodes.BAD_REQUEST).send('invalid receiverId');
+    return reply.code(httpCodes.BAD_REQUEST).send({ status: 'invalid receiverId' });
   }
 
   try {
     const chatRoom = await createChatRoom(receiverId, sessionUser.id);
 
     if (!chatRoom) {
-      return reply.code(httpCodes.BAD_REQUEST).send('cannot find chat room');
+      return reply.code(httpCodes.BAD_REQUEST).send({ status: 'cannot find chat room' });
     }
 
     return reply.code(httpCodes.SUCCESS).send(chatRoom);
@@ -47,11 +47,11 @@ export const chatRoomMessagesHandler = async (
   const { sessionUser } = await getServerSession(request);
 
   if (!sessionUser) {
-    return reply.code(httpCodes.UNAUTHORIZED).send('unauthorized');
+    return reply.code(httpCodes.UNAUTHORIZED).send({ status: 'unauthorized' });
   }
 
   if (sessionUser.id === receiverId) {
-    return reply.code(httpCodes.UNAUTHORIZED).send('invalid user');
+    return reply.code(httpCodes.UNAUTHORIZED).send({ status: 'invalid user' });
   }
 
   try {
@@ -71,7 +71,7 @@ export const chatRoomUsersHandler = async (
   const { searchedUser } = request.query;
 
   if (!sessionUser) {
-    return reply.code(httpCodes.UNAUTHORIZED).send('unauthorized');
+    return reply.code(httpCodes.UNAUTHORIZED).send({ status: 'unauthorized' });
   }
 
   try {
@@ -92,17 +92,17 @@ export const deleteMessageHandler = async (
   const { sessionUser } = await getServerSession(request);
 
   if (!sessionUser) {
-    return reply.code(httpCodes.UNAUTHORIZED).send('unauthorized');
+    return reply.code(httpCodes.UNAUTHORIZED).send({ status: 'unauthorized' });
   }
 
   try {
     const response = await deleteMessage(sessionUser.id, messageId);
 
     if (response === 'ok') {
-      return reply.code(httpCodes.SUCCESS).send('message deleted');
+      return reply.code(httpCodes.SUCCESS).send({ status: 'message deleted' });
     }
 
-    return reply.code(httpCodes.BAD_REQUEST).send('cannot delete message');
+    return reply.code(httpCodes.BAD_REQUEST).send({ status: 'cannot delete message' });
   } catch (error) {
     return reply.code(httpCodes.SERVER_ERROR).send(error);
   }
