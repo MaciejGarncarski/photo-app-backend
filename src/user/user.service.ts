@@ -1,7 +1,7 @@
 import { FastifyRequest } from 'fastify';
 
 import { GetUserPostsInput, User } from './user.schema';
-import { Post, PostsResponse } from '../post/post.schema';
+import { PostDetails, PostsResponse } from '../post/post.schema';
 import { db } from '../prisma/db';
 import { getCount } from '../utils/getCount';
 import { getServerSession } from '../utils/getServerSession';
@@ -132,7 +132,7 @@ export const getUserPosts = async ({ skip, authorId }: GetUserPostsInput, reques
   const totalPages = roundedMaxPages;
 
   const transformedPosts = posts.map(({ _count, created_at, description, images, id, posts_likes, author_id }) => {
-    const transformedPost: Post = {
+    const transformedPost: PostDetails = {
       authorId: author_id,
       isLiked: Boolean(posts_likes[0]),
       id,
