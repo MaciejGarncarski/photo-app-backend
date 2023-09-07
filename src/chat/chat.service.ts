@@ -1,6 +1,5 @@
 import { ChatMessage, ChatMessagesResponse, ChatUsersResponse, CreateMessage } from './chat.schema';
 import { db } from '../prisma/db';
-import { User } from '../user/user.schema';
 import { getChatUsersByName } from '../utils/getChatUsersByName';
 
 export const createChatRoom = async (receiverId: string, senderId: string) => {
@@ -92,8 +91,19 @@ export const createMessage = async ({ receiverId, senderId, message }: CreateMes
   return { roomName };
 };
 
-const MESSAGES_PER_REQUEST = 6;
+const MESSAGES_PER_REQUEST = 20;
+
 export const chatMessages = async (sessionUserId: string, receiverId: string, skip: number) => {
+  const includeData = {
+    include: {
+      fromUser: {
+        where: {
+          from: sessionUserId,
+        },
+      },
+    },
+  };
+
   const chatMessages = await db.message.findMany({
     skip: skip * MESSAGES_PER_REQUEST,
     take: MESSAGES_PER_REQUEST,
@@ -103,38 +113,8 @@ export const chatMessages = async (sessionUserId: string, receiverId: string, sk
       },
     ],
     include: {
-      sender: {
-        include: {
-          fromUser: {
-            where: {
-              from: sessionUserId,
-            },
-          },
-          _count: {
-            select: {
-              fromUser: true,
-              toUser: true,
-              posts: true,
-            },
-          },
-        },
-      },
-      receiver: {
-        include: {
-          fromUser: {
-            where: {
-              from: sessionUserId,
-            },
-          },
-          _count: {
-            select: {
-              fromUser: true,
-              toUser: true,
-              posts: true,
-            },
-          },
-        },
-      },
+      sender: includeData,
+      receiver: includeData,
     },
     where: {
       OR: [
@@ -157,32 +137,6 @@ export const chatMessages = async (sessionUserId: string, receiverId: string, sk
       createdAt: created_at,
       receiverId: receiver.id,
       senderId: sender.id,
-      sender: {
-        bio: sender.bio,
-        createdAt: sender.created_at.toString(),
-        customImage: sender.customImage,
-        id: sender.id,
-        image: sender.image,
-        isFollowing: Boolean(sender.fromUser.find(({ from }) => from === sessionUserId)),
-        username: sender.username || '',
-        name: sender.name,
-        postsCount: sender._count.posts,
-        followersCount: sender._count.toUser,
-        friendsCount: sender._count.fromUser,
-      },
-      receiver: {
-        bio: receiver.bio,
-        createdAt: receiver.created_at.toString(),
-        customImage: receiver.customImage,
-        id: receiver.id,
-        image: receiver.image,
-        isFollowing: Boolean(receiver.fromUser.find(({ from }) => from === sessionUserId)),
-        username: receiver.username || '',
-        name: receiver.name,
-        postsCount: receiver._count.posts,
-        followersCount: receiver._count.toUser,
-        friendsCount: receiver._count.fromUser,
-      },
     };
 
     return message;
@@ -190,8 +144,16 @@ export const chatMessages = async (sessionUserId: string, receiverId: string, sk
 
   const messagesCount = await db.message.count({
     where: {
-      receiver_id: receiverId,
-      sender_id: sessionUserId,
+      OR: [
+        {
+          receiver_id: receiverId,
+          sender_id: sessionUserId,
+        },
+        {
+          receiver_id: sessionUserId,
+          sender_id: receiverId,
+        },
+      ],
     },
   });
 
@@ -210,30 +172,11 @@ export const chatMessages = async (sessionUserId: string, receiverId: string, sk
   return response;
 };
 
-const CHAT_USERS_PER_REQUEST = 7;
+const CHAT_USERS_PER_REQUEST = 10;
 
 export const chatUsers = async (sessionUserId: string, searchedUser: string, skip: number) => {
   const { users, usersCount } = await getChatUsersByName(searchedUser, skip, sessionUserId);
-
-  const mappedUsers = users.map(
-    ({ bio, created_at, customImage, image, id, name, username, _count: { fromUser, posts, toUser } }) => {
-      const mappedUser: User = {
-        bio,
-        createdAt: created_at.toString(),
-        customImage,
-        image,
-        id,
-        username: username || '',
-        name,
-        isFollowing: false,
-        postsCount: posts,
-        followersCount: toUser,
-        friendsCount: fromUser,
-      } satisfies User;
-
-      return mappedUser;
-    },
-  );
+  const mappedUsers = users.map(({ id }) => id);
 
   const maxPages = usersCount / CHAT_USERS_PER_REQUEST;
   const totalPages = Math.round(maxPages);

@@ -1,8 +1,6 @@
 import { buildJsonSchemas } from 'fastify-zod';
 import { z } from 'zod';
 
-import { User, userSchema } from '../user/user.schema';
-
 const chatRoomInputSchema = z.object({
   receiverId: z.string(),
 });
@@ -35,8 +33,6 @@ export type ChatMessagesQuery = z.infer<typeof chatMessagesQuerySchema>;
 export type ChatUsersQuery = z.infer<typeof chatUsersQuerySchema>;
 
 const chatMessageSchema = z.object({
-  sender: z.custom<User>(),
-  receiver: z.custom<User>(),
   senderId: z.string(),
   receiverId: z.string(),
   text: z.string(),
@@ -57,7 +53,7 @@ const chatMessagesResponseSchema = z.object({
 export type ChatMessagesResponse = z.infer<typeof chatMessagesResponseSchema>;
 
 const chatUsersResponseSchema = z.object({
-  users: z.array(userSchema),
+  users: z.array(z.string()),
   totalPages: z.number(),
   currentPage: z.number(),
   usersCount: z.number(),
