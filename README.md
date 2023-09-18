@@ -38,8 +38,8 @@ In this app, you can create posts, comment them and chat with other users. It wa
 ### Install node dependencies
 
 ```bash
-yarn install
-yarn global add ts-node-dev typescript
+pnpm install
+pnpm global add ts-node-dev typescript
 ```
 
 ### Add .env
@@ -62,7 +62,7 @@ PRODUCTION=
 ### Start dev server
 
 ```bash
-yarn dev
+pnpm dev
 ```
 
 ## Features
