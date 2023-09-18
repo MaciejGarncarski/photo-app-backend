@@ -4,7 +4,7 @@ export const getCount = async (userId: string) => {
   try {
     const posts = db.post.count({
       where: {
-        author_id: userId,
+        authorId: userId,
       },
     });
     const followers = db.follower.count({

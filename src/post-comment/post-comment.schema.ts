@@ -28,7 +28,7 @@ export type GetPostCommentsQuery = z.infer<typeof getPostCommentsQuerySchema>;
 export const commentTextSchema = z.string().max(100, { message: 'Maximum characters exceeded.' });
 
 const commentSchema = z.object({
-  commentText: commentTextSchema,
+  text: commentTextSchema,
   createdAt: z.date(),
   likesCount: z.number(),
   isLiked: z.boolean(),

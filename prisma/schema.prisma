@@ -1,7 +1,8 @@
 datasource db {
-  provider     = "mysql"
-  url          = env("DATABASE_URL")
-  relationMode = "prisma"
+  provider          = "mysql"
+  url               = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+  relationMode      = "prisma"
 }
 
 generator client {
@@ -14,13 +15,13 @@ model Account {
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
-  expires_at        Int?
-  token_type        String?
+  refreshToken      String? @db.Text
+  accessToken       String? @db.Text
+  expiresAt         Int?
+  tokenType         String?
   scope             String?
-  id_token          String? @db.Text
-  session_state     String?
+  idToken           String? @db.Text
+  sessionState      String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -38,31 +39,53 @@ model Session {
 }
 
 model User {
-  id             String        @id @default(cuid())
-  email          String?       @unique
-  emailVerified  DateTime?
-  name           String?
-  password       String?
-  username       String?       @default(cuid())
-  bio            String?
-  image          String?
-  customImage    String?
-  role           Role          @default(USER)
-  accounts       Account[]
-  sessions       Session[]
-  posts          Post[]
-  posts_likes    PostLike[]
-  posts_comments PostComment[]
-  fromUser       Follower[]    @relation("Follower")
-  toUser         Follower[]    @relation("Following")
-  created_at     DateTime      @default(now()) @db.Timestamp(0)
-  CommentLike    CommentLike[]
+  id            String        @id @default(cuid())
+  email         String?       @unique
+  emailVerified DateTime?
+  name          String?
+  password      String?
+  username      String?       @default(cuid())
+  bio           String?
+  image         String?
+  customImage   String?
+  role          Role          @default(USER)
+  accounts      Account[]
+  sessions      Session[]
+  posts         Post[]
+  postsLikes    PostLike[]
+  postsComments PostComment[]
+  fromUser      Follower[]    @relation("Follower")
+  toUser        Follower[]    @relation("Following")
+  createdAt     DateTime      @default(now()) @db.Timestamp(0)
+  commentLike   CommentLike[]
 
   sentMessages     Message[] @relation("Sent")
   receivedMessages Message[] @relation("Received")
 
-  sender ChatRoom[] @relation("UserOne")
+  sender   ChatRoom[] @relation("UserOne")
   receiver ChatRoom[] @relation("UserTwo")
+
+  UserPreferences UserPreferences[]
+}
+
+enum Theme {
+  DARK
+  LIGHT
+}
+
+enum NotificationSound {
+  ON
+  OFF
+}
+
+model UserPreferences {
+  id     String @id @default(cuid())
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+  theme Theme
+  notificationSound NotificationSound
+
+  @@index([userId])
 }
 
 model VerificationToken {
@@ -74,17 +97,17 @@ model VerificationToken {
 }
 
 model Post {
-  id             Int           @id @default(autoincrement()) @db.Int
-  author         User          @relation(fields: [author_id], references: [id], onDelete: Cascade)
-  author_id      String
-  description    String        @db.MediumText
-  created_at     DateTime      @default(now()) @db.Timestamp(0)
-  images         PostImage[]
-  posts_likes    PostLike[]
-  posts_comments PostComment[]
-  post_saved     SavedPost[]
+  id            Int           @id @default(autoincrement()) @db.Int
+  author        User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId      String
+  description   String        @db.MediumText
+  createdAt     DateTime      @default(now()) @db.Timestamp(0)
+  images        PostImage[]
+  postsLikes    PostLike[]
+  postsComments PostComment[]
+  postSaved     SavedPost[]
 
-  @@index([author_id])
+  @@index([authorId])
 }
 
 model PostImage {
@@ -96,55 +119,54 @@ model PostImage {
   width        Int
   height       Int
   size         Int
-
-  Post   Post? @relation(fields: [postId], references: [id])
-  postId Int?  @db.Int
+  post         Post?  @relation(fields: [postId], references: [id])
+  postId       Int?   @db.Int
 
   @@index([postId])
 }
 
 model SavedPost {
-  id      Int  @id @default(autoincrement()) @db.Int
-  post    Post @relation(fields: [post_id], references: [id], onDelete: Cascade)
-  post_id Int  @db.Int
+  id     Int  @id @default(autoincrement()) @db.Int
+  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId Int  @db.Int
 
-  @@index([post_id])
+  @@index([postId])
 }
 
 model PostLike {
-  id      Int    @id @default(autoincrement()) @db.Int
-  post    Post   @relation(fields: [post_id], references: [id], onDelete: Cascade)
-  post_id Int    @db.Int
-  user    User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  user_id String
+  id     Int    @id @default(autoincrement()) @db.Int
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId Int    @db.Int
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
 
-  @@index([post_id])
-  @@index([user_id])
+  @@index([postId])
+  @@index([userId])
 }
 
 model PostComment {
-  id           Int           @id @default(autoincrement()) @db.Int
-  user         User          @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  user_id      String
-  post         Post          @relation(fields: [post_id], references: [id], onDelete: Cascade)
-  post_id      Int           @db.Int
-  created_at   DateTime      @default(now()) @db.Timestamp(0)
-  comment_text String        @db.Text
-  CommentLike  CommentLike[]
+  id          Int           @id @default(autoincrement()) @db.Int
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+  post        Post          @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId      Int           @db.Int
+  createdAt   DateTime      @default(now()) @db.Timestamp(0)
+  text        String        @db.Text
+  commentLike CommentLike[]
 
-  @@index([user_id])
-  @@index([post_id])
+  @@index([userId])
+  @@index([postId])
 }
 
 model CommentLike {
-  id         Int         @id @default(autoincrement()) @db.Int
-  comment    PostComment @relation(fields: [comment_id], references: [id], onDelete: Cascade)
-  comment_id Int         @db.Int
-  user       User        @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  user_id    String
+  id        Int         @id @default(autoincrement()) @db.Int
+  comment   PostComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  commentId Int         @db.Int
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
 
-  @@index([comment_id])
-  @@index([user_id])
+  @@index([commentId])
+  @@index([userId])
 }
 
 enum Role {
@@ -153,41 +175,41 @@ enum Role {
 }
 
 model Follower {
-  id         Int      @id @default(autoincrement()) @db.Int
-  from_user  User     @relation(fields: [from], references: [id], name: "Follower", onDelete: Cascade)
-  from       String
-  to_user    User     @relation(fields: [to], references: [id], name: "Following", onDelete: Cascade)
-  to         String
-  created_at DateTime @default(now()) @db.Timestamp(0)
+  id        Int      @id @default(autoincrement()) @db.Int
+  fromUser  User     @relation(fields: [from], references: [id], name: "Follower", onDelete: Cascade)
+  from      String
+  toUser    User     @relation(fields: [to], references: [id], name: "Following", onDelete: Cascade)
+  to        String
+  createdAt DateTime @default(now()) @db.Timestamp(0)
 
   @@index([to])
   @@index([from])
 }
 
 model ChatRoom {
-  id         Int    @id @default(autoincrement()) @db.Int
-  sender    User   @relation(fields: [sender_id], references: [id], name: "UserOne", onDelete: Cascade)
-  sender_id String
-  userTwo    User   @relation(fields: [receiver_id], references: [id], name: "UserTwo", onDelete: Cascade)
-  receiver_id String
-  messages Message[] @relation("Chatroom")
+  id         Int       @id @default(autoincrement()) @db.Int
+  sender     User      @relation(fields: [senderId], references: [id], name: "UserOne", onDelete: Cascade)
+  senderId   String
+  userTwo    User      @relation(fields: [receiverId], references: [id], name: "UserTwo", onDelete: Cascade)
+  receiverId String
+  messages   Message[] @relation("Chatroom")
 
-  @@index([sender_id])
-  @@index([receiver_id])
+  @@index([senderId])
+  @@index([receiverId])
 }
 
 model Message {
-  id          String   @id @default(cuid())
-  text        String
-  sender_id     String
-  sender  User     @relation(fields: [sender_id], references: [id], name: "Sent", onDelete: Cascade)
-  receiver_id    String
-  receiver User     @relation(fields: [receiver_id], references: [id], name: "Received", onDelete: Cascade)
-  created_at  DateTime @default(now()) @db.Timestamp(0)
-  chatroom    ChatRoom @relation(fields: [chatroom_id], references: [id], name: "Chatroom")
-  chatroom_id Int
+  id         String   @id @default(cuid())
+  text       String
+  senderId   String
+  sender     User     @relation(fields: [senderId], references: [id], name: "Sent", onDelete: Cascade)
+  receiverId String
+  receiver   User     @relation(fields: [receiverId], references: [id], name: "Received", onDelete: Cascade)
+  createdAt  DateTime @default(now()) @db.Timestamp(0)
+  chatroom   ChatRoom @relation(fields: [chatroomId], references: [id], name: "Chatroom")
+  chatroomId Int
 
-  @@index([sender_id])
-  @@index([receiver_id])
-  @@index([chatroom_id])
+  @@index([senderId])
+  @@index([receiverId])
+  @@index([chatroomId])
 }

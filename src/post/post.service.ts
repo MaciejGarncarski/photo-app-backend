@@ -14,12 +14,12 @@ export const getHomepagePosts = async (skip: number) => {
     skip: skip * POSTS_PER_SCROLL,
     take: POSTS_PER_SCROLL,
     select: {
-      author_id: true,
-      created_at: true,
+      authorId: true,
+      createdAt: true,
       id: true,
     },
     orderBy: {
-      created_at: 'desc',
+      createdAt: 'desc',
     },
   });
 
@@ -29,11 +29,11 @@ export const getHomepagePosts = async (skip: number) => {
   const roundedMaxPages = Math.round(maxPages);
   const totalPages = roundedMaxPages;
 
-  const posts = postsList.map(({ author_id, created_at, id }) => {
+  const posts = postsList.map(({ authorId, createdAt, id }) => {
     return {
       id,
-      createdAt: created_at,
-      authorId: author_id,
+      createdAt: createdAt,
+      authorId: authorId,
     };
   });
 
@@ -54,7 +54,7 @@ export const createPost = async (
 ) => {
   const post = await db.post.create({
     data: {
-      author_id: sessionUserId,
+      authorId: sessionUserId,
       description,
     },
   });
@@ -89,13 +89,13 @@ export const deletePost = async (postId: number, request: FastifyRequest) => {
     where: {
       id: postId,
     },
-    select: { images: true, author_id: true },
+    select: { images: true, authorId: true },
   });
 
   if (!postData) {
     return;
   }
-  const isAbleToDelete = postData.author_id === sessionUser?.id || sessionUser?.role === 'ADMIN';
+  const isAbleToDelete = postData.authorId === sessionUser?.id || sessionUser?.role === 'ADMIN';
 
   if (!isAbleToDelete) {
     return;
@@ -127,15 +127,15 @@ export const getPostById = async (postId: number, request: FastifyRequest) => {
     include: {
       author: true,
       images: true,
-      posts_likes: {
+      postsLikes: {
         where: {
-          user_id: sessionUser?.id,
+          userId: sessionUser?.id,
         },
       },
       _count: {
         select: {
-          posts_likes: true,
-          posts_comments: true,
+          postsLikes: true,
+          postsComments: true,
         },
       },
     },
@@ -146,24 +146,24 @@ export const getPostById = async (postId: number, request: FastifyRequest) => {
   }
 
   const {
-    _count: { posts_comments: commentsCount, posts_likes: likesCount },
-    author_id,
-    created_at,
+    _count: { postsComments: commentsCount, postsLikes: likesCount },
+    authorId,
+    createdAt,
     description,
     id,
     images,
-    posts_likes,
+    postsLikes,
   } = postFromDb;
 
   const post: PostDetails = {
-    authorId: author_id,
+    authorId: authorId,
     commentsCount,
     likesCount,
-    createdAt: created_at,
+    createdAt: createdAt,
     description,
     images,
     id,
-    isLiked: Boolean(posts_likes[0]),
+    isLiked: Boolean(postsLikes[0]),
   };
 
   return post;
@@ -172,8 +172,8 @@ export const getPostById = async (postId: number, request: FastifyRequest) => {
 export const addPostLike = async (postId: number, sessionUserId: string) => {
   const likeAlreadyExists = await db.postLike.findFirst({
     where: {
-      post_id: postId,
-      user_id: sessionUserId,
+      postId: postId,
+      userId: sessionUserId,
     },
   });
 
@@ -183,8 +183,8 @@ export const addPostLike = async (postId: number, sessionUserId: string) => {
 
   await db.postLike.create({
     data: {
-      post_id: postId,
-      user_id: sessionUserId,
+      postId: postId,
+      userId: sessionUserId,
     },
     select: {
       id: true,
@@ -197,8 +197,8 @@ export const addPostLike = async (postId: number, sessionUserId: string) => {
 export const deletePostLike = async (postId: number, sessionUserId: string) => {
   await db.postLike.deleteMany({
     where: {
-      post_id: postId,
-      user_id: sessionUserId,
+      postId: postId,
+      userId: sessionUserId,
     },
   });
 };
@@ -210,7 +210,7 @@ export const editPost = async (postId: number, sessionUserId: string, newDescrip
     },
   });
 
-  if (postToBeEdited?.author_id !== sessionUserId) {
+  if (postToBeEdited?.authorId !== sessionUserId) {
     return;
   }
 

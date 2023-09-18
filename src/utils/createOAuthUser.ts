@@ -39,7 +39,7 @@ export const createOAuthUser = async ({ name, picture, id }: GoogleUser, token: 
         type: 'oauth',
         provider: 'google',
         providerAccountId: id,
-        expires_at: expiresAt,
+        expiresAt: expiresAt,
       },
       select: {
         user: true,

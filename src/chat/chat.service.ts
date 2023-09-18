@@ -6,8 +6,8 @@ export const createChatRoom = async (receiverId: string, senderId: string) => {
   const chatRoom = await db.chatRoom.findFirst({
     where: {
       OR: [
-        { sender_id: senderId, receiver_id: receiverId },
-        { receiver_id: senderId, sender_id: receiverId },
+        { senderId, receiverId },
+        { receiverId: senderId, senderId: receiverId },
       ],
     },
   });
@@ -26,8 +26,8 @@ export const createChatRoom = async (receiverId: string, senderId: string) => {
 
   const createdChatRoom = await db.chatRoom.create({
     data: {
-      sender_id: senderId,
-      receiver_id: receiverId,
+      senderId: senderId,
+      receiverId: receiverId,
     },
   });
 
@@ -41,7 +41,7 @@ export const deleteMessage = async (sessionId: string, messageId: string) => {
     },
   });
 
-  if (message?.sender_id !== sessionId) {
+  if (message?.senderId !== sessionId) {
     return;
   }
 
@@ -59,12 +59,12 @@ export const createMessage = async ({ receiverId, senderId, message }: CreateMes
     where: {
       OR: [
         {
-          sender_id: receiverId,
-          receiver_id: senderId,
+          senderId: receiverId,
+          receiverId: senderId,
         },
         {
-          sender_id: senderId,
-          receiver_id: receiverId,
+          senderId: senderId,
+          receiverId: receiverId,
         },
       ],
     },
@@ -76,13 +76,13 @@ export const createMessage = async ({ receiverId, senderId, message }: CreateMes
 
   await db.message.create({
     data: {
-      receiver_id: receiverId,
-      sender_id: senderId,
+      receiverId,
+      senderId,
       text: message,
-      chatroom_id: chatRoom?.id,
+      chatroomId: chatRoom?.id,
     },
     select: {
-      created_at: true,
+      createdAt: true,
       id: true,
     },
   });
@@ -109,7 +109,7 @@ export const chatMessages = async (sessionUserId: string, receiverId: string, sk
     take: MESSAGES_PER_REQUEST,
     orderBy: [
       {
-        created_at: 'desc',
+        createdAt: 'desc',
       },
     ],
     include: {
@@ -119,22 +119,22 @@ export const chatMessages = async (sessionUserId: string, receiverId: string, sk
     where: {
       OR: [
         {
-          receiver_id: receiverId,
-          sender_id: sessionUserId,
+          receiverId: receiverId,
+          senderId: sessionUserId,
         },
         {
-          receiver_id: sessionUserId,
-          sender_id: receiverId,
+          receiverId: sessionUserId,
+          senderId: receiverId,
         },
       ],
     },
   });
 
-  const mappedMessages = chatMessages.map(({ id, text, sender, receiver, created_at }) => {
+  const mappedMessages = chatMessages.map(({ id, text, sender, receiver, createdAt }) => {
     const message: ChatMessage = {
       id,
       text,
-      createdAt: created_at,
+      createdAt: createdAt,
       receiverId: receiver.id,
       senderId: sender.id,
     };
@@ -146,12 +146,12 @@ export const chatMessages = async (sessionUserId: string, receiverId: string, sk
     where: {
       OR: [
         {
-          receiver_id: receiverId,
-          sender_id: sessionUserId,
+          receiverId: receiverId,
+          senderId: sessionUserId,
         },
         {
-          receiver_id: sessionUserId,
-          sender_id: receiverId,
+          receiverId: sessionUserId,
+          senderId: receiverId,
         },
       ],
     },

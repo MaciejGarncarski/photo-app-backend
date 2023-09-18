@@ -4,12 +4,12 @@ import { db } from '../prisma/db';
 export const addComment = async (commentText: string, postId: number, sessionUserId: string) => {
   await db.postComment.create({
     data: {
-      post_id: postId,
-      user_id: sessionUserId,
-      comment_text: commentText,
+      postId,
+      userId: sessionUserId,
+      text: commentText,
     },
     select: {
-      created_at: true,
+      createdAt: true,
       id: true,
     },
   });
@@ -22,13 +22,13 @@ export const deleteComment = async (commentId: number, sessionUserId: string) =>
     },
   });
 
-  if (sessionUserId !== comment?.user_id) {
+  if (sessionUserId !== comment?.userId) {
     return;
   }
 
   await db.commentLike.deleteMany({
     where: {
-      comment_id: commentId,
+      commentId,
     },
   });
 
@@ -49,12 +49,12 @@ export const getComments = async (postId: number, skip: number, sessionUserId?: 
     take: COMMENTS_PER_REQUEST,
 
     include: {
-      CommentLike: { where: { user_id: sessionUserId } },
-      _count: { select: { CommentLike: true } },
+      commentLike: { where: { userId: sessionUserId } },
+      _count: { select: { commentLike: true } },
     },
 
     where: {
-      post_id: postId,
+      postId,
     },
 
     orderBy: {
@@ -64,25 +64,23 @@ export const getComments = async (postId: number, skip: number, sessionUserId?: 
 
   const commentsCount = await db.postComment.count({
     where: {
-      post_id: postId,
+      postId,
     },
   });
 
-  const transformedComments = comments.map(
-    ({ comment_text, created_at, id, post_id, user_id, CommentLike, _count }) => {
-      const comment: Comment = {
-        commentText: comment_text,
-        createdAt: created_at,
-        commentId: id,
-        postId: post_id,
-        isLiked: Boolean(CommentLike.find((commentLike) => commentLike.user_id === sessionUserId)),
-        likesCount: _count.CommentLike,
-        authorId: user_id,
-      };
+  const transformedComments = comments.map(({ text, createdAt, id, postId, userId, commentLike, _count }) => {
+    const comment: Comment = {
+      text,
+      createdAt: createdAt,
+      commentId: id,
+      postId: postId,
+      isLiked: Boolean(commentLike.find((commentLike) => commentLike.userId === sessionUserId)),
+      likesCount: _count.commentLike,
+      authorId: userId,
+    };
 
-      return comment;
-    },
-  );
+    return comment;
+  });
 
   const maxPages = commentsCount / COMMENTS_PER_REQUEST;
   const roundedMaxPages = Math.round(maxPages);
@@ -101,8 +99,8 @@ export const getComments = async (postId: number, skip: number, sessionUserId?: 
 export const addCommentLike = async (commentId: number, sessionUserId: string) => {
   const isAlreadyLiked = await db.commentLike.findFirst({
     where: {
-      comment_id: commentId,
-      user_id: sessionUserId,
+      commentId: commentId,
+      userId: sessionUserId,
     },
   });
 
@@ -112,8 +110,8 @@ export const addCommentLike = async (commentId: number, sessionUserId: string) =
 
   await db.commentLike.create({
     data: {
-      comment_id: commentId,
-      user_id: sessionUserId,
+      commentId: commentId,
+      userId: sessionUserId,
     },
   });
 
@@ -123,8 +121,8 @@ export const addCommentLike = async (commentId: number, sessionUserId: string) =
 export const deleteCommentLike = async (commentId: number, sessionUserId: string) => {
   await db.commentLike.deleteMany({
     where: {
-      comment_id: commentId,
-      user_id: sessionUserId,
+      commentId: commentId,
+      userId: sessionUserId,
     },
   });
 };

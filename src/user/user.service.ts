@@ -23,7 +23,7 @@ export const getUser = async (config: Config, request: FastifyRequest) => {
     where: config,
     select: {
       bio: true,
-      created_at: true,
+      createdAt: true,
       id: true,
       customImage: true,
       image: true,
@@ -37,7 +37,7 @@ export const getUser = async (config: Config, request: FastifyRequest) => {
     return null;
   }
 
-  const { bio, created_at, customImage, id, image, name, username } = userData;
+  const { bio, createdAt, customImage, id, image, name, username } = userData;
 
   const counts = await getCount(userData.id);
 
@@ -48,7 +48,7 @@ export const getUser = async (config: Config, request: FastifyRequest) => {
 
   const user = {
     bio,
-    createdAt: created_at.toString(),
+    createdAt: createdAt.toString(),
     customImage,
     ...counts,
     id,
@@ -68,7 +68,7 @@ export const followUser = async (userId: string, sessionUserId: string) => {
       to: userId,
     },
     select: {
-      created_at: true,
+      createdAt: true,
       id: true,
     },
   });
@@ -98,20 +98,20 @@ export const getUserPosts = async ({ skip, authorId }: GetUserPostsInput, reques
     take: POSTS_PER_SCROLL,
 
     where: {
-      author_id: authorId,
+      authorId: authorId,
     },
 
     include: {
       images: true,
-      posts_likes: {
+      postsLikes: {
         where: {
-          user_id: sessionUser?.id,
+          userId: sessionUser?.id,
         },
       },
       _count: {
         select: {
-          posts_likes: true,
-          posts_comments: true,
+          postsLikes: true,
+          postsComments: true,
         },
       },
     },
@@ -122,7 +122,7 @@ export const getUserPosts = async ({ skip, authorId }: GetUserPostsInput, reques
 
   const postsCountRequest = db.post.count({
     where: {
-      author_id: authorId,
+      authorId: authorId,
     },
   });
 
@@ -131,15 +131,15 @@ export const getUserPosts = async ({ skip, authorId }: GetUserPostsInput, reques
   const roundedMaxPages = Math.round(maxPages);
   const totalPages = roundedMaxPages;
 
-  const transformedPosts = posts.map(({ _count, created_at, description, images, id, posts_likes, author_id }) => {
+  const transformedPosts = posts.map(({ _count, createdAt, description, images, id, postsLikes, authorId }) => {
     const transformedPost: PostDetails = {
-      authorId: author_id,
-      isLiked: Boolean(posts_likes[0]),
+      authorId,
+      isLiked: Boolean(postsLikes[0]),
       id,
-      commentsCount: _count.posts_comments,
-      likesCount: _count.posts_likes,
+      commentsCount: _count.postsComments,
+      likesCount: _count.postsLikes,
       images,
-      createdAt: created_at,
+      createdAt: createdAt,
       description,
     };
 
