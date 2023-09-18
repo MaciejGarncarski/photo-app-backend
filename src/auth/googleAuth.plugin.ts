@@ -17,7 +17,7 @@ export const googleAuthPlugin = async (server: FastifyInstance) => {
       auth: fastifyOauth2.GOOGLE_CONFIGURATION,
     },
     scope: ['https://www.googleapis.com/auth/userinfo.profile'],
-    startRedirectPath: '/auth/google',
+    startRedirectPath: '/api/auth/google',
     callbackUri: `${envVariables.BACKEND_URL}/api/auth/google/callback`,
   });
 
