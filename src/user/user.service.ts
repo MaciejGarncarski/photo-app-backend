@@ -166,11 +166,15 @@ export const updateUserPreferences = async ({ data, userId }: UpdateUserPreferen
     return null;
   }
 
-  await db.userPreferences.update({
+  await db.userPreferences.upsert({
     where: {
       userId,
     },
-    data,
+    create: {
+      ...data,
+      userId: userId,
+    },
+    update: data,
   });
 
   return 'ok';
