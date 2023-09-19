@@ -49,6 +49,13 @@ export type GetUserPostsQueryInput = z.infer<typeof getUserPostsQuerySchema>;
 
 export type GetUserPostsInput = GetUserPostsQueryInput & GetUserPostsParamsInput;
 
+export const userPreferencesInputSchema = z.object({
+  theme: z.optional(z.enum(['DARK', 'LIGHT'])),
+  notificationSound: z.optional(z.enum(['ON', 'OFF'])),
+});
+
+export type UserPreferencesInput = z.infer<typeof userPreferencesInputSchema>;
+
 export const { schemas: userSchemas, $ref } = buildJsonSchemas({
   getUserInputSchema,
   getUserByUsernameInputSchema,
@@ -57,4 +64,5 @@ export const { schemas: userSchemas, $ref } = buildJsonSchemas({
   getUserPostsQuerySchema,
   userSchema,
   postsResponseSchema,
+  userPreferencesInputSchema,
 });

@@ -1,6 +1,6 @@
 import { FastifyRequest } from 'fastify';
 
-import { GetUserPostsInput, User } from './user.schema';
+import { GetUserPostsInput, User, UserPreferencesInput } from './user.schema';
 import { PostDetails, PostsResponse } from '../post/post.schema';
 import { db } from '../prisma/db';
 import { getCount } from '../utils/getCount';
@@ -154,4 +154,24 @@ export const getUserPosts = async ({ skip, authorId }: GetUserPostsInput, reques
   };
 
   return response;
+};
+
+type UpdateUserPreferencesArguments = {
+  data: UserPreferencesInput;
+  userId?: string;
+};
+
+export const updateUserPreferences = async ({ data, userId }: UpdateUserPreferencesArguments) => {
+  if (!userId) {
+    return null;
+  }
+
+  await db.userPreferences.update({
+    where: {
+      userId,
+    },
+    data,
+  });
+
+  return 'ok';
 };

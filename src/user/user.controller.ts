@@ -6,8 +6,9 @@ import {
   GetUserInputByUsername,
   GetUserPostsParamsInput,
   GetUserPostsQueryInput,
+  UserPreferencesInput,
 } from './user.schema';
-import { followUser, getUser, getUserPosts, unfollowUser } from './user.service';
+import { followUser, getUser, getUserPosts, unfollowUser, updateUserPreferences } from './user.service';
 import { httpCodes } from '../consts/httpStatus';
 import { getServerSession } from '../utils/getServerSession';
 
@@ -110,6 +111,26 @@ export const getUserPostsHandler = async (
     }
 
     return reply.code(httpCodes.SUCCESS).send(response);
+  } catch (error) {
+    return reply.code(httpCodes.SERVER_ERROR).send(error);
+  }
+};
+
+export const updateUserPreferencesHandler = async (
+  request: FastifyRequest<{ Body: UserPreferencesInput }>,
+  reply: FastifyReply,
+) => {
+  const sessionUserId = request.session.user?.id;
+
+  try {
+    const response = await updateUserPreferences({ data: request.body, userId: sessionUserId });
+
+    if (response === 'ok') {
+      reply.code(httpCodes.SUCCESS).send({ status: 'ok' });
+      return;
+    }
+
+    return reply.code(httpCodes.SERVER_ERROR).send({ status: 'cannot update' });
   } catch (error) {
     return reply.code(httpCodes.SERVER_ERROR).send(error);
   }

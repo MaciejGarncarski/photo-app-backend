@@ -12,5 +12,11 @@ export const registerIfNotExists = async ({ email, password }: SignInValues) => 
     },
   });
 
+  await db.userPreferences.create({
+    data: {
+      userId: createdUser.id,
+    },
+  });
+
   return createdUser;
 };

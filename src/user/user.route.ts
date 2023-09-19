@@ -6,6 +6,7 @@ import {
   getUserHandler,
   getUserPostsHandler,
   unfollowUserHandler,
+  updateUserPreferencesHandler,
 } from './user.controller';
 import { $ref } from './user.schema';
 
@@ -64,5 +65,14 @@ export const userRoutes = async (server: FastifyInstance) => {
       },
     },
     unfollowUserHandler,
+  );
+  server.post(
+    '/preferences',
+    {
+      schema: {
+        body: $ref('userPreferencesInputSchema'),
+      },
+    },
+    updateUserPreferencesHandler,
   );
 };

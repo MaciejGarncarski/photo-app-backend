@@ -45,7 +45,19 @@ export const getCurrentUserHandler = async (request: FastifyRequest, reply: Fast
     return reply.code(httpCodes.SUCCESS).send({ status: 'No user data' });
   }
 
-  return reply.code(httpCodes.SUCCESS).send(request.session.user);
+  const userPreferences = await db.userPreferences.findFirst({
+    where: {
+      userId: request.session.user.id,
+    },
+    select: {
+      notificationSound: true,
+      theme: true,
+    },
+  });
+
+  const userWithPreferences = { ...userPreferences, ...request.session.user };
+
+  return reply.code(httpCodes.SUCCESS).send(userWithPreferences);
 };
 
 export const signOutHandler = async (request: FastifyRequest, reply: FastifyReply) => {
