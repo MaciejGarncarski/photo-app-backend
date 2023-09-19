@@ -161,27 +161,35 @@ type UpdateUserPreferencesArguments = {
   userId?: string;
 };
 
-export const updateUserPreferences = async ({
-  data: { notificationSound, theme },
-  userId,
-}: UpdateUserPreferencesArguments) => {
+export const updateUserPreferences = async ({ data, userId }: UpdateUserPreferencesArguments) => {
   if (!userId) {
     return null;
   }
 
-  await db.userPreferences.upsert({
+  const preferencesExist = Boolean(
+    await db.userPreferences.findUnique({
+      where: {
+        userId,
+      },
+    }),
+  );
+
+  if (!preferencesExist) {
+    await db.userPreferences.create({
+      data: {
+        ...data,
+        userId: userId,
+      },
+    });
+
+    return 'ok';
+  }
+
+  await db.userPreferences.update({
     where: {
       userId,
     },
-    create: {
-      notificationSound: notificationSound || 'ON',
-      theme: theme || 'LIGHT',
-      userId: userId,
-    },
-    update: {
-      notificationSound,
-      theme,
-    },
+    data,
   });
 
   return 'ok';
