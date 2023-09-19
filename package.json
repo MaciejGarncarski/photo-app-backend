@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "build": "pnpm tsc && pnpm prisma generate",
+    "build": "pnpm prisma generate && pnpm tsc",
     "start": "node ./dist",
     "dev": "tsnd --respawn --transpile-only --exit-child ./src/index.ts"
   },
