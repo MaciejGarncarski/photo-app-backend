@@ -161,7 +161,10 @@ type UpdateUserPreferencesArguments = {
   userId?: string;
 };
 
-export const updateUserPreferences = async ({ data, userId }: UpdateUserPreferencesArguments) => {
+export const updateUserPreferences = async ({
+  data: { notificationSound, theme },
+  userId,
+}: UpdateUserPreferencesArguments) => {
   if (!userId) {
     return null;
   }
@@ -171,10 +174,14 @@ export const updateUserPreferences = async ({ data, userId }: UpdateUserPreferen
       userId,
     },
     create: {
-      ...data,
+      notificationSound: notificationSound || 'ON',
+      theme: theme || 'LIGHT',
       userId: userId,
     },
-    update: data,
+    update: {
+      notificationSound,
+      theme,
+    },
   });
 
   return 'ok';
