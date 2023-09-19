@@ -14,6 +14,8 @@ export const registerIfNotExists = async ({ email, password }: SignInValues) => 
 
   await db.userPreferences.create({
     data: {
+      notificationSound: 'ON',
+      theme: 'LIGHT',
       userId: createdUser.id,
     },
   });
