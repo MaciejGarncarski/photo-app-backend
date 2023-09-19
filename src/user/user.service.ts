@@ -166,30 +166,17 @@ export const updateUserPreferences = async ({ data, userId }: UpdateUserPreferen
     return null;
   }
 
-  const preferencesExist = Boolean(
-    await db.userPreferences.findUnique({
-      where: {
-        userId,
-      },
-    }),
-  );
-
-  if (!preferencesExist) {
-    await db.userPreferences.create({
-      data: {
-        ...data,
-        userId: userId,
-      },
-    });
-
-    return 'ok';
-  }
-
-  await db.userPreferences.update({
+  await db.userPreferences.upsert({
     where: {
       userId,
     },
-    data,
+    create: {
+      userId,
+      ...data,
+    },
+    update: {
+      ...data,
+    },
   });
 
   return 'ok';
