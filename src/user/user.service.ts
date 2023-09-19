@@ -172,7 +172,8 @@ export const updateUserPreferences = async ({ data, userId }: UpdateUserPreferen
     },
     create: {
       userId,
-      ...data,
+      theme: data.theme || 'LIGHT',
+      notificationSound: data.notificationSound || 'ON',
     },
     update: {
       ...data,

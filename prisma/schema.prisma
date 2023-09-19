@@ -78,7 +78,7 @@ enum NotificationSound {
 }
 
 model UserPreferences {
-  userId String @id
+  userId String @id @unique
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   theme Theme @default(LIGHT)
   notificationSound NotificationSound @default(ON)
