@@ -29,12 +29,10 @@ model Account {
 }
 
 model Session {
-  id      String   @id @unique
-  expires DateTime
-  userId  String
-  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
+ id        String   @id
+  sid       String   @unique
+  data      String @db.Text
+  expiresAt   DateTime
 }
 
 model User {
@@ -49,7 +47,6 @@ model User {
   customImage   String?
   role          Role          @default(USER)
   accounts      Account[]
-  sessions      Session[]
   posts         Post[]
   postsLikes    PostLike[]
   postsComments PostComment[]

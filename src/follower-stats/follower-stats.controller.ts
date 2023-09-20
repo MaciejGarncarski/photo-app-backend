@@ -9,7 +9,7 @@ export const getFollowersStatsHandler = async (
   reply: FastifyReply,
 ) => {
   const { skip, userId } = request.query;
-  const sessionUserId = request.session.user?.id;
+  const sessionUserId = request.session.data?.id;
 
   try {
     const users = await getFollowersStats(userId, parseInt(skip), sessionUserId);
@@ -24,7 +24,7 @@ export const getFriendsStatsHandler = async (
   reply: FastifyReply,
 ) => {
   const { skip, userId } = request.query;
-  const sessionUserId = request.session.user?.id;
+  const sessionUserId = request.session.data?.id;
 
   try {
     const users = await getFriendsStats(userId, parseInt(skip), sessionUserId);

@@ -3,7 +3,7 @@ import { User } from '@prisma/client';
 
 declare module 'fastify' {
   interface Session {
-    user: User | null;
+    data: User | null;
   }
   interface FastifyInstance {
     googleOAuth2: OAuth2Namespace;

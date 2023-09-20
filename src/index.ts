@@ -2,6 +2,8 @@ import fastifyCookie from '@fastify/cookie';
 import cors from '@fastify/cors';
 import fastifyMultipart from '@fastify/multipart';
 import { fastifySession, SessionStore } from '@fastify/session';
+import { PrismaClient } from '@prisma/client';
+import { PrismaSessionStore } from '@quixo3/prisma-session-store';
 import fastify from 'fastify';
 
 import { authRoutes } from './auth/auth.route';
@@ -17,13 +19,11 @@ import { postRoutes } from './post/post.route';
 import { postSchemas } from './post/post.schema';
 import { postCommentRoutes } from './post-comment/post-comment.route';
 import { postCommentSchemas } from './post-comment/post-comment.schema';
-import { db } from './prisma/db';
 import { sessionUserRoutes } from './session-user/session-user.route';
 import { sessionUserSchemas } from './session-user/session-user.schema';
 import { userRoutes } from './user/user.route';
 import { userSchemas } from './user/user.schema';
 import { envVariables } from './utils/envVariables';
-import { PrismaStore } from './utils/PrismaStore';
 
 const server = fastify();
 
@@ -46,11 +46,18 @@ server.register(cors, {
 server.register(fastifyCookie);
 server.register(fastifyMultipart, { attachFieldsToBody: true });
 
-const sessionStore = new PrismaStore(db);
+const PrismaStore = new PrismaSessionStore(new PrismaClient(), {
+  checkPeriod: 2 * 60 * 1000,
+  dbRecordIdIsSessionId: true,
+  dbRecordIdFunction: undefined,
+});
+
 server.register(fastifySession, {
   secret: envVariables.SECRET,
-  store: sessionStore as SessionStore,
   cookie,
+  saveUninitialized: true,
+  rolling: true,
+  store: PrismaStore as SessionStore,
 });
 
 server.register(userRoutes, { prefix: 'api/users' });

@@ -23,8 +23,7 @@ export const signInCredentialsHandler = async (
   if (!user) {
     const registeredUser = await registerIfNotExists({ email, password });
 
-    await request.session.regenerate();
-    request.session.user = registeredUser;
+    request.session.data = registeredUser;
     return reply.code(httpCodes.SUCCESS).send({ status: 'ok' });
   }
 
@@ -34,20 +33,18 @@ export const signInCredentialsHandler = async (
     return reply.status(httpCodes.FORBIDDEN).send({ status: 'Passwords do not mach' });
   }
 
-  await request.session.regenerate();
-  request.session.user = user;
-
+  request.session.data = user;
   return reply.code(httpCodes.SUCCESS).send({ status: 'ok' });
 };
 
 export const getCurrentUserHandler = async (request: FastifyRequest, reply: FastifyReply) => {
-  if (!request.session.user) {
+  if (!request.session.data) {
     return reply.code(httpCodes.SUCCESS).send({ status: 'No user data' });
   }
 
   const userPreferences = await db.userPreferences.findFirst({
     where: {
-      userId: request.session.user.id,
+      userId: request.session.data.id,
     },
     select: {
       notificationSound: true,
@@ -55,7 +52,7 @@ export const getCurrentUserHandler = async (request: FastifyRequest, reply: Fast
     },
   });
 
-  const userWithPreferences = { ...userPreferences, ...request.session.user };
+  const userWithPreferences = { ...userPreferences, ...request.session.data };
 
   return reply.code(httpCodes.SUCCESS).send(userWithPreferences);
 };

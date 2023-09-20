@@ -5,18 +5,28 @@ import { db } from '../prisma/db';
 export const getServerSession = async (request: FastifyRequest) => {
   const sessionId = request.session.sessionId;
 
-  const userData = await db.session.findFirst({
+  const session = await db.session.findFirst({
     where: {
-      id: sessionId,
+      sid: sessionId,
     },
     select: {
-      user: true,
+      data: true,
     },
   });
 
-  if (userData?.user) {
-    request.session.user = userData.user;
+  if (!session) {
+    return { sessionUser: null };
   }
 
-  return { sessionUser: request.session.user };
+  const sessionUser = await db.user.findFirst({
+    where: {
+      id: session.data,
+    },
+  });
+
+  if (sessionUser?.id) {
+    request.session.data = sessionUser;
+  }
+
+  return { sessionUser: request.session.data };
 };

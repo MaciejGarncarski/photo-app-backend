@@ -120,7 +120,7 @@ export const updateUserPreferencesHandler = async (
   request: FastifyRequest<{ Body: UserPreferencesInput }>,
   reply: FastifyReply,
 ) => {
-  const sessionUserId = request.session.user?.id;
+  const sessionUserId = request.session.data?.id;
 
   try {
     const response = await updateUserPreferences({ data: request.body, userId: sessionUserId });
