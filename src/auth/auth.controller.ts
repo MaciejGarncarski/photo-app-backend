@@ -20,14 +20,21 @@ export const signInCredentialsHandler = async (
     },
   });
 
-  const isPasswordEqual = await verify(user?.password || '', password);
-
-  if (!isPasswordEqual) {
-    return reply.status(httpCodes.FORBIDDEN).send({ status: 'error', message: 'Passwords do not match.' });
+  if (!user) {
+    return reply.status(httpCodes.NOT_FOUND).send({ status: 'error', message: 'User not found.' });
   }
 
-  request.session.data = user;
-  return reply.code(httpCodes.SUCCESS).send({ status: 'ok' });
+  try {
+    const isPasswordEqual = await verify(user?.password || '', password);
+    if (!isPasswordEqual) {
+      return reply.status(httpCodes.FORBIDDEN).send({ status: 'error', message: 'Passwords do not match.' });
+    }
+
+    request.session.data = user;
+    return reply.code(httpCodes.SUCCESS).send({ status: 'ok' });
+  } catch (error) {
+    return reply.status(httpCodes.FORBIDDEN).send({ status: 'error', message: 'Passwords do not match.' });
+  }
 };
 
 export const registerCredentialsHandler = async (
