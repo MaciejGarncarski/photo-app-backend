@@ -1,7 +1,7 @@
 import { FastifyRequest } from 'fastify';
 
 import { GetUserPostsInput, User, UserPreferencesInput } from './user.schema';
-import { PostDetails, PostsResponse } from '../post/post.schema';
+import { PostsResponse } from '../post/post.schema';
 import { db } from '../prisma/db';
 import { getCount } from '../utils/getCount';
 import { getServerSession } from '../utils/getServerSession';
@@ -87,7 +87,6 @@ const POSTS_PER_SCROLL = 6;
 
 export const getUserPosts = async ({ skip, authorId }: GetUserPostsInput, request: FastifyRequest) => {
   const author = await getUser({ id: authorId }, request);
-  const { sessionUser } = await getServerSession(request);
 
   if (!author) {
     return null;
@@ -100,20 +99,10 @@ export const getUserPosts = async ({ skip, authorId }: GetUserPostsInput, reques
     where: {
       authorId: authorId,
     },
-
-    include: {
-      images: true,
-      postsLikes: {
-        where: {
-          userId: sessionUser?.id,
-        },
-      },
-      _count: {
-        select: {
-          postsLikes: true,
-          postsComments: true,
-        },
-      },
+    select: {
+      id: true,
+      createdAt: true,
+      authorId: true,
     },
     orderBy: {
       id: 'desc',
@@ -131,26 +120,11 @@ export const getUserPosts = async ({ skip, authorId }: GetUserPostsInput, reques
   const roundedMaxPages = Math.round(maxPages);
   const totalPages = roundedMaxPages;
 
-  const transformedPosts = posts.map(({ _count, createdAt, description, images, id, postsLikes, authorId }) => {
-    const transformedPost: PostDetails = {
-      authorId,
-      isLiked: Boolean(postsLikes[0]),
-      id,
-      commentsCount: _count.postsComments,
-      likesCount: _count.postsLikes,
-      images,
-      createdAt: createdAt,
-      description,
-    };
-
-    return transformedPost;
-  });
-
   const response: PostsResponse = {
     postsCount,
     totalPages,
     currentPage: skip,
-    posts: transformedPosts,
+    posts,
   };
 
   return response;
