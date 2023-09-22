@@ -21,11 +21,26 @@ export const username = z
   .max(9, { message: 'Only 9 characters allowed.' })
   .optional();
 
-export const registerSchema = z.object({
-  email: z.string().email({ message: 'Invalid email.' }),
-  username: username,
-  password: z.string().min(5, { message: 'Password is too short.' }),
-});
+export const registerSchema = z
+  .object({
+    email: z.string().email({ message: 'Invalid email.' }),
+    username: username,
+    password: z.string().min(5, { message: 'Password is too short.' }),
+    confirmPassword: z.string(),
+  })
+  .superRefine(({ password, confirmPassword }, ctx) => {
+    if (password.startsWith(confirmPassword)) {
+      return;
+    }
+
+    if (confirmPassword !== password) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'Passwords do not match.',
+        path: ['confirmPassword'],
+      });
+    }
+  });
 
 export type RegisterValues = z.infer<typeof registerSchema>;
 

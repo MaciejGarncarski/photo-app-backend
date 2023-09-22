@@ -45,6 +45,10 @@ export const registerCredentialsHandler = async (
 ) => {
   const data = request.body;
 
+  if (data.password !== data.confirmPassword) {
+    return reply.code(httpCodes.BAD_REQUEST).send({ status: 'error', message: 'Passwords do not match.' });
+  }
+
   const emailTaken = Boolean(
     await db.user.count({
       where: {
