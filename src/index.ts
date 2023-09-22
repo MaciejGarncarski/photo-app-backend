@@ -7,6 +7,7 @@ import { PrismaSessionStore } from '@quixo3/prisma-session-store';
 import fastify from 'fastify';
 
 import { authRoutes } from './auth/auth.route';
+import { authSchemas } from './auth/auth.schema';
 import { googleAuthPlugin } from './auth/googleAuth.plugin';
 import { chatPlugin } from './chat/chat.plugin';
 import { chatRoutes } from './chat/chat.route';
@@ -14,7 +15,6 @@ import { chatSchemas } from './chat/chat.schema';
 import { cookie } from './consts/cookie';
 import { followerStatsRoutes } from './follower-stats/follower-stats.route';
 import { followersSchemas } from './follower-stats/follower-stats.schema';
-import { homeRoutes } from './home/home.route';
 import { postRoutes } from './post/post.route';
 import { postSchemas } from './post/post.schema';
 import { postCommentRoutes } from './post-comment/post-comment.route';
@@ -34,6 +34,7 @@ for (const schema of [
   ...postCommentSchemas,
   ...followersSchemas,
   ...chatSchemas,
+  ...authSchemas,
 ]) {
   server.addSchema(schema);
 }
@@ -66,7 +67,6 @@ server.register(googleAuthPlugin);
 server.register(authRoutes, { prefix: 'api/auth' });
 server.register(postRoutes, { prefix: 'api/post' });
 server.register(postCommentRoutes, { prefix: 'api/post-comment' });
-server.register(homeRoutes, { prefix: 'api/home' });
 server.register(followerStatsRoutes, { prefix: 'api/follower-stats' });
 server.register(chatRoutes, { prefix: 'api/chat' });
 server.get('/api/ping', (req, rep) => rep.code(200).send('pong'));

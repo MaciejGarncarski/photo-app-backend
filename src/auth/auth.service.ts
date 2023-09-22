@@ -1,13 +1,15 @@
 import { hash } from 'argon2';
 
-import { SignInValues } from '../auth/auth.schema';
+import { RegisterValues } from '../auth/auth.schema';
 import { db } from '../prisma/db';
 
-export const registerIfNotExists = async ({ email, password }: SignInValues) => {
+export const registerUser = async ({ email, username, password }: RegisterValues) => {
   const hashedPassword = await hash(password);
+
   const createdUser = await db.user.create({
     data: {
       email,
+      username,
       password: hashedPassword,
     },
   });
