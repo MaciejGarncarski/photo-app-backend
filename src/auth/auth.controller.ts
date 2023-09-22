@@ -81,7 +81,7 @@ export const registerCredentialsHandler = async (
 
 export const getCurrentUserHandler = async (request: FastifyRequest, reply: FastifyReply) => {
   if (!request.session.data) {
-    return reply.code(httpCodes.UNAUTHORIZED).send({ status: 'No user data' });
+    return reply.code(httpCodes.UNAUTHORIZED).send({ status: 'error', message: 'Not signed in.' });
   }
 
   const userPreferences = await db.userPreferences.findFirst({

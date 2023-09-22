@@ -42,7 +42,7 @@ model User {
   name          String?
   password      String?
   username      String?       @default(cuid())
-  bio           String?
+  bio           String?       @db.Text
   image         String?
   customImage   String?
   role          Role          @default(USER)
