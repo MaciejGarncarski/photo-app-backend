@@ -5,9 +5,11 @@ import {
   ChatMessagesQuery,
   ChatRoomInput,
   ChatUsersQuery,
+  CreateMessage,
+  createMessageSchema,
   DeleteMessageParams,
 } from './chat.schema';
-import { chatMessages, chatUsers, createChatRoom, deleteMessage } from './chat.service';
+import { chatMessages, chatUsers, createChatRoom, createMessage, deleteMessage } from './chat.service';
 import { httpCodes } from '../consts/httpStatus';
 import { getServerSession } from '../utils/getServerSession';
 
@@ -103,6 +105,40 @@ export const deleteMessageHandler = async (
     }
 
     return reply.code(httpCodes.BAD_REQUEST).send({ status: 'cannot delete message' });
+  } catch (error) {
+    return reply.code(httpCodes.SERVER_ERROR).send(error);
+  }
+};
+
+export const createMessageHandler = async (request: FastifyRequest<{ Body: CreateMessage }>, reply: FastifyReply) => {
+  const response = createMessageSchema.safeParse(request.body);
+
+  const { sessionUser } = await getServerSession(request);
+
+  if (!sessionUser) {
+    return reply.code(httpCodes.UNAUTHORIZED).send({ status: 'unauthorized' });
+  }
+
+  if (!response.success) {
+    return reply.code(httpCodes.BAD_REQUEST).send({ status: 'invalid body data' });
+  }
+
+  if (response.data.senderId !== sessionUser.id) {
+    return reply.code(httpCodes.UNAUTHORIZED).send({ status: 'unauthorized' });
+  }
+
+  const { receiverId, senderId, message } = response.data;
+
+  try {
+    const createdMessageRoom = await createMessage({ senderId, receiverId, message });
+
+    if (createdMessageRoom) {
+      request.server.io.to(createdMessageRoom.roomName).emit('new message', { senderId, receiverId });
+      reply.code(httpCodes.SUCCESS).send({ status: 'messge created' });
+      return;
+    }
+
+    return reply.code(httpCodes.BAD_REQUEST).send({ status: 'cannot send message' });
   } catch (error) {
     return reply.code(httpCodes.SERVER_ERROR).send(error);
   }

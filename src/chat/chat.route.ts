@@ -4,6 +4,7 @@ import {
   chatRoomMessagesHandler,
   chatRoomUsersHandler,
   createChatRoomHandler,
+  createMessageHandler,
   deleteMessageHandler,
 } from './chat.controller';
 import { $ref } from './chat.schema';
@@ -35,13 +36,22 @@ export const chatRoutes = async (server: FastifyInstance) => {
     },
     chatRoomUsersHandler,
   );
-  server.delete(
-    '/:messageId',
+  server.post(
+    '/message',
     {
       schema: {
-        params: $ref('deleteMessageParamsSchema'),
+        body: $ref('createMessageSchema'),
       },
     },
-    deleteMessageHandler,
-  );
+    createMessageHandler,
+  ),
+    server.delete(
+      '/:messageId',
+      {
+        schema: {
+          params: $ref('deleteMessageParamsSchema'),
+        },
+      },
+      deleteMessageHandler,
+    );
 };

@@ -76,6 +76,7 @@ export const { $ref, schemas: chatSchemas } = buildJsonSchemas(
     chatUsersQuerySchema,
     chatUsersResponseSchema,
     deleteMessageParamsSchema,
+    createMessageSchema,
   },
   { $id: 'chatSchema' },
 );

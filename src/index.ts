@@ -5,6 +5,7 @@ import { fastifySession, SessionStore } from '@fastify/session';
 import { PrismaClient } from '@prisma/client';
 import { PrismaSessionStore } from '@quixo3/prisma-session-store';
 import fastify from 'fastify';
+import fastifyIO from 'fastify-socket.io';
 
 import { authRoutes } from './auth/auth.route';
 import { authSchemas } from './auth/auth.schema';
@@ -61,18 +62,24 @@ server.register(fastifySession, {
   store: PrismaStore as SessionStore,
 });
 
-server.register(userRoutes, { prefix: 'api/users' });
-server.register(sessionUserRoutes, { prefix: 'api/session-user' });
-server.register(googleAuthPlugin);
-server.register(authRoutes, { prefix: 'api/auth' });
-server.register(postRoutes, { prefix: 'api/post' });
-server.register(postCommentRoutes, { prefix: 'api/post-comment' });
-server.register(followerStatsRoutes, { prefix: 'api/follower-stats' });
-server.register(chatRoutes, { prefix: 'api/chat' });
 server.get('/api/ping', (req, rep) => rep.code(200).send('pong'));
+
+server.register(fastifyIO);
+
+server.register(authRoutes, { prefix: 'api/auth' });
+server.register(followerStatsRoutes, { prefix: 'api/follower-stats' });
+server.register(postCommentRoutes, { prefix: 'api/post-comment' });
+server.register(postRoutes, { prefix: 'api/post' });
+server.register(sessionUserRoutes, { prefix: 'api/session-user' });
+server.register(userRoutes, { prefix: 'api/users' });
+
+server.register(chatRoutes, { prefix: 'api/chat' });
+
+server.register(googleAuthPlugin);
 server.register(chatPlugin);
 
 const port = parseInt(process.env.PORT || '3001');
+
 server.listen({ port, host: '0.0.0.0' }, () => {
   console.log('App running on port: ', port);
 });
