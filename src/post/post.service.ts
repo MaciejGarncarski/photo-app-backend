@@ -129,7 +129,7 @@ export const getPostById = async (postId: number, request: FastifyRequest) => {
       images: true,
       postsLikes: {
         where: {
-          userId: sessionUser?.id,
+          userId: sessionUser?.id || '',
         },
       },
       _count: {
