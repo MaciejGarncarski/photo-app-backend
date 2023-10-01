@@ -117,8 +117,7 @@ export const getUserPosts = async ({ skip, authorId }: GetUserPostsInput, reques
 
   const [postsCount, posts] = await Promise.all([postsCountRequest, postsRequest]);
   const maxPages = postsCount / POSTS_PER_SCROLL;
-  const roundedMaxPages = Math.round(maxPages);
-  const totalPages = roundedMaxPages;
+  const totalPages = Math.floor(maxPages) - 1;
 
   const response: PostsResponse = {
     postsCount,

@@ -83,8 +83,7 @@ export const getComments = async (postId: number, skip: number, sessionUserId?: 
   });
 
   const maxPages = commentsCount / COMMENTS_PER_REQUEST;
-  const roundedMaxPages = Math.round(maxPages);
-  const totalPages = roundedMaxPages;
+  const totalPages = Math.floor(maxPages) - 1;
 
   const response: CommentResponse = {
     commentsCount,

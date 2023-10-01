@@ -11,7 +11,6 @@ export type FollowersInput = z.infer<typeof followersInputSchema>;
 const followersResponseSchema = z.object({
   users: z.array(z.string()),
   totalPages: z.number(),
-  roundedMaxPages: z.number(),
   currentPage: z.number(),
   usersCount: z.number(),
 });

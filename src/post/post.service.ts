@@ -26,8 +26,7 @@ export const getHomepagePosts = async (skip: number) => {
   const postsCountRequest = db.post.count();
   const [postsList, postsCount] = await Promise.all([postsRequest, postsCountRequest]);
   const maxPages = postsCount / POSTS_PER_SCROLL;
-  const roundedMaxPages = Math.round(maxPages);
-  const totalPages = roundedMaxPages - 1;
+  const totalPages = Math.floor(maxPages) - 1;
 
   const posts = postsList.map(({ authorId, createdAt, id }) => {
     return {

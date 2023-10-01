@@ -29,6 +29,7 @@ export const getHomepagePostsHandler = async (
 ) => {
   try {
     const postsData = await getHomepagePosts(parseInt(request.query.skip));
+
     return reply.code(httpCodes.SUCCESS).send(postsData);
   } catch (error) {
     return reply.code(httpCodes.SERVER_ERROR).send(error);
