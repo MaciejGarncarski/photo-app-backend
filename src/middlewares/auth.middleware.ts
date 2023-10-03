@@ -1,6 +1,6 @@
 import { FastifyReply, FastifyRequest, HookHandlerDoneFunction } from 'fastify';
 
-import { httpCodes } from '../consts/httpStatus';
+import { httpCodes } from '../consts/httpStatus.js';
 
 export const authMiddleware = async (request: FastifyRequest, reply: FastifyReply, done: HookHandlerDoneFunction) => {
   if (!request.session.data) {

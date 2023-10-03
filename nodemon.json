@@ -1,0 +1,15 @@
+{
+    "restartable": "rs",
+    "ignore": [
+        ".git",
+        "node_modules/**/node_modules"
+    ],
+    "watch": [
+        "src",
+        ".env"
+    ],
+    "execMap": {
+        "ts": "node --loader ts-node/esm"
+    },
+    "ext": "ts,js,json,env"
+}

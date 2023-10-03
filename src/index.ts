@@ -5,42 +5,26 @@ import { fastifySession, SessionStore } from '@fastify/session';
 import { PrismaClient } from '@prisma/client';
 import { PrismaSessionStore } from '@quixo3/prisma-session-store';
 import fastify from 'fastify';
-import fastifyIO from 'fastify-socket.io';
 
-import { authRoutes } from './auth/auth.route';
-import { authSchemas } from './auth/auth.schema';
-import { googleAuthPlugin } from './auth/googleAuth.plugin';
-import { chatPlugin } from './chat/chat.plugin';
-import { chatRoutes } from './chat/chat.route';
-import { chatSchemas } from './chat/chat.schema';
-import { cookie } from './consts/cookie';
-import { followerStatsRoutes } from './follower-stats/follower-stats.route';
-import { followersSchemas } from './follower-stats/follower-stats.schema';
-import { postRoutes } from './post/post.route';
-import { postSchemas } from './post/post.schema';
-import { postCommentRoutes } from './post-comment/post-comment.route';
-import { postCommentSchemas } from './post-comment/post-comment.schema';
-import { sessionUserRoutes } from './session-user/session-user.route';
-import { sessionUserSchemas } from './session-user/session-user.schema';
-import { userRoutes } from './user/user.route';
-import { userSchemas } from './user/user.schema';
-import { envVariables } from './utils/envVariables';
+import { cookie } from './consts/cookie.js';
+import { authSchemas } from './modules/auth/auth.schema.js';
+import { chatSchemas } from './modules/chat/chat.schema.js';
+import { followersSchemas } from './modules/follower-stats/follower-stats.schema.js';
+import { routerPlugin } from './modules/plugins/router.plugin.js';
+import { postSchemas } from './modules/post/post.schema.js';
+import { postCommentSchemas } from './modules/post-comment/post-comment.schema.js';
+import { userSchemas } from './modules/user/user.schema.js';
+import { envVariables } from './utils/envVariables.js';
 
 const server = fastify();
 
-for (const schema of [
-  ...userSchemas,
-  ...sessionUserSchemas,
-  ...postSchemas,
-  ...postCommentSchemas,
-  ...followersSchemas,
-  ...chatSchemas,
-  ...authSchemas,
-]) {
+const schemas = [userSchemas, postSchemas, postCommentSchemas, followersSchemas, chatSchemas, authSchemas].flat();
+
+for (const schema of schemas) {
   server.addSchema(schema);
 }
 
-server.register(cors, {
+await server.register(cors, {
   credentials: true,
   origin: `${envVariables.APP_URL}`,
   methods: ['OPTIONS', 'GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
@@ -56,30 +40,20 @@ const PrismaStore = new PrismaSessionStore(new PrismaClient(), {
 
 server.register(fastifySession, {
   secret: envVariables.SECRET,
-  cookie,
+  cookie: cookie,
   saveUninitialized: true,
   rolling: true,
   store: PrismaStore as SessionStore,
 });
 
-server.get('/api/ping', (req, rep) => rep.code(200).send('pong'));
-
-server.register(fastifyIO);
-
-server.register(authRoutes, { prefix: 'api/auth' });
-server.register(followerStatsRoutes, { prefix: 'api/follower-stats' });
-server.register(postCommentRoutes, { prefix: 'api/post-comment' });
-server.register(postRoutes, { prefix: 'api/post' });
-server.register(sessionUserRoutes, { prefix: 'api/session-user' });
-server.register(userRoutes, { prefix: 'api/users' });
-
-server.register(chatRoutes, { prefix: 'api/chat' });
-
-server.register(googleAuthPlugin);
-server.register(chatPlugin);
+server.register(routerPlugin, { prefix: '/' });
 
 const port = parseInt(process.env.PORT || '3001');
 
-server.listen({ port, host: '0.0.0.0' }, () => {
+server.listen({ port, host: '0.0.0.0' }, (err) => {
+  if (err) {
+    console.log(err);
+    process.exit(1);
+  }
   console.log('App running on port: ', port);
 });

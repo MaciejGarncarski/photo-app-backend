@@ -1,4 +1,5 @@
-import { db } from '../prisma/db';
+import { db } from './db.js';
+
 const CHAT_USERS_PER_REQUEST = 7;
 
 export const getChatUsersByName = async (searchedUser: string, skip: number, sessionUserId: string) => {

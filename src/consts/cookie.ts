@@ -1,7 +1,7 @@
 import { CookieOptions } from '@fastify/session';
 import ms from 'ms';
 
-import { envVariables } from '../utils/envVariables';
+import { envVariables } from '../utils/envVariables.js';
 
 export const cookie: CookieOptions = {
   httpOnly: true,

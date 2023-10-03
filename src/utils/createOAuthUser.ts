@@ -1,7 +1,7 @@
 import { Token } from '@fastify/oauth2';
 
-import { GoogleUser } from '../auth/auth.schema';
-import { db } from '../prisma/db';
+import { db } from './db.js';
+import { GoogleUser } from '../modules/auth/auth.schema.js';
 
 export const createOAuthUser = async ({ name, picture, id }: GoogleUser, token: Token) => {
   try {

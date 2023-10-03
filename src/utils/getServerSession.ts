@@ -1,6 +1,6 @@
 import { FastifyRequest } from 'fastify';
 
-import { db } from '../prisma/db';
+import { db } from './db.js';
 
 export const getServerSession = async (request: FastifyRequest) => {
   const sessionId = request.session.sessionId;

@@ -1,4 +1,4 @@
-import { db } from '../prisma/db';
+import { db } from './db.js';
 
 export const createChatRoom = async (receiverId: string, senderId: string) => {
   const chatRoomExists = await db.chatRoom.findFirst({

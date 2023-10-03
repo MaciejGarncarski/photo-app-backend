@@ -1,4 +1,4 @@
-import { db } from '../prisma/db';
+import { db } from './db.js';
 
 export const getCount = async (userId: string) => {
   try {
