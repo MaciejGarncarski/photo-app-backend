@@ -1,6 +1,7 @@
 import fastifyCookie from '@fastify/cookie';
 import cors from '@fastify/cors';
 import fastifyMultipart from '@fastify/multipart';
+import fastifySensible from '@fastify/sensible';
 import { fastifySession, SessionStore } from '@fastify/session';
 import { PrismaClient } from '@prisma/client';
 import { PrismaSessionStore } from '@quixo3/prisma-session-store';
@@ -23,6 +24,8 @@ const schemas = [userSchemas, postSchemas, postCommentSchemas, followersSchemas,
 for (const schema of schemas) {
   server.addSchema(schema);
 }
+
+await server.register(fastifySensible);
 
 await server.register(cors, {
   credentials: true,

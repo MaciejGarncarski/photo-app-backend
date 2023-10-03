@@ -6,7 +6,7 @@ import { CreatePostInput, GetUserPostsInput, PostDetails, PostsResponse } from '
 import { db } from '../../utils/db.js';
 import { imageKit } from '../../utils/imagekit.js';
 
-const POSTS_PER_SCROLL = 4;
+const POSTS_PER_SCROLL = 2;
 
 export const getHomepagePosts = async (skip: number) => {
   const postsRequest = db.post.findMany({

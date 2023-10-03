@@ -3,7 +3,6 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 
 import { RegisterValues, SignInValues } from './auth.schema.js';
 import { registerUser } from './auth.service.js';
-import { httpCodes } from '../../consts/httpStatus.js';
 import { db } from '../../utils/db.js';
 
 export const signInCredentialsHandler = async (
@@ -21,19 +20,18 @@ export const signInCredentialsHandler = async (
   });
 
   if (!user) {
-    return reply.status(httpCodes.NOT_FOUND).send({ status: 'error', message: 'User not found.' });
+    return reply.notFound('User not found');
   }
 
   try {
     const isPasswordEqual = await verify(user?.password || '', password);
     if (!isPasswordEqual) {
-      return reply.status(httpCodes.FORBIDDEN).send({ status: 'error', message: 'Passwords do not match.' });
+      return reply.badRequest('Passwords do not match');
     }
-
     request.session.data = user;
-    return reply.code(httpCodes.SUCCESS).send({ status: 'ok' });
+    return { status: 'ok' };
   } catch (error) {
-    return reply.status(httpCodes.FORBIDDEN).send({ status: 'error', message: 'Passwords do not match.' });
+    return reply.badRequest('Passwords do not match');
   }
 };
 
@@ -46,7 +44,7 @@ export const registerCredentialsHandler = async (
   const data = request.body;
 
   if (data.password !== data.confirmPassword) {
-    return reply.code(httpCodes.BAD_REQUEST).send({ status: 'error', message: 'Passwords do not match.' });
+    return reply.badRequest('Passwords do not match');
   }
 
   const emailTaken = Boolean(
@@ -58,7 +56,7 @@ export const registerCredentialsHandler = async (
   );
 
   if (emailTaken) {
-    return reply.code(httpCodes.BAD_REQUEST).send({ status: 'error', message: 'Email is already taken.' });
+    return reply.badRequest('Email is already taken.');
   }
 
   const usernameTaken = Boolean(
@@ -70,22 +68,22 @@ export const registerCredentialsHandler = async (
   );
 
   if (usernameTaken) {
-    return reply.code(httpCodes.BAD_REQUEST).send({ status: 'error', message: 'Username is already taken.' });
+    return reply.badRequest('Username is already taken.');
   }
 
   try {
     const registeredUser = await registerUser(data);
     request.session.data = registeredUser;
 
-    return reply.code(httpCodes.SUCCESS).send({ status: 'ok' });
+    return 'ok';
   } catch (error) {
-    return reply.code(httpCodes.SERVER_ERROR).send({ status: error });
+    return reply.internalServerError(error as string);
   }
 };
 
 export const getCurrentUserHandler = async (request: FastifyRequest, reply: FastifyReply) => {
   if (!request.session.data) {
-    return reply.code(httpCodes.UNAUTHORIZED).send({ status: 'error', message: 'Not signed in.' });
+    return reply.unauthorized('Not signed in.');
   }
 
   const userPreferences = await db.userPreferences.findFirst({
@@ -99,11 +97,10 @@ export const getCurrentUserHandler = async (request: FastifyRequest, reply: Fast
   });
 
   const userWithPreferences = { ...userPreferences, ...request.session.data };
-
-  return reply.code(httpCodes.SUCCESS).send(userWithPreferences);
+  return userWithPreferences;
 };
 
-export const signOutHandler = async (request: FastifyRequest, reply: FastifyReply) => {
+export const signOutHandler = async (request: FastifyRequest) => {
   await request.session.destroy();
-  return reply.code(httpCodes.SUCCESS).send({ status: 'ok' });
+  return { status: 'signed out.' };
 };

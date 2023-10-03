@@ -33,9 +33,9 @@ export const getHomepagePostsHandler = async (
   try {
     const postsData = await getHomepagePosts(parseInt(request.query.skip));
 
-    return reply.code(httpCodes.SUCCESS).send(postsData);
+    return reply.send(postsData);
   } catch (error) {
-    return reply.code(httpCodes.SERVER_ERROR).send(error);
+    return reply.internalServerError(error as string);
   }
 };
 
