@@ -157,8 +157,7 @@ export const chatMessages = async (sessionUserId: string, receiverId: string, sk
     },
   });
 
-  const maxPages = messagesCount / MESSAGES_PER_REQUEST;
-  const totalPages = Math.floor(maxPages) - 1;
+  const totalPages = Math.ceil(messagesCount / MESSAGES_PER_REQUEST) - 1;
 
   const response: ChatMessagesResponse = {
     messages: mappedMessages,
@@ -177,7 +176,7 @@ export const chatUsers = async (sessionUserId: string, searchedUser: string, ski
   const mappedUsers = users.map(({ id }) => id);
 
   const maxPages = usersCount / CHAT_USERS_PER_REQUEST;
-  const totalPages = Math.floor(maxPages) - 1;
+  const totalPages = Math.ceil(maxPages) - 1;
 
   const result: ChatUsersResponse = {
     users: mappedUsers,

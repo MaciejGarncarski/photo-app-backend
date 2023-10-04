@@ -25,7 +25,7 @@ export const getHomepagePosts = async (skip: number) => {
   const postsCountRequest = db.post.count();
   const [postsList, postsCount] = await Promise.all([postsRequest, postsCountRequest]);
   const maxPages = postsCount / POSTS_PER_SCROLL;
-  const totalPages = Math.floor(maxPages) - 1;
+  const totalPages = Math.ceil(maxPages) - 1;
 
   const posts = postsList.map(({ authorId, createdAt, id }) => {
     return {
@@ -224,10 +224,12 @@ export const editPost = async (postId: number, sessionUserId: string, newDescrip
   return 'ok';
 };
 
+const USER_POSTS_PER_SCROLL = 4;
+
 export const getUserPosts = async ({ skip, authorId }: GetUserPostsInput) => {
   const postsRequest = db.post.findMany({
-    skip: skip * POSTS_PER_SCROLL,
-    take: POSTS_PER_SCROLL,
+    skip: skip * USER_POSTS_PER_SCROLL,
+    take: USER_POSTS_PER_SCROLL,
 
     where: {
       authorId: authorId,
@@ -249,8 +251,7 @@ export const getUserPosts = async ({ skip, authorId }: GetUserPostsInput) => {
   });
 
   const [postsCount, posts] = await Promise.all([postsCountRequest, postsRequest]);
-  const maxPages = postsCount / POSTS_PER_SCROLL;
-  const totalPages = Math.floor(maxPages) - 1;
+  const totalPages = Math.ceil(postsCount / USER_POSTS_PER_SCROLL) - 1;
 
   const response: PostsResponse = {
     postsCount,

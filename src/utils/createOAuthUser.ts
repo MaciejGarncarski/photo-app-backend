@@ -24,7 +24,7 @@ export const createOAuthUser = async ({ name, picture, id }: GoogleUser, token: 
     const { expires_at } = token;
 
     const currentDate = new Date(expires_at);
-    const expiresAt = Math.floor(currentDate.getTime() / 1000);
+    const expiresAt = Math.ceil(currentDate.getTime() / 1000);
 
     const createdUser = await db.user.create({
       data: {

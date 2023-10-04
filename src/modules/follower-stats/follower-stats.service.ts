@@ -15,7 +15,7 @@ export const getFollowersStats = async (userId: string, skip: number, sessionUse
   const usersId = users.map(({ from }) => from);
   const usersCount = await db.follower.count({ where: { to: sessionUserId } });
   const maxPages = usersCount / USERS_PER_REQUEST;
-  const totalPages = Math.floor(maxPages) - 1;
+  const totalPages = Math.ceil(maxPages) - 1;
 
   const response: FollowersResponse = {
     users: usersId,
@@ -39,7 +39,7 @@ export const getFriendsStats = async (userId: string, skip: number, sessionUserI
   const usersId = users.map(({ to }) => to);
   const usersCount = await db.follower.count({ where: { to: sessionUserId } });
   const maxPages = usersCount / USERS_PER_REQUEST;
-  const totalPages = Math.floor(maxPages) - 1;
+  const totalPages = Math.ceil(maxPages) - 1;
 
   const response: FollowersResponse = {
     users: usersId,
