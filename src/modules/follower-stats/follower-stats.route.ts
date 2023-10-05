@@ -3,8 +3,8 @@ import { FastifyPluginAsync } from 'fastify';
 import { getFollowersStatsHandler, getFriendsStatsHandler } from './follower-stats.controller.js';
 import { $ref } from './follower-stats.schema.js';
 
-export const followerStatsRoutesPlugin: FastifyPluginAsync = async (server) => {
-  server.route({
+export const followerStatsRoutesPlugin: FastifyPluginAsync = async (fastify) => {
+  fastify.route({
     method: 'GET',
     handler: getFollowersStatsHandler,
     schema: {
@@ -16,7 +16,7 @@ export const followerStatsRoutesPlugin: FastifyPluginAsync = async (server) => {
     url: '/follower-stats/followers',
   });
 
-  server.route({
+  fastify.route({
     method: 'GET',
     handler: getFriendsStatsHandler,
     schema: {

@@ -9,7 +9,7 @@ import { envVariables } from '../../utils/envVariables.js';
 
 declare module 'fastify' {
   interface Session {
-    data: User | null;
+    data: User;
   }
   interface FastifyInstance {
     googleOAuth2: OAuth2Namespace;

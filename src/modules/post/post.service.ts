@@ -78,6 +78,8 @@ export const createPost = async (
       },
     });
   }
+
+  return post;
 };
 
 export const deletePost = async (postId: number, request: FastifyRequest) => {
@@ -179,7 +181,7 @@ export const addPostLike = async (postId: number, sessionUserId: string) => {
     return;
   }
 
-  await db.postLike.create({
+  return db.postLike.create({
     data: {
       postId: postId,
       userId: sessionUserId,
@@ -188,8 +190,6 @@ export const addPostLike = async (postId: number, sessionUserId: string) => {
       id: true,
     },
   });
-
-  return 'ok';
 };
 
 export const deletePostLike = async (postId: number, sessionUserId: string) => {
@@ -212,7 +212,7 @@ export const editPost = async (postId: number, sessionUserId: string, newDescrip
     return;
   }
 
-  await db.post.update({
+  return db.post.update({
     data: {
       description: newDescription,
     },
@@ -220,8 +220,6 @@ export const editPost = async (postId: number, sessionUserId: string, newDescrip
       id: postId,
     },
   });
-
-  return 'ok';
 };
 
 const USER_POSTS_PER_SCROLL = 4;

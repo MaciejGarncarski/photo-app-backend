@@ -9,15 +9,17 @@ import {
 } from './chat.controller.js';
 import { $ref } from './chat.schema.js';
 
-export const chatRoutesPlugin: FastifyPluginAsync = async (server) => {
-  server.route({
+export const chatRoutesPlugin: FastifyPluginAsync = async (fastify) => {
+  fastify.addHook('preHandler', fastify.authorize);
+
+  fastify.route({
     method: 'GET',
     schema: { params: $ref('chatRoomInputSchema') },
     url: '/chat/check-user/:receiverId',
     handler: createChatRoomHandler,
   });
 
-  server.route({
+  fastify.route({
     method: 'GET',
     schema: {
       params: $ref('chatMessagesParamsSchema'),
@@ -30,7 +32,7 @@ export const chatRoutesPlugin: FastifyPluginAsync = async (server) => {
     handler: chatRoomMessagesHandler,
   });
 
-  server.route({
+  fastify.route({
     method: 'GET',
     url: '/chat/users',
     schema: {
@@ -42,7 +44,7 @@ export const chatRoutesPlugin: FastifyPluginAsync = async (server) => {
     handler: chatRoomUsersHandler,
   });
 
-  server.route({
+  fastify.route({
     method: 'POST',
     url: '/chat/message',
     schema: {
@@ -51,7 +53,7 @@ export const chatRoutesPlugin: FastifyPluginAsync = async (server) => {
     handler: createMessageHandler,
   });
 
-  server.route({
+  fastify.route({
     method: 'DELETE',
     url: '/chat/message/:messageId',
     schema: {

@@ -21,8 +21,6 @@ import {
   getPostById,
   getUserPosts,
 } from './post.service.js';
-import { httpCodes } from '../../consts/httpStatus.js';
-import { getServerSession } from '../../utils/getServerSession.js';
 
 type RequestBody = { images: Array<MultipartFile> | MultipartFile; description: { value: string } };
 
@@ -55,62 +53,51 @@ export const getUserPostsHandler = async (
     const response = await getUserPosts({ authorId, skip });
 
     if (!response) {
-      return reply.code(httpCodes.NOT_FOUND).send({ status: 'Posts not found' });
+      return reply.notFound('Posts not found.');
     }
 
-    return reply.code(httpCodes.SUCCESS).send(response);
+    return response;
   } catch (error) {
-    return reply.code(httpCodes.SERVER_ERROR).send(error);
+    return reply.internalServerError(error as string);
   }
 };
 
 export const createPostHandler = async (request: FastifyRequest<{ Body: RequestBody }>, reply: FastifyReply) => {
   const images = request.body.images;
+  const { data: sessionData } = request.session;
 
   const result = postDescriptionSchema.safeParse(request.body.description.value);
 
   if (!result.success) {
-    return reply.code(httpCodes.BAD_REQUEST).send({ status: 'Invalid description provided.' });
+    return reply.badRequest('Description parsing error');
   }
 
   const description = result.data;
 
-  const { sessionUser } = await getServerSession(request);
-
   if (!images) {
-    return reply.code(httpCodes.BAD_REQUEST).send({ status: 'no images provided' });
-  }
-
-  if (!sessionUser?.id) {
-    return reply.code(httpCodes.FORBIDDEN).send({ status: 'unauthorized' });
+    return reply.badRequest('No image provided');
   }
 
   try {
     const imagesArray = Array.isArray(images) ? images : [images];
-    await createPost({ description }, sessionUser.id, imagesArray);
+    const data = await createPost({ description }, sessionData.id, imagesArray);
     request.server.io.emit('new post');
 
-    return reply.code(httpCodes.SUCCESS).send({ status: 'created' });
+    return { data };
   } catch (error) {
-    return reply.code(httpCodes.SERVER_ERROR).send(error);
+    return reply.internalServerError(error as string);
   }
 };
 
 export const deletePostHandler = async (request: FastifyRequest<{ Params: DeletePostInput }>, reply: FastifyReply) => {
-  const { sessionUser } = await getServerSession(request);
-
-  if (!sessionUser?.id) {
-    return reply.code(httpCodes.FORBIDDEN).send({ status: 'unauthorized' });
-  }
-
   try {
     const response = await deletePost(parseInt(request.params.postId), request);
 
     if (response === 'deleted') {
-      return reply.code(httpCodes.SUCCESS).send({ status: 'deleted' });
+      return reply.status(204).send();
     }
 
-    return reply.code(httpCodes.BAD_REQUEST).send({ status: 'cannot delete post' });
+    return reply.badRequest('Cannot delete post');
   } catch (error) {}
 };
 
@@ -119,12 +106,12 @@ export const getPostByIdHandler = async (request: FastifyRequest<{ Params: PostB
     const postData = await getPostById(parseInt(request.params.postId), request);
 
     if (!postData) {
-      return reply.code(httpCodes.NOT_FOUND).send({ status: 'post not found' });
+      return reply.notFound('Post not found.');
     }
 
-    return reply.code(httpCodes.SUCCESS).send(postData);
+    return postData;
   } catch (error) {
-    return reply.code(httpCodes.SERVER_ERROR).send(error);
+    return reply.internalServerError(error as string);
   }
 };
 
@@ -132,22 +119,13 @@ export const addPostLikeHandler = async (
   request: FastifyRequest<{ Params: PostLikeInputSchema }>,
   reply: FastifyReply,
 ) => {
-  const { sessionUser } = await getServerSession(request);
-
-  if (!sessionUser?.id) {
-    return reply.code(httpCodes.FORBIDDEN).send({ status: 'unauthorized' });
-  }
+  const { data } = request.session;
 
   try {
-    const response = await addPostLike(parseInt(request.params.postId), sessionUser.id);
-
-    if (response === 'ok') {
-      return reply.code(httpCodes.SUCCESS).send({ message: 'added' });
-    }
-
-    return reply.code(httpCodes.BAD_REQUEST).send({ message: 'already liked' });
+    const postLike = await addPostLike(parseInt(request.params.postId), data.id);
+    return { postLike };
   } catch (error) {
-    return reply.code(httpCodes.SERVER_ERROR).send(error);
+    return reply.internalServerError(error as string);
   }
 };
 
@@ -155,36 +133,24 @@ export const deletePostLikeHandler = async (
   request: FastifyRequest<{ Params: PostLikeInputSchema }>,
   reply: FastifyReply,
 ) => {
-  const { sessionUser } = await getServerSession(request);
-
-  if (!sessionUser?.id) {
-    return reply.code(httpCodes.FORBIDDEN).send({ status: 'unauthorized' });
-  }
+  const { data } = request.session;
 
   try {
-    await deletePostLike(parseInt(request.params.postId), sessionUser.id);
-    return reply.code(httpCodes.SUCCESS).send({ message: 'deleted' });
+    await deletePostLike(parseInt(request.params.postId), data.id);
+    return reply.status(204).send();
   } catch (error) {
-    return reply.code(httpCodes.SERVER_ERROR).send(error);
+    return reply.internalServerError(error as string);
   }
 };
 
 export const editPostHandler = async (request: FastifyRequest<{ Body: EditPostInput }>, reply: FastifyReply) => {
   const { description, postId } = request.body;
-  const { sessionUser } = await getServerSession(request);
-
-  if (!sessionUser?.id) {
-    return reply.code(httpCodes.UNAUTHORIZED).send({ status: 'unauthorized' });
-  }
+  const { data: sessionData } = request.session;
 
   try {
-    const response = await editPost(parseInt(postId), sessionUser.id, description);
-    if (response === 'ok') {
-      return reply.code(httpCodes.SUCCESS).send({ status: 'post edited' });
-    }
-
-    return reply.code(httpCodes.FORBIDDEN).send({ status: 'cannot edit post' });
+    const data = await editPost(parseInt(postId), sessionData.id, description);
+    return { data };
   } catch (error) {
-    return reply.code(httpCodes.SERVER_ERROR).send(error);
+    return reply.internalServerError(error as string);
   }
 };

@@ -9,26 +9,28 @@ import {
 } from './post-comment.controller.js';
 import { $ref } from './post-comment.schema.js';
 
-export const postCommentRoutesPlugin: FastifyPluginAsync = async (server) => {
-  server.route({
+export const postCommentRoutesPlugin: FastifyPluginAsync = async (fastify) => {
+  fastify.route({
     method: 'POST',
     url: '/post/comment',
     schema: {
       body: $ref('addPostCommentInputSchema'),
     },
+    preHandler: [fastify.authorize],
     handler: addPostCommentHandler,
   });
 
-  server.route({
+  fastify.route({
     method: 'DELETE',
     url: '/post/comment/:commentId',
     schema: {
       params: $ref('deletePostCommentInputSchema'),
     },
+    preHandler: [fastify.authorize],
     handler: deletePostCommentHandler,
   });
 
-  server.route({
+  fastify.route({
     method: 'GET',
     url: '/post/:postId/comments',
     schema: {
@@ -41,21 +43,23 @@ export const postCommentRoutesPlugin: FastifyPluginAsync = async (server) => {
     handler: getCommentsHandler,
   });
 
-  server.route({
+  fastify.route({
     method: 'POST',
     url: '/post/comment/:commentId/like',
     schema: {
       params: $ref('commentLikeInputSchema'),
     },
+    preHandler: [fastify.authorize],
     handler: addCommentLikeHandler,
   });
 
-  server.route({
+  fastify.route({
     method: 'DELETE',
     url: '/post/comment/:commentId/like',
     schema: {
       params: $ref('commentLikeInputSchema'),
     },
+    preHandler: [fastify.authorize],
     handler: deleteCommentLikeHandler,
   });
 };

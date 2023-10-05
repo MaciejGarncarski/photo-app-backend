@@ -88,12 +88,12 @@ type UpdateUserPreferencesArguments = {
   userId?: string;
 };
 
-export const updateUserPreferences = async ({ data, userId }: UpdateUserPreferencesArguments) => {
+export const updateUserPreferences = ({ data, userId }: UpdateUserPreferencesArguments) => {
   if (!userId) {
     return null;
   }
 
-  await db.userPreferences.upsert({
+  return db.userPreferences.upsert({
     where: {
       userId,
     },
@@ -106,8 +106,6 @@ export const updateUserPreferences = async ({ data, userId }: UpdateUserPreferen
       ...data,
     },
   });
-
-  return 'ok';
 };
 
 export const deleteAvatar = async (sessionUserId: string) => {
@@ -123,8 +121,8 @@ export const deleteAvatar = async (sessionUserId: string) => {
   });
 };
 
-export const editAccount = async (sessionUserId: string, { bio, name, username }: EditAccountInput) => {
-  await db.user.update({
+export const editAccount = (sessionUserId: string, { bio, name, username }: EditAccountInput) => {
+  return db.user.update({
     where: {
       id: sessionUserId,
     },

@@ -1,8 +1,8 @@
 import { Comment, CommentResponse } from './post-comment.schema.js';
 import { db } from '../../utils/db.js';
 
-export const addComment = async (commentText: string, postId: number, sessionUserId: string) => {
-  await db.postComment.create({
+export const addComment = (commentText: string, postId: number, sessionUserId: string) => {
+  return db.postComment.create({
     data: {
       postId,
       userId: sessionUserId,

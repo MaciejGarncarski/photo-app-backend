@@ -17,8 +17,6 @@ import {
   updateAvatar,
   updateUserPreferences,
 } from './user.service.js';
-import { httpCodes } from '../../consts/httpStatus.js';
-import { getServerSession } from '../../utils/getServerSession.js';
 
 export const getUserHandler = async (
   request: FastifyRequest<{
@@ -30,17 +28,13 @@ export const getUserHandler = async (
     params: { userId },
   } = request;
 
-  try {
-    const userData = await getUser({ id: userId }, request);
+  const userData = await getUser({ id: userId }, request);
 
-    if (userData) {
-      return reply.code(httpCodes.SUCCESS).send(userData);
-    }
-
-    return reply.code(httpCodes.NOT_FOUND).send({ status: 'User not found.' });
-  } catch (error) {
-    return reply.code(httpCodes.SERVER_ERROR).send(error);
+  if (userData) {
+    return userData;
   }
+
+  return reply.notFound('User not found.');
 };
 
 export const getUserByUsernameHandler = async (
@@ -53,31 +47,23 @@ export const getUserByUsernameHandler = async (
     params: { username },
   } = request;
 
-  try {
-    const userData = await getUser({ username: username }, request);
+  const userData = await getUser({ username: username }, request);
 
-    if (userData) {
-      return reply.code(httpCodes.SUCCESS).send(userData);
-    }
-
-    return reply.code(httpCodes.SERVER_ERROR).send({ status: 'Invalid user data' });
-  } catch (error) {
-    return reply.code(httpCodes.SERVER_ERROR).send(error);
+  if (userData) {
+    return userData;
   }
+
+  return reply.badRequest('Invalid user data.');
 };
 
 export const followUserHandler = async (request: FastifyRequest<{ Params: FollowUserInput }>, reply: FastifyReply) => {
-  const { sessionUser } = await getServerSession(request);
-
-  if (!sessionUser?.id) {
-    return reply.code(httpCodes.UNAUTHORIZED).send({ status: 'unauthorized' });
-  }
+  const { data } = request.session;
 
   try {
-    await followUser(request.params.userId, sessionUser.id);
-    return reply.code(httpCodes.SUCCESS).send({ status: 'success' });
+    await followUser(request.params.userId, data.id);
+    return reply.status(204).send();
   } catch (error) {
-    return reply.code(httpCodes.SERVER_ERROR).send(error);
+    return reply.internalServerError(error as string);
   }
 };
 
@@ -85,17 +71,13 @@ export const unfollowUserHandler = async (
   request: FastifyRequest<{ Params: FollowUserInput }>,
   reply: FastifyReply,
 ) => {
-  const { sessionUser } = await getServerSession(request);
-
-  if (!sessionUser?.id) {
-    return reply.code(httpCodes.UNAUTHORIZED).send({ status: 'unauthorized' });
-  }
+  const { data } = request.session;
 
   try {
-    await unfollowUser(request.params.userId, sessionUser.id);
-    return reply.code(httpCodes.SUCCESS).send({ status: 'success' });
+    await unfollowUser(request.params.userId, data.id);
+    return reply.status(204).send();
   } catch (error) {
-    return reply.code(httpCodes.SERVER_ERROR).send(error);
+    return reply.internalServerError(error as string);
   }
 };
 
@@ -106,16 +88,11 @@ export const updateUserPreferencesHandler = async (
   const sessionUserId = request.session.data?.id;
 
   try {
-    const response = await updateUserPreferences({ data: request.body, userId: sessionUserId });
+    const data = await updateUserPreferences({ data: request.body, userId: sessionUserId });
 
-    if (response === 'ok') {
-      reply.code(httpCodes.SUCCESS).send({ status: 'ok' });
-      return;
-    }
-
-    return reply.code(httpCodes.SERVER_ERROR).send({ status: 'cannot update' });
+    return { data };
   } catch (error) {
-    return reply.code(httpCodes.SERVER_ERROR).send(error);
+    return reply.internalServerError(error as string);
   }
 };
 
@@ -123,52 +100,39 @@ export const updateAvatarHandler = async (
   request: FastifyRequest<{ Body: { image: MultipartFile } }>,
   reply: FastifyReply,
 ) => {
-  const { sessionUser } = await getServerSession(request);
-
-  if (!sessionUser?.id) {
-    return reply.code(httpCodes.UNAUTHORIZED).send({ status: 'unauthorized' });
-  }
-
+  const { data } = request.session;
   const fileData = request.body.image;
 
   if (!fileData) {
-    return reply.code(httpCodes.BAD_REQUEST).send({ status: 'no image provided' });
+    return reply.badRequest('No image provided.');
   }
 
   try {
-    await updateAvatar(sessionUser?.id, fileData);
-    return reply.code(httpCodes.SUCCESS).send({ status: 'updated' });
+    await updateAvatar(data.id, fileData);
+    return 'updated';
   } catch (error) {
-    return reply.code(httpCodes.SERVER_ERROR).send(error);
+    return reply.internalServerError(error as string);
   }
 };
 
 export const deleteAvatarHandler = async (request: FastifyRequest, reply: FastifyReply) => {
-  const { sessionUser } = await getServerSession(request);
-
-  if (!sessionUser?.id) {
-    return reply.code(httpCodes.UNAUTHORIZED).send({ status: 'unauthorized' });
-  }
+  const { data } = request.session;
 
   try {
-    await deleteAvatar(sessionUser.id);
-    return reply.code(httpCodes.SUCCESS).send({ status: 'deleted' });
+    await deleteAvatar(data.id);
+    return reply.status(204).send();
   } catch (error) {
-    return reply.code(httpCodes.SERVER_ERROR).send(error);
+    return reply.internalServerError(error as string);
   }
 };
 
 export const editAccountHandler = async (request: FastifyRequest<{ Body: EditAccountInput }>, reply: FastifyReply) => {
-  const { sessionUser } = await getServerSession(request);
-
-  if (!sessionUser?.id) {
-    return reply.code(httpCodes.UNAUTHORIZED).send({ status: 'unauthorized' });
-  }
+  const { data: sessionData } = request.session;
 
   try {
-    await editAccount(sessionUser.id, request.body);
-    return reply.code(httpCodes.SUCCESS).send({ status: 'success' });
+    const data = await editAccount(sessionData.id, request.body);
+    return { data };
   } catch (error) {
-    return reply.code(httpCodes.SERVER_ERROR).send(error);
+    return reply.internalServerError(error as string);
   }
 };

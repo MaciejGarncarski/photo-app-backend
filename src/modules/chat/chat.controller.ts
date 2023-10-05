@@ -10,34 +10,28 @@ import {
   DeleteMessageParams,
 } from './chat.schema.js';
 import { chatMessages, chatUsers, createChatRoom, createMessage, deleteMessage } from './chat.service.js';
-import { httpCodes } from '../../consts/httpStatus.js';
-import { getServerSession } from '../../utils/getServerSession.js';
 
 export const createChatRoomHandler = async (
   request: FastifyRequest<{ Params: ChatRoomInput }>,
   reply: FastifyReply,
 ) => {
   const { receiverId } = request.params;
-  const { sessionUser } = await getServerSession(request);
+  const { data } = request.session;
 
-  if (!sessionUser) {
-    return reply.code(httpCodes.UNAUTHORIZED).send({ status: 'unauthorized' });
-  }
-
-  if (sessionUser.id === receiverId) {
-    return reply.code(httpCodes.BAD_REQUEST).send({ status: 'invalid receiverId' });
+  if (data.id === receiverId) {
+    return reply.badRequest('Receiver is sender.');
   }
 
   try {
-    const chatRoom = await createChatRoom(receiverId, sessionUser.id);
+    const chatRoom = await createChatRoom(receiverId, data.id);
 
     if (!chatRoom) {
-      return reply.code(httpCodes.BAD_REQUEST).send({ status: 'cannot find chat room' });
+      return reply.notFound('Chat room not found.');
     }
 
-    return reply.code(httpCodes.SUCCESS).send(chatRoom);
+    return chatRoom;
   } catch (error) {
-    return reply.code(httpCodes.SERVER_ERROR).send(error);
+    return reply.internalServerError(error as string);
   }
 };
 
@@ -46,21 +40,17 @@ export const chatRoomMessagesHandler = async (
   reply: FastifyReply,
 ) => {
   const { receiverId } = request.params;
-  const { sessionUser } = await getServerSession(request);
+  const { data } = request.session;
 
-  if (!sessionUser) {
-    return reply.code(httpCodes.UNAUTHORIZED).send({ status: 'unauthorized' });
-  }
-
-  if (sessionUser.id === receiverId) {
-    return reply.code(httpCodes.UNAUTHORIZED).send({ status: 'invalid user' });
+  if (data.id === receiverId) {
+    return reply.badRequest('Receiver is sender.');
   }
 
   try {
-    const chatMessagesResponse = await chatMessages(sessionUser.id, receiverId, parseInt(request.query.skip));
-    return reply.code(httpCodes.SUCCESS).send(chatMessagesResponse);
+    const chatMessagesResponse = await chatMessages(data.id, receiverId, parseInt(request.query.skip));
+    return chatMessagesResponse;
   } catch (error) {
-    return reply.code(httpCodes.SERVER_ERROR).send(error);
+    return reply.internalServerError(error as string);
   }
 };
 
@@ -68,19 +58,15 @@ export const chatRoomUsersHandler = async (
   request: FastifyRequest<{ Querystring: ChatUsersQuery }>,
   reply: FastifyReply,
 ) => {
-  const { sessionUser } = await getServerSession(request);
   const skip = parseInt(request.query.skip);
   const { searchedUser } = request.query;
-
-  if (!sessionUser) {
-    return reply.code(httpCodes.UNAUTHORIZED).send({ status: 'unauthorized' });
-  }
+  const { data } = request.session;
 
   try {
-    const chatUsersData = await chatUsers(sessionUser.id, searchedUser, skip);
-    return reply.code(httpCodes.SUCCESS).send(chatUsersData);
+    const chatUsersData = await chatUsers(data.id, searchedUser, skip);
+    return chatUsersData;
   } catch (error) {
-    return reply.code(httpCodes.SERVER_ERROR).send(error);
+    return reply.internalServerError(error as string);
   }
 };
 
@@ -88,43 +74,30 @@ export const deleteMessageHandler = async (
   request: FastifyRequest<{ Params: DeleteMessageParams }>,
   reply: FastifyReply,
 ) => {
+  const { data } = request.session;
+
   const {
     params: { messageId },
   } = request;
-  const { sessionUser } = await getServerSession(request);
-
-  if (!sessionUser) {
-    return reply.code(httpCodes.UNAUTHORIZED).send({ status: 'unauthorized' });
-  }
 
   try {
-    const response = await deleteMessage(sessionUser.id, messageId);
+    const response = await deleteMessage(data.id, messageId);
 
     if (response === 'ok') {
-      return reply.code(httpCodes.SUCCESS).send({ status: 'message deleted' });
+      return reply.status(204).send();
     }
 
-    return reply.code(httpCodes.BAD_REQUEST).send({ status: 'cannot delete message' });
+    return reply.badRequest('Cannot delete message.');
   } catch (error) {
-    return reply.code(httpCodes.SERVER_ERROR).send(error);
+    return reply.internalServerError(error as string);
   }
 };
 
 export const createMessageHandler = async (request: FastifyRequest<{ Body: CreateMessage }>, reply: FastifyReply) => {
   const response = createMessageSchema.safeParse(request.body);
 
-  const { sessionUser } = await getServerSession(request);
-
-  if (!sessionUser) {
-    return reply.code(httpCodes.UNAUTHORIZED).send({ status: 'unauthorized' });
-  }
-
   if (!response.success) {
-    return reply.code(httpCodes.BAD_REQUEST).send({ status: 'invalid body data' });
-  }
-
-  if (response.data.senderId !== sessionUser.id) {
-    return reply.code(httpCodes.UNAUTHORIZED).send({ status: 'unauthorized' });
+    return reply.badRequest('Invalid data');
   }
 
   const { receiverId, senderId, message } = response.data;
@@ -134,12 +107,11 @@ export const createMessageHandler = async (request: FastifyRequest<{ Body: Creat
 
     if (createdMessageRoom) {
       request.server.io.to(createdMessageRoom.roomName).emit('new message', { senderId, receiverId });
-      reply.code(httpCodes.SUCCESS).send({ status: 'messge created' });
-      return;
+      return 'message created';
     }
 
-    return reply.code(httpCodes.BAD_REQUEST).send({ status: 'cannot send message' });
+    return reply.badRequest('cannot send message');
   } catch (error) {
-    return reply.code(httpCodes.SERVER_ERROR).send(error);
+    return reply.internalServerError(error as string);
   }
 };

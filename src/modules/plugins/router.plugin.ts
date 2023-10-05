@@ -1,5 +1,5 @@
 import { FastifyPluginAsync } from 'fastify';
-import server from 'fastify-socket.io';
+import serverIo from 'fastify-socket.io';
 import { Server } from 'socket.io';
 
 import { authRoutesPlugin } from '../auth/auth.route.js';
@@ -18,7 +18,7 @@ export const routerPlugin: FastifyPluginAsync = async (fastify) => {
       rep.code(200).send('pong');
     },
   });
-  fastify.register(server);
+  fastify.register(serverIo);
   fastify.register(authRoutesPlugin);
   fastify.register(followerStatsRoutesPlugin);
   fastify.register(postRoutesPlugin);

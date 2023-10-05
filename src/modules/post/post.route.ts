@@ -1,4 +1,4 @@
-import { FastifyInstance } from 'fastify';
+import { FastifyPluginAsync } from 'fastify';
 
 import {
   addPostLikeHandler,
@@ -13,10 +13,10 @@ import {
 import { $ref } from './post.schema.js';
 import { postCommentRoutesPlugin } from '../post-comment/post-comment.route.js';
 
-export const postRoutesPlugin = async (server: FastifyInstance) => {
-  server.register(postCommentRoutesPlugin);
+export const postRoutesPlugin: FastifyPluginAsync = async (fastify) => {
+  fastify.register(postCommentRoutesPlugin);
 
-  server.route({
+  fastify.route({
     method: 'GET',
     url: '/post/homepage-posts',
     schema: {
@@ -28,7 +28,7 @@ export const postRoutesPlugin = async (server: FastifyInstance) => {
     handler: getHomepagePostsHandler,
   });
 
-  server.route({
+  fastify.route({
     method: 'GET',
     url: '/post/user/:authorId',
     schema: {
@@ -41,29 +41,32 @@ export const postRoutesPlugin = async (server: FastifyInstance) => {
     handler: getUserPostsHandler,
   });
 
-  server.route({
+  fastify.route({
     method: 'POST',
     url: '/post',
+    preHandler: [fastify.authorize],
     handler: createPostHandler,
   });
 
-  server.route({
+  fastify.route({
     method: 'POST',
     url: '/post/edit',
     schema: { body: $ref('editPostInputSchema') },
+    preHandler: [fastify.authorize],
     handler: editPostHandler,
   });
 
-  server.route({
+  fastify.route({
     method: 'DELETE',
     url: '/post/:postId',
     schema: {
       params: $ref('deletePostInputSchema'),
     },
+    preHandler: [fastify.authorize],
     handler: deletePostHandler,
   });
 
-  server.route({
+  fastify.route({
     method: 'GET',
     url: '/post/:postId',
     schema: {
@@ -75,15 +78,17 @@ export const postRoutesPlugin = async (server: FastifyInstance) => {
     handler: getPostByIdHandler,
   });
 
-  server.route({
+  fastify.route({
     method: 'POST',
     url: '/post/:postId/like',
+    preHandler: [fastify.authorize],
     handler: addPostLikeHandler,
   });
 
-  server.route({
+  fastify.route({
     method: 'DELETE',
     url: '/post/:postId/like',
+    preHandler: [fastify.authorize],
     handler: deletePostLikeHandler,
   });
 };

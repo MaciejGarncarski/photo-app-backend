@@ -23,16 +23,13 @@ export const signInCredentialsHandler = async (
     return reply.notFound('User not found');
   }
 
-  try {
-    const isPasswordEqual = await verify(user?.password || '', password);
-    if (!isPasswordEqual) {
-      return reply.badRequest('Passwords do not match');
-    }
-    request.session.data = user;
-    return { status: 'ok' };
-  } catch (error) {
-    return reply.badRequest('Passwords do not match');
+  const isPasswordEqual = await verify(user?.password || '', password);
+  if (!isPasswordEqual) {
+    return reply.badRequest('Passwords do not match.');
   }
+
+  request.session.data = user;
+  return { status: 'ok' };
 };
 
 export const registerCredentialsHandler = async (
@@ -44,7 +41,7 @@ export const registerCredentialsHandler = async (
   const data = request.body;
 
   if (data.password !== data.confirmPassword) {
-    return reply.badRequest('Passwords do not match');
+    return reply.badRequest('Passwords do not match.');
   }
 
   const emailTaken = Boolean(
@@ -81,14 +78,12 @@ export const registerCredentialsHandler = async (
   }
 };
 
-export const getCurrentUserHandler = async (request: FastifyRequest, reply: FastifyReply) => {
-  if (!request.session.data) {
-    return reply.unauthorized('Not signed in.');
-  }
+export const getCurrentUserHandler = async (request: FastifyRequest) => {
+  const { data } = request.session;
 
   const userPreferences = await db.userPreferences.findFirst({
     where: {
-      userId: request.session.data.id,
+      userId: data.id,
     },
     select: {
       notificationSound: true,

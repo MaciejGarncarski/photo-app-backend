@@ -2,7 +2,6 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 
 import { FollowersInput } from './follower-stats.schema.js';
 import { getFollowersStats, getFriendsStats } from './follower-stats.service.js';
-import { httpCodes } from '../../consts/httpStatus.js';
 
 export const getFollowersStatsHandler = async (
   request: FastifyRequest<{ Querystring: FollowersInput }>,
@@ -13,9 +12,9 @@ export const getFollowersStatsHandler = async (
 
   try {
     const users = await getFollowersStats(userId, parseInt(skip), sessionUserId);
-    return reply.code(httpCodes.SUCCESS).send(users);
+    return users;
   } catch (error) {
-    return reply.code(httpCodes.SERVER_ERROR).send(error);
+    return reply.internalServerError(error as string);
   }
 };
 
@@ -28,8 +27,8 @@ export const getFriendsStatsHandler = async (
 
   try {
     const users = await getFriendsStats(userId, parseInt(skip), sessionUserId);
-    return reply.code(httpCodes.SUCCESS).send(users);
+    return users;
   } catch (error) {
-    return reply.code(httpCodes.SERVER_ERROR).send(error);
+    return reply.internalServerError(error as string);
   }
 };

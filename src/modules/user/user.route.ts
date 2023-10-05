@@ -1,4 +1,4 @@
-import { FastifyInstance } from 'fastify';
+import { FastifyPluginAsync } from 'fastify';
 
 import {
   deleteAvatarHandler,
@@ -12,29 +12,32 @@ import {
 } from './user.controller.js';
 import { $ref } from './user.schema.js';
 
-export const userRoutesPlugin = async (server: FastifyInstance) => {
-  server.route({
+export const userRoutesPlugin: FastifyPluginAsync = async (fastify) => {
+  fastify.route({
     method: 'POST',
     url: '/user/edit',
     schema: {
       body: $ref('editAccountInputSchema'),
     },
+    preHandler: [fastify.authorize],
     handler: editAccountHandler,
   });
 
-  server.route({
+  fastify.route({
     method: 'POST',
     url: '/user/avatar',
+    preHandler: [fastify.authorize],
     handler: updateAvatarHandler,
   });
 
-  server.route({
+  fastify.route({
     method: 'DELETE',
     url: '/user/avatar',
+    preHandler: [fastify.authorize],
     handler: deleteAvatarHandler,
   });
 
-  server.route({
+  fastify.route({
     method: 'GET',
     url: '/user/:userId',
     schema: {
@@ -46,7 +49,7 @@ export const userRoutesPlugin = async (server: FastifyInstance) => {
     handler: getUserHandler,
   });
 
-  server.route({
+  fastify.route({
     method: 'GET',
     url: '/user/username/:username',
     schema: {
@@ -58,30 +61,33 @@ export const userRoutesPlugin = async (server: FastifyInstance) => {
     handler: getUserByUsernameHandler,
   });
 
-  server.route({
+  fastify.route({
     method: 'PUT',
     url: '/user/:userId/follow',
     schema: {
       params: $ref('followUserInputSchema'),
     },
+    preHandler: [fastify.authorize],
     handler: followUserHandler,
   });
 
-  server.route({
+  fastify.route({
     method: 'DELETE',
     url: '/user/:userId/follow',
     schema: {
       params: $ref('followUserInputSchema'),
     },
+    preHandler: [fastify.authorize],
     handler: unfollowUserHandler,
   });
 
-  server.route({
+  fastify.route({
     method: 'POST',
     url: '/user/preferences',
     schema: {
       body: $ref('userPreferencesInputSchema'),
     },
+    preHandler: [fastify.authorize],
     handler: updateUserPreferencesHandler,
   });
 };

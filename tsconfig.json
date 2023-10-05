@@ -13,5 +13,8 @@
     "strict": true,
     "outDir": "dist",
     "allowSyntheticDefaultImports": true,
+  },
+  "ts-node": {
+    "swc": true
   }
 }

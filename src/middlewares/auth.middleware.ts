@@ -1,10 +1,8 @@
-import { FastifyReply, FastifyRequest, HookHandlerDoneFunction } from 'fastify';
+import { preHandlerHookHandler } from 'fastify';
 
-import { httpCodes } from '../consts/httpStatus.js';
-
-export const authMiddleware = async (request: FastifyRequest, reply: FastifyReply, done: HookHandlerDoneFunction) => {
+export const authorize: preHandlerHookHandler = function (this, request, reply, done) {
   if (!request.session.data) {
-    return reply.code(httpCodes.UNAUTHORIZED).send('Unauthoriuzed');
+    throw reply.unauthorized();
   }
 
   done();

@@ -8,8 +8,8 @@ import {
 } from './auth.controller.js';
 import { $ref } from './auth.schema.js';
 
-export const authRoutesPlugin: FastifyPluginAsync = async (server) => {
-  server.route({
+export const authRoutesPlugin: FastifyPluginAsync = async (fastify) => {
+  fastify.route({
     method: 'POST',
     handler: signInCredentialsHandler,
     schema: {
@@ -18,7 +18,7 @@ export const authRoutesPlugin: FastifyPluginAsync = async (server) => {
     url: '/auth/sign-in',
   });
 
-  server.route({
+  fastify.route({
     method: 'POST',
     handler: registerCredentialsHandler,
     schema: {
@@ -27,13 +27,14 @@ export const authRoutesPlugin: FastifyPluginAsync = async (server) => {
     url: '/auth/register',
   });
 
-  server.route({
+  fastify.route({
     method: 'GET',
     url: '/auth/me',
+    preHandler: [fastify.authorize],
     handler: getCurrentUserHandler,
   });
 
-  server.route({
+  fastify.route({
     method: 'DELETE',
     url: '/auth/me',
     handler: signOutHandler,
