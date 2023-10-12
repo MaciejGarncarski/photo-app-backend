@@ -1,3 +1,4 @@
+import { Type } from '@sinclair/typebox';
 import { FastifyPluginAsync } from 'fastify';
 
 import {
@@ -10,23 +11,42 @@ import {
   updateAvatarHandler,
   updateUserPreferencesHandler,
 } from './user.controller.js';
-import { $ref } from './user.schema.js';
+import {
+  editAccountInputSchema,
+  followUserInputSchema,
+  getUserByUsernameInputSchema,
+  getUserInputSchema,
+  userPreferencesInputSchema,
+  userWithStatsSchema,
+} from './user.schema.js';
 
 export const userRoutesPlugin: FastifyPluginAsync = async (fastify) => {
   fastify.route({
-    method: 'POST',
+    method: 'PUT',
     url: '/user/edit',
     schema: {
-      body: $ref('editAccountInputSchema'),
+      body: editAccountInputSchema,
     },
     preHandler: [fastify.authorize],
     handler: editAccountHandler,
   });
 
   fastify.route({
-    method: 'POST',
+    method: 'PUT',
     url: '/user/avatar',
     preHandler: [fastify.authorize],
+    schema: {
+      consumes: ['multipart/form-data'],
+      body: {
+        type: 'object',
+        required: ['image'],
+        properties: {
+          image: {
+            isFile: true,
+          },
+        },
+      },
+    },
     handler: updateAvatarHandler,
   });
 
@@ -34,6 +54,11 @@ export const userRoutesPlugin: FastifyPluginAsync = async (fastify) => {
     method: 'DELETE',
     url: '/user/avatar',
     preHandler: [fastify.authorize],
+    schema: {
+      response: {
+        204: {},
+      },
+    },
     handler: deleteAvatarHandler,
   });
 
@@ -41,9 +66,11 @@ export const userRoutesPlugin: FastifyPluginAsync = async (fastify) => {
     method: 'GET',
     url: '/user/:userId',
     schema: {
-      params: $ref('getUserInputSchema'),
+      params: getUserInputSchema,
       response: {
-        200: $ref('userSchema'),
+        200: Type.Object({
+          data: userWithStatsSchema,
+        }),
       },
     },
     handler: getUserHandler,
@@ -53,19 +80,24 @@ export const userRoutesPlugin: FastifyPluginAsync = async (fastify) => {
     method: 'GET',
     url: '/user/username/:username',
     schema: {
-      params: $ref('getUserByUsernameInputSchema'),
+      params: getUserByUsernameInputSchema,
       response: {
-        200: $ref('userSchema'),
+        200: Type.Object({
+          data: userWithStatsSchema,
+        }),
       },
     },
     handler: getUserByUsernameHandler,
   });
 
   fastify.route({
-    method: 'PUT',
+    method: 'POST',
     url: '/user/:userId/follow',
     schema: {
-      params: $ref('followUserInputSchema'),
+      params: followUserInputSchema,
+      response: {
+        204: {},
+      },
     },
     preHandler: [fastify.authorize],
     handler: followUserHandler,
@@ -75,17 +107,20 @@ export const userRoutesPlugin: FastifyPluginAsync = async (fastify) => {
     method: 'DELETE',
     url: '/user/:userId/follow',
     schema: {
-      params: $ref('followUserInputSchema'),
+      params: followUserInputSchema,
+      response: {
+        204: {},
+      },
     },
     preHandler: [fastify.authorize],
     handler: unfollowUserHandler,
   });
 
   fastify.route({
-    method: 'POST',
+    method: 'PUT',
     url: '/user/preferences',
     schema: {
-      body: $ref('userPreferencesInputSchema'),
+      body: userPreferencesInputSchema,
     },
     preHandler: [fastify.authorize],
     handler: updateUserPreferencesHandler,

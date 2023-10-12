@@ -1,6 +1,7 @@
 import { hash } from 'argon2';
 
 import { RegisterValues } from '../auth/auth.schema.js';
+import { User } from '../user/user.schema.js';
 import { db } from '../../utils/db.js';
 
 export const registerUser = async ({ email, username, password }: RegisterValues) => {
@@ -22,5 +23,15 @@ export const registerUser = async ({ email, username, password }: RegisterValues
     },
   });
 
-  return createdUser;
+  const mappedUser = {
+    bio: createdUser.bio,
+    createdAt: createdUser.createdAt.toString(),
+    customImage: createdUser.customImage,
+    id: createdUser.id,
+    image: createdUser.image,
+    name: createdUser.name,
+    username: createdUser.username || '',
+  } satisfies User;
+
+  return mappedUser;
 };

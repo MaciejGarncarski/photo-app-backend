@@ -1,98 +1,87 @@
-import { PostImage } from '@prisma/client';
-import { buildJsonSchemas } from 'fastify-zod';
-import { z } from 'zod';
+import { Static, Type } from '@fastify/type-provider-typebox';
 
-const getHomepagePostsInputSchema = z.object({
-  skip: z.string(),
+export const getHomepagePostsInputSchema = Type.Object({
+  skip: Type.String(),
 });
 
-export type GetHomepagePostsInput = z.infer<typeof getHomepagePostsInputSchema>;
+export const postDescriptionSchema = Type.String({ minLength: 1, maxLength: 100 });
 
-export const postDescriptionSchema = z.string().min(1).max(100);
-
-export const postSchema = z.object({
-  createdAt: z.date(),
-  id: z.number(),
-  authorId: z.string(),
+export const postSchema = Type.Object({
+  createdAt: Type.String(),
+  id: Type.Number(),
+  authorId: Type.String(),
 });
 
-export const postDetailsSchema = z.object({
-  commentsCount: z.number(),
-  likesCount: z.number(),
-  images: z.array(z.custom<PostImage>()),
-  createdAt: z.date(),
+const postImageSchema = Type.Object({
+  id: Type.Number(),
+  fileId: Type.String(),
+  name: Type.String(),
+  url: Type.String(),
+  thumbnailUrl: Type.String(),
+  width: Type.Number(),
+  height: Type.Number(),
+  size: Type.Number(),
+});
+
+export const postDetailsSchema = Type.Object({
+  commentsCount: Type.Number(),
+  likesCount: Type.Number(),
+  images: Type.Array(postImageSchema),
+  createdAt: Type.String(),
   description: postDescriptionSchema,
-  id: z.number(),
-  isLiked: z.boolean(),
-  authorId: z.string(),
+  id: Type.Number(),
+  isLiked: Type.Boolean(),
+  authorId: Type.String(),
 });
 
-export const postsResponseSchema = z.object({
-  postsCount: z.number(),
-  totalPages: z.number(),
-  currentPage: z.number(),
-  posts: z.array(postSchema),
+export const postsResponseSchema = Type.Object({
+  postsCount: Type.Number(),
+  totalPages: Type.Number(),
+  currentPage: Type.Number(),
+  data: Type.Array(postSchema),
 });
 
-export type Post = z.infer<typeof postSchema>;
-export type PostDetails = z.infer<typeof postDetailsSchema>;
-export type PostsResponse = z.infer<typeof postsResponseSchema>;
-
-const createPostInputSchema = z.object({
-  description: z.string(),
+const createPostInputSchema = Type.Object({
+  description: Type.String(),
 });
 
-export type CreatePostInput = z.infer<typeof createPostInputSchema>;
-
-const deletePostInputSchema = z.object({
-  postId: z.string(),
-});
-export type DeletePostInput = z.infer<typeof deletePostInputSchema>;
-
-const postByIdInputSchema = z.object({
-  postId: z.string(),
+export const deletePostInputSchema = Type.Object({
+  postId: Type.String(),
 });
 
-export type PostByIdInput = z.infer<typeof postByIdInputSchema>;
-
-const postLikeInputSchema = z.object({
-  postId: z.string(),
+export const postByIdInputSchema = Type.Object({
+  postId: Type.String(),
 });
 
-export type PostLikeInputSchema = z.infer<typeof postLikeInputSchema>;
+export const postLikeInputSchema = Type.Object({
+  postId: Type.String(),
+});
 
-const editPostInputSchema = z.object({
+export const editPostParamsSchema = Type.Object({
+  postId: Type.String(),
+});
+
+export const editPostInputSchema = Type.Object({
   description: postDescriptionSchema,
-  postId: z.string(),
 });
 
-export type EditPostInput = z.infer<typeof editPostInputSchema>;
-
-const getUserPostsParamsSchema = z.object({
-  authorId: z.string(),
+export const getUserPostsParamsSchema = Type.Object({
+  authorId: Type.String(),
 });
 
-const getUserPostsQuerySchema = z.object({
-  skip: z.string().transform((str) => parseInt(str)),
+export const getUserPostsQuerySchema = Type.Object({
+  skip: Type.Number(),
 });
 
-export type GetUserPostsParamsInput = z.infer<typeof getUserPostsParamsSchema>;
-export type GetUserPostsQueryInput = z.infer<typeof getUserPostsQuerySchema>;
-
-export type GetUserPostsInput = GetUserPostsQueryInput & GetUserPostsParamsInput;
-
-export const { schemas: postSchemas, $ref } = buildJsonSchemas(
-  {
-    postsResponseSchema,
-    getHomepagePostsInputSchema,
-    createPostInputSchema,
-    deletePostInputSchema,
-    getUserPostsParamsSchema,
-    getUserPostsQuerySchema,
-    postByIdInputSchema,
-    postSchema,
-    postDetailsSchema,
-    editPostInputSchema,
-  },
-  { $id: 'postSchema' },
-);
+export type PostLikeInputSchema = Static<typeof postLikeInputSchema>;
+export type PostByIdInput = Static<typeof postByIdInputSchema>;
+export type GetHomepagePostsInput = Static<typeof getHomepagePostsInputSchema>;
+export type DeletePostInput = Static<typeof deletePostInputSchema>;
+export type EditPostParams = Static<typeof editPostParamsSchema>;
+export type EditPostInput = Static<typeof editPostInputSchema>;
+export type GetUserPostsParamsInput = Static<typeof getUserPostsParamsSchema>;
+export type GetUserPostsQueryInput = Static<typeof getUserPostsQuerySchema>;
+export type CreatePostInput = Static<typeof createPostInputSchema>;
+export type PostDetails = Static<typeof postDetailsSchema>;
+export type PostsResponse = Static<typeof postsResponseSchema>;
+export type GetUserPostsInput = GetUserPostsParamsInput & GetUserPostsQueryInput;

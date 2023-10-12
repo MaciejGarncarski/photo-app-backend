@@ -30,7 +30,7 @@ export const getHomepagePosts = async (skip: number) => {
   const posts = postsList.map(({ authorId, createdAt, id }) => {
     return {
       id,
-      createdAt: createdAt,
+      createdAt: createdAt.toString(),
       authorId: authorId,
     };
   });
@@ -39,7 +39,7 @@ export const getHomepagePosts = async (skip: number) => {
     postsCount,
     totalPages,
     currentPage: skip,
-    posts: posts,
+    data: posts,
   };
 
   return response;
@@ -95,7 +95,7 @@ export const deletePost = async (postId: number, request: FastifyRequest) => {
   if (!postData) {
     return;
   }
-  const isAbleToDelete = postData.authorId === sessionUser?.id || sessionUser?.role === 'ADMIN';
+  const isAbleToDelete = postData.authorId === sessionUser?.id;
 
   if (!isAbleToDelete) {
     return;
@@ -155,18 +155,18 @@ export const getPostById = async (postId: number, request: FastifyRequest) => {
     postsLikes,
   } = postFromDb;
 
-  const post: PostDetails = {
+  const data: PostDetails = {
     authorId: authorId,
     commentsCount,
     likesCount,
-    createdAt: createdAt,
+    createdAt: createdAt.toString(),
     description,
     images,
     id,
     isLiked: Boolean(postsLikes[0]),
   };
 
-  return post;
+  return data;
 };
 
 export const addPostLike = async (postId: number, sessionUserId: string) => {
@@ -222,7 +222,7 @@ export const editPost = async (postId: number, sessionUserId: string, newDescrip
   });
 };
 
-const USER_POSTS_PER_SCROLL = 4;
+const USER_POSTS_PER_SCROLL = 3;
 
 export const getUserPosts = async ({ skip, authorId }: GetUserPostsInput) => {
   const postsRequest = db.post.findMany({
@@ -251,11 +251,18 @@ export const getUserPosts = async ({ skip, authorId }: GetUserPostsInput) => {
   const [postsCount, posts] = await Promise.all([postsCountRequest, postsRequest]);
   const totalPages = Math.ceil(postsCount / USER_POSTS_PER_SCROLL) - 1;
 
+  const transformedPosts = posts.map((post) => {
+    return {
+      ...post,
+      createdAt: post.createdAt.toString(),
+    };
+  });
+
   const response: PostsResponse = {
     postsCount,
     totalPages,
     currentPage: skip,
-    posts,
+    data: transformedPosts,
   };
 
   return response;

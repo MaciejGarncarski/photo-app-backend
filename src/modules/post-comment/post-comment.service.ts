@@ -1,8 +1,8 @@
 import { Comment, CommentResponse } from './post-comment.schema.js';
 import { db } from '../../utils/db.js';
 
-export const addComment = (commentText: string, postId: number, sessionUserId: string) => {
-  return db.postComment.create({
+export const addComment = async (commentText: string, postId: number, sessionUserId: string) => {
+  const data = await db.postComment.create({
     data: {
       postId,
       userId: sessionUserId,
@@ -13,6 +13,8 @@ export const addComment = (commentText: string, postId: number, sessionUserId: s
       id: true,
     },
   });
+
+  return data;
 };
 
 export const deleteComment = async (commentId: number, sessionUserId: string) => {
@@ -71,7 +73,7 @@ export const getComments = async (postId: number, skip: number, sessionUserId?: 
   const transformedComments = comments.map(({ text, createdAt, id, postId, userId, commentLike, _count }) => {
     const comment: Comment = {
       text,
-      createdAt: createdAt,
+      createdAt: createdAt.toString(),
       commentId: id,
       postId: postId,
       isLiked: Boolean(commentLike.find((commentLike) => commentLike.userId === sessionUserId)),

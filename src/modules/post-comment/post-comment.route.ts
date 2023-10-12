@@ -1,3 +1,4 @@
+import { Type } from '@sinclair/typebox';
 import { FastifyPluginAsync } from 'fastify';
 
 import {
@@ -7,14 +8,21 @@ import {
   deletePostCommentHandler,
   getCommentsHandler,
 } from './post-comment.controller.js';
-import { $ref } from './post-comment.schema.js';
+import {
+  addPostCommentInputSchema,
+  commentLikeInputSchema,
+  commentResponseSchema,
+  deletePostCommentInputSchema,
+  getPostCommentsInputSchema,
+  getPostCommentsQuerySchema,
+} from './post-comment.schema.js';
 
 export const postCommentRoutesPlugin: FastifyPluginAsync = async (fastify) => {
   fastify.route({
     method: 'POST',
     url: '/post/comment',
     schema: {
-      body: $ref('addPostCommentInputSchema'),
+      body: addPostCommentInputSchema,
     },
     preHandler: [fastify.authorize],
     handler: addPostCommentHandler,
@@ -24,7 +32,10 @@ export const postCommentRoutesPlugin: FastifyPluginAsync = async (fastify) => {
     method: 'DELETE',
     url: '/post/comment/:commentId',
     schema: {
-      params: $ref('deletePostCommentInputSchema'),
+      params: deletePostCommentInputSchema,
+      response: {
+        204: {},
+      },
     },
     preHandler: [fastify.authorize],
     handler: deletePostCommentHandler,
@@ -34,10 +45,12 @@ export const postCommentRoutesPlugin: FastifyPluginAsync = async (fastify) => {
     method: 'GET',
     url: '/post/:postId/comments',
     schema: {
-      params: $ref('getPostCommentsInputSchema'),
-      querystring: $ref('getPostCommentsQuerySchema'),
+      params: getPostCommentsInputSchema,
+      querystring: getPostCommentsQuerySchema,
       response: {
-        200: $ref('commentResponseSchema'),
+        200: Type.Object({
+          data: commentResponseSchema,
+        }),
       },
     },
     handler: getCommentsHandler,
@@ -47,7 +60,10 @@ export const postCommentRoutesPlugin: FastifyPluginAsync = async (fastify) => {
     method: 'POST',
     url: '/post/comment/:commentId/like',
     schema: {
-      params: $ref('commentLikeInputSchema'),
+      params: commentLikeInputSchema,
+      response: {
+        204: {},
+      },
     },
     preHandler: [fastify.authorize],
     handler: addCommentLikeHandler,
@@ -57,7 +73,10 @@ export const postCommentRoutesPlugin: FastifyPluginAsync = async (fastify) => {
     method: 'DELETE',
     url: '/post/comment/:commentId/like',
     schema: {
-      params: $ref('commentLikeInputSchema'),
+      params: commentLikeInputSchema,
+      response: {
+        204: {},
+      },
     },
     preHandler: [fastify.authorize],
     handler: deleteCommentLikeHandler,

@@ -3,30 +3,19 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import {
   AddPostCommentInput,
   CommentLikeInput,
-  commentTextSchema,
   DeletePostCommentInput,
   GetPostCommentsInput,
   GetPostCommentsQuery,
 } from './post-comment.schema.js';
 import { addComment, addCommentLike, deleteComment, deleteCommentLike, getComments } from './post-comment.service.js';
 
-export const addPostCommentHandler = async (
-  request: FastifyRequest<{ Body: AddPostCommentInput }>,
-  reply: FastifyReply,
-) => {
+export const addPostCommentHandler = async (request: FastifyRequest<{ Body: AddPostCommentInput }>) => {
   const { data } = request.session;
-  const result = commentTextSchema.safeParse(request.body.commentText);
+  const { body } = request;
 
-  if (!result.success) {
-    return reply.badRequest('Cannot add comment.');
-  }
+  const comment = await addComment(body.commentText, parseInt(request.body.postId), data.id);
 
-  try {
-    const comment = addComment(result.data, parseInt(request.body.postId), data.id);
-    return { comment };
-  } catch (error) {
-    return reply.internalServerError(error as string);
-  }
+  return { data: comment };
 };
 
 export const deletePostCommentHandler = async (
@@ -36,33 +25,24 @@ export const deletePostCommentHandler = async (
   const { commentId } = request.params;
   const { data } = request.session;
 
-  try {
-    const response = await deleteComment(parseInt(commentId), data.id);
-    if (response === 'ok') {
-      return reply.status(204).send();
-    }
-
-    return reply.badRequest('Cannot delete comment.');
-  } catch (error) {
-    return reply.internalServerError(error as string);
+  const response = await deleteComment(parseInt(commentId), data.id);
+  if (response === 'ok') {
+    return reply.status(204).send();
   }
+
+  return reply.badRequest('Cannot delete comment.');
 };
 
 export const getCommentsHandler = async (
   request: FastifyRequest<{ Params: GetPostCommentsInput; Querystring: GetPostCommentsQuery }>,
-  reply: FastifyReply,
 ) => {
   const {
     query: { skip },
     params: { postId },
   } = request;
   const { data } = request.session;
-  try {
-    const commentsData = await getComments(parseInt(postId), parseInt(skip), data.id);
-    return commentsData;
-  } catch (error) {
-    return reply.internalServerError(error as string);
-  }
+  const commentsData = await getComments(parseInt(postId), parseInt(skip), data.id);
+  return { data: commentsData };
 };
 
 export const addCommentLikeHandler = async (
@@ -70,17 +50,13 @@ export const addCommentLikeHandler = async (
   reply: FastifyReply,
 ) => {
   const { data } = request.session;
-  try {
-    const response = await addCommentLike(parseInt(request.params.commentId), data.id);
+  const response = await addCommentLike(parseInt(request.params.commentId), data.id);
 
-    if (response === 'ok') {
-      return reply.status(204).send();
-    }
-
-    return reply.badRequest('Comment is already liked.');
-  } catch (error) {
-    return reply.internalServerError(error as string);
+  if (response === 'ok') {
+    return reply.status(204).send();
   }
+
+  return reply.badRequest('Comment is already liked.');
 };
 
 export const deleteCommentLikeHandler = async (

@@ -134,7 +134,7 @@ export const chatMessages = async (sessionUserId: string, receiverId: string, sk
     const message: ChatMessage = {
       id,
       text,
-      createdAt: createdAt,
+      createdAt: createdAt.toString(),
       receiverId: receiver.id,
       senderId: sender.id,
     };

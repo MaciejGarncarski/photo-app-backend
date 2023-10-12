@@ -4,11 +4,11 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import {
   DeletePostInput,
   EditPostInput,
+  EditPostParams,
   GetHomepagePostsInput,
   GetUserPostsParamsInput,
   GetUserPostsQueryInput,
   PostByIdInput,
-  postDescriptionSchema,
   PostLikeInputSchema,
 } from './post.schema.js';
 import {
@@ -24,17 +24,9 @@ import {
 
 type RequestBody = { images: Array<MultipartFile> | MultipartFile; description: { value: string } };
 
-export const getHomepagePostsHandler = async (
-  request: FastifyRequest<{ Querystring: GetHomepagePostsInput }>,
-  reply: FastifyReply,
-) => {
-  try {
-    const postsData = await getHomepagePosts(parseInt(request.query.skip));
-
-    return reply.send(postsData);
-  } catch (error) {
-    return reply.internalServerError(error as string);
-  }
+export const getHomepagePostsHandler = async (request: FastifyRequest<{ Querystring: GetHomepagePostsInput }>) => {
+  const response = await getHomepagePosts(parseInt(request.query.skip));
+  return response;
 };
 
 export const getUserPostsHandler = async (
@@ -49,70 +41,48 @@ export const getUserPostsHandler = async (
     params: { authorId },
   } = request;
 
-  try {
-    const response = await getUserPosts({ authorId, skip });
+  const response = await getUserPosts({ authorId, skip });
 
-    if (!response) {
-      return reply.notFound('Posts not found.');
-    }
-
-    return response;
-  } catch (error) {
-    return reply.internalServerError(error as string);
+  if (!response) {
+    return reply.notFound();
   }
+
+  return response;
 };
 
 export const createPostHandler = async (request: FastifyRequest<{ Body: RequestBody }>, reply: FastifyReply) => {
-  const images = request.body.images;
+  const { images, description } = request.body;
   const { data: sessionData } = request.session;
-
-  const result = postDescriptionSchema.safeParse(request.body.description.value);
-
-  if (!result.success) {
-    return reply.badRequest('Description parsing error');
-  }
-
-  const description = result.data;
 
   if (!images) {
     return reply.badRequest('No image provided');
   }
 
-  try {
-    const imagesArray = Array.isArray(images) ? images : [images];
-    const data = await createPost({ description }, sessionData.id, imagesArray);
-    request.server.io.emit('new post');
+  const imagesArray = Array.isArray(images) ? images : [images];
+  const data = await createPost({ description: description.value }, sessionData.id, imagesArray);
+  request.server.io.emit('new post');
 
-    return { data };
-  } catch (error) {
-    return reply.internalServerError(error as string);
-  }
+  return reply.status(201).send({ data });
 };
 
 export const deletePostHandler = async (request: FastifyRequest<{ Params: DeletePostInput }>, reply: FastifyReply) => {
-  try {
-    const response = await deletePost(parseInt(request.params.postId), request);
+  const response = await deletePost(parseInt(request.params.postId), request);
 
-    if (response === 'deleted') {
-      return reply.status(204).send();
-    }
+  if (response === 'deleted') {
+    return reply.status(204).send();
+  }
 
-    return reply.badRequest('Cannot delete post');
-  } catch (error) {}
+  return reply.badRequest('Cannot delete post');
 };
 
 export const getPostByIdHandler = async (request: FastifyRequest<{ Params: PostByIdInput }>, reply: FastifyReply) => {
-  try {
-    const postData = await getPostById(parseInt(request.params.postId), request);
+  const data = await getPostById(parseInt(request.params.postId), request);
 
-    if (!postData) {
-      return reply.notFound('Post not found.');
-    }
-
-    return postData;
-  } catch (error) {
-    return reply.internalServerError(error as string);
+  if (!data) {
+    return reply.notFound('Post not found.');
   }
+
+  return { data };
 };
 
 export const addPostLikeHandler = async (
@@ -121,12 +91,8 @@ export const addPostLikeHandler = async (
 ) => {
   const { data } = request.session;
 
-  try {
-    const postLike = await addPostLike(parseInt(request.params.postId), data.id);
-    return { postLike };
-  } catch (error) {
-    return reply.internalServerError(error as string);
-  }
+  const postLike = await addPostLike(parseInt(request.params.postId), data.id);
+  return reply.status(201).send({ data: postLike });
 };
 
 export const deletePostLikeHandler = async (
@@ -135,22 +101,15 @@ export const deletePostLikeHandler = async (
 ) => {
   const { data } = request.session;
 
-  try {
-    await deletePostLike(parseInt(request.params.postId), data.id);
-    return reply.status(204).send();
-  } catch (error) {
-    return reply.internalServerError(error as string);
-  }
+  await deletePostLike(parseInt(request.params.postId), data.id);
+  return reply.status(204).send();
 };
 
-export const editPostHandler = async (request: FastifyRequest<{ Body: EditPostInput }>, reply: FastifyReply) => {
-  const { description, postId } = request.body;
+export const editPostHandler = async (request: FastifyRequest<{ Params: EditPostParams; Body: EditPostInput }>) => {
+  const { postId } = request.params;
+  const { description } = request.body;
   const { data: sessionData } = request.session;
 
-  try {
-    const data = await editPost(parseInt(postId), sessionData.id, description);
-    return { data };
-  } catch (error) {
-    return reply.internalServerError(error as string);
-  }
+  const data = await editPost(parseInt(postId), sessionData.id, description);
+  return { data };
 };

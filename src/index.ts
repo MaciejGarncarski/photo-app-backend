@@ -1,21 +1,18 @@
 import fastifyCookie from '@fastify/cookie';
 import cors from '@fastify/cors';
-import fastifyMultipart from '@fastify/multipart';
+import fastifyMultipart, { ajvFilePlugin } from '@fastify/multipart';
 import fastifySensible from '@fastify/sensible';
 import { fastifySession, SessionStore } from '@fastify/session';
-import { Prisma, PrismaClient } from '@prisma/client';
+import fastifySwagger from '@fastify/swagger';
+import { fastifySwaggerUi } from '@fastify/swagger-ui';
+import { TypeBoxTypeProvider } from '@fastify/type-provider-typebox';
+import { PrismaClient } from '@prisma/client';
 import { PrismaSessionStore } from '@quixo3/prisma-session-store';
-import fastify, { preHandlerHookHandler } from 'fastify';
+import Fastify, { preHandlerHookHandler } from 'fastify';
 
 import { cookie } from './consts/cookie.js';
 import { authorize } from './middlewares/auth.middleware.js';
-import { authSchemas } from './modules/auth/auth.schema.js';
-import { chatSchemas } from './modules/chat/chat.schema.js';
-import { followersSchemas } from './modules/follower-stats/follower-stats.schema.js';
 import { routerPlugin } from './modules/plugins/router.plugin.js';
-import { postSchemas } from './modules/post/post.schema.js';
-import { postCommentSchemas } from './modules/post-comment/post-comment.schema.js';
-import { userSchemas } from './modules/user/user.schema.js';
 import { envVariables } from './utils/envVariables.js';
 
 declare module 'fastify' {
@@ -24,22 +21,40 @@ declare module 'fastify' {
   }
 }
 
-const schemas = [userSchemas, postSchemas, postCommentSchemas, followersSchemas, chatSchemas, authSchemas].flat();
 const PrismaStore = new PrismaSessionStore(new PrismaClient(), {
   checkPeriod: 2 * 60 * 1000,
   dbRecordIdIsSessionId: true,
   dbRecordIdFunction: undefined,
 });
 
-const server = fastify();
-
-for (const schema of schemas) {
-  server.addSchema(schema);
-}
+const server = Fastify({
+  ajv: {
+    plugins: [ajvFilePlugin],
+  },
+}).withTypeProvider<TypeBoxTypeProvider>();
 
 await server.register(fastifySensible);
 await server.register(fastifyCookie);
-await server.register(fastifyMultipart, { attachFieldsToBody: true });
+
+await server.register(fastifySwagger, {
+  mode: 'dynamic',
+  openapi: {
+    info: {
+      title: 'PhotoApp api swagger',
+      description: 'testing the PhotoApp api',
+      version: '0.1.0',
+    },
+  },
+});
+
+await server.register(fastifySwaggerUi, {
+  routePrefix: '/documentation',
+  uiConfig: {
+    docExpansion: 'full',
+  },
+});
+
+await server.register(fastifyMultipart, { attachFieldsToBody: 'keyValues' });
 await server.register(cors, {
   credentials: true,
   origin: `${envVariables.APP_URL}`,
@@ -57,17 +72,8 @@ await server.register(fastifySession, {
 });
 await server.register(routerPlugin, { prefix: '/' });
 
-server.setErrorHandler((error, _, rep) => {
-  if (error instanceof Prisma.PrismaClientKnownRequestError) {
-    console.log('prisma error');
-    return server.httpErrors.notFound();
-  }
-
-  console.log('other error');
-  return rep.send(error);
-});
-
 const port = parseInt(process.env.PORT || '3001');
+
 server.listen({ port, host: '0.0.0.0' }, (err) => {
   if (err) {
     console.log(err);

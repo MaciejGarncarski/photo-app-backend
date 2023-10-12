@@ -1,67 +1,49 @@
-import { buildJsonSchemas } from 'fastify-zod';
-import { z } from 'zod';
+import { Static, Type } from '@fastify/type-provider-typebox';
 
-const addPostCommentInputSchema = z.object({
-  commentText: z.string(),
-  postId: z.string(),
+export const addPostCommentInputSchema = Type.Object({
+  commentText: Type.String(),
+  postId: Type.String(),
 });
 
-export type AddPostCommentInput = z.infer<typeof addPostCommentInputSchema>;
-
-const deletePostCommentInputSchema = z.object({
-  commentId: z.string(),
+export const deletePostCommentInputSchema = Type.Object({
+  commentId: Type.String(),
 });
 
-export type DeletePostCommentInput = z.infer<typeof deletePostCommentInputSchema>;
-
-const getPostCommentsInputSchema = z.object({
-  postId: z.string(),
+export const getPostCommentsInputSchema = Type.Object({
+  postId: Type.String(),
 });
 
-const getPostCommentsQuerySchema = z.object({
-  skip: z.string(),
+export const getPostCommentsQuerySchema = Type.Object({
+  skip: Type.String(),
 });
 
-export type GetPostCommentsInput = z.infer<typeof getPostCommentsInputSchema>;
-export type GetPostCommentsQuery = z.infer<typeof getPostCommentsQuerySchema>;
+export const commentTextSchema = Type.String({ maxLength: 100 });
 
-export const commentTextSchema = z.string().max(100, { message: 'Maximum characters exceeded.' });
-
-const commentSchema = z.object({
+export const commentSchema = Type.Object({
   text: commentTextSchema,
-  createdAt: z.date(),
-  likesCount: z.number(),
-  isLiked: z.boolean(),
-  postId: z.number(),
-  commentId: z.number(),
-  authorId: z.string(),
+  createdAt: Type.String(),
+  likesCount: Type.Number(),
+  isLiked: Type.Boolean(),
+  postId: Type.Number(),
+  commentId: Type.Number(),
+  authorId: Type.String(),
 });
 
-export type Comment = z.infer<typeof commentSchema>;
-
-const commentResponseSchema = z.object({
-  comments: z.array(commentSchema),
-  commentsCount: z.number(),
-  totalPages: z.number(),
-  currentPage: z.number(),
+export const commentResponseSchema = Type.Object({
+  comments: Type.Array(commentSchema),
+  commentsCount: Type.Number(),
+  totalPages: Type.Number(),
+  currentPage: Type.Number(),
 });
 
-export type CommentResponse = z.infer<typeof commentResponseSchema>;
-
-const commentLikeInputSchema = z.object({
-  commentId: z.string(),
+export const commentLikeInputSchema = Type.Object({
+  commentId: Type.String(),
 });
 
-export type CommentLikeInput = z.infer<typeof commentLikeInputSchema>;
-
-export const { $ref, schemas: postCommentSchemas } = buildJsonSchemas(
-  {
-    addPostCommentInputSchema,
-    deletePostCommentInputSchema,
-    getPostCommentsInputSchema,
-    getPostCommentsQuerySchema,
-    commentResponseSchema,
-    commentLikeInputSchema,
-  },
-  { $id: 'postCommentSchema' },
-);
+export type Comment = Static<typeof commentSchema>;
+export type CommentResponse = Static<typeof commentResponseSchema>;
+export type CommentLikeInput = Static<typeof commentLikeInputSchema>;
+export type GetPostCommentsInput = Static<typeof getPostCommentsInputSchema>;
+export type GetPostCommentsQuery = Static<typeof getPostCommentsQuerySchema>;
+export type AddPostCommentInput = Static<typeof addPostCommentInputSchema>;
+export type DeletePostCommentInput = Static<typeof deletePostCommentInputSchema>;

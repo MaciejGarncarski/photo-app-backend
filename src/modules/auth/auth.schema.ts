@@ -1,63 +1,32 @@
-import { buildJsonSchemas } from 'fastify-zod';
-import { z } from 'zod';
+import { Static, Type } from '@fastify/type-provider-typebox';
 
-export const signInSchema = z.object({
-  email: z.string().email(),
-  password: z.string(),
+export const signInSchema = Type.Object({
+  email: Type.String({ format: 'email' }),
+  password: Type.String(),
 });
 
-export type SignInValues = z.infer<typeof signInSchema>;
+export type SignInValues = Static<typeof signInSchema>;
 
-const usernameRegex = /^(?!.*\.\.)(?!.*\.$)[^\W][\w.]{0,29}$/gim;
-const smallCharactersRegexp = /^[a-z0-9_\-]+$/;
+const usernameRegExp = /^(?!.*\.\.)(?!.*\.$)[^\W][\w.]{0,29}$/gim;
+const smallCharactersRegExp = /^[a-z0-9_\-]+$/;
 
-export const username = z
-  .string()
-  .min(4, { message: 'Username must contain at least 4 characters.' })
-  .regex(usernameRegex, { message: 'Invalid username' })
-  .regex(smallCharactersRegexp, {
-    message: 'Only lowercase characters allowed.',
-  })
-  .max(9, { message: 'Only 9 characters allowed.' })
-  .optional();
+export const username = Type.Optional(Type.Union([Type.RegExp(usernameRegExp), Type.RegExp(smallCharactersRegExp)]));
 
-export const registerSchema = z
-  .object({
-    email: z.string().email({ message: 'Invalid email.' }),
-    username: username,
-    password: z.string().min(5, { message: 'Password is too short.' }),
-    confirmPassword: z.string(),
-  })
-  .superRefine(({ password, confirmPassword }, ctx) => {
-    if (password.startsWith(confirmPassword)) {
-      return;
-    }
-
-    if (confirmPassword !== password) {
-      ctx.addIssue({
-        code: 'custom',
-        message: 'Passwords do not match.',
-        path: ['confirmPassword'],
-      });
-    }
-  });
-
-export type RegisterValues = z.infer<typeof registerSchema>;
-
-export const { $ref, schemas: authSchemas } = buildJsonSchemas(
-  {
-    signInSchema,
-    registerSchema,
-  },
-  { $id: 'authSchema' },
-);
-
-export const googleUserSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  given_name: z.string(),
-  picture: z.string(),
-  locale: z.string(),
+export const registerSchema = Type.Object({
+  email: Type.String({ format: 'email' }),
+  username: username,
+  password: Type.String({ minLength: 5 }),
+  confirmPassword: Type.String({ minLength: 5 }),
 });
 
-export type GoogleUser = z.infer<typeof googleUserSchema>;
+export type RegisterValues = Static<typeof registerSchema>;
+
+export const googleUserSchema = Type.Object({
+  id: Type.String(),
+  name: Type.String(),
+  given_name: Type.String(),
+  picture: Type.String(),
+  locale: Type.String(),
+});
+
+export type GoogleUser = Static<typeof googleUserSchema>;

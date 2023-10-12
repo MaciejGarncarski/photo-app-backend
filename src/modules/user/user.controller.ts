@@ -28,10 +28,10 @@ export const getUserHandler = async (
     params: { userId },
   } = request;
 
-  const userData = await getUser({ id: userId }, request);
+  const data = await getUser({ id: userId }, request);
 
-  if (userData) {
-    return userData;
+  if (data) {
+    return { data };
   }
 
   return reply.notFound('User not found.');
@@ -47,10 +47,10 @@ export const getUserByUsernameHandler = async (
     params: { username },
   } = request;
 
-  const userData = await getUser({ username: username }, request);
+  const data = await getUser({ username: username }, request);
 
-  if (userData) {
-    return userData;
+  if (data) {
+    return { data };
   }
 
   return reply.badRequest('Invalid user data.');
@@ -59,12 +59,8 @@ export const getUserByUsernameHandler = async (
 export const followUserHandler = async (request: FastifyRequest<{ Params: FollowUserInput }>, reply: FastifyReply) => {
   const { data } = request.session;
 
-  try {
-    await followUser(request.params.userId, data.id);
-    return reply.status(204).send();
-  } catch (error) {
-    return reply.internalServerError(error as string);
-  }
+  await followUser(request.params.userId, data.id);
+  return reply.status(204).send();
 };
 
 export const unfollowUserHandler = async (
@@ -73,27 +69,15 @@ export const unfollowUserHandler = async (
 ) => {
   const { data } = request.session;
 
-  try {
-    await unfollowUser(request.params.userId, data.id);
-    return reply.status(204).send();
-  } catch (error) {
-    return reply.internalServerError(error as string);
-  }
+  await unfollowUser(request.params.userId, data.id);
+  return reply.status(204).send();
 };
 
-export const updateUserPreferencesHandler = async (
-  request: FastifyRequest<{ Body: UserPreferencesInput }>,
-  reply: FastifyReply,
-) => {
+export const updateUserPreferencesHandler = async (request: FastifyRequest<{ Body: UserPreferencesInput }>) => {
   const sessionUserId = request.session.data?.id;
 
-  try {
-    const data = await updateUserPreferences({ data: request.body, userId: sessionUserId });
-
-    return { data };
-  } catch (error) {
-    return reply.internalServerError(error as string);
-  }
+  const data = await updateUserPreferences({ data: request.body, userId: sessionUserId });
+  return { data };
 };
 
 export const updateAvatarHandler = async (
@@ -107,32 +91,22 @@ export const updateAvatarHandler = async (
     return reply.badRequest('No image provided.');
   }
 
-  try {
-    await updateAvatar(data.id, fileData);
-    return 'updated';
-  } catch (error) {
-    return reply.internalServerError(error as string);
-  }
+  const updatedUser = await updateAvatar(data.id, fileData);
+  return { data: updatedUser };
 };
 
-export const deleteAvatarHandler = async (request: FastifyRequest, reply: FastifyReply) => {
-  const { data } = request.session;
-
-  try {
-    await deleteAvatar(data.id);
-    return reply.status(204).send();
-  } catch (error) {
-    return reply.internalServerError(error as string);
-  }
-};
-
-export const editAccountHandler = async (request: FastifyRequest<{ Body: EditAccountInput }>, reply: FastifyReply) => {
+export const deleteAvatarHandler = async (request: FastifyRequest) => {
   const { data: sessionData } = request.session;
 
-  try {
-    const data = await editAccount(sessionData.id, request.body);
-    return { data };
-  } catch (error) {
-    return reply.internalServerError(error as string);
-  }
+  const data = await deleteAvatar(sessionData.id);
+  return { data };
+};
+
+export const editAccountHandler = async (request: FastifyRequest<{ Body: EditAccountInput }>) => {
+  const { data: sessionData } = request.session;
+  console.log(request.body);
+
+  const data = await editAccount(sessionData.id, request.body);
+
+  return { data };
 };

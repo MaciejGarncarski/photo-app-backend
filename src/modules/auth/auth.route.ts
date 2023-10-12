@@ -1,3 +1,4 @@
+import { Type, TypeBoxTypeProvider } from '@fastify/type-provider-typebox';
 import { FastifyPluginAsync } from 'fastify';
 
 import {
@@ -6,14 +7,20 @@ import {
   signInCredentialsHandler,
   signOutHandler,
 } from './auth.controller.js';
-import { $ref } from './auth.schema.js';
+import { registerSchema, signInSchema } from './auth.schema.js';
+import { userSchema, userWithPreferencesSchema } from '../user/user.schema.js';
 
 export const authRoutesPlugin: FastifyPluginAsync = async (fastify) => {
-  fastify.route({
+  fastify.withTypeProvider<TypeBoxTypeProvider>().route({
     method: 'POST',
     handler: signInCredentialsHandler,
     schema: {
-      body: $ref('signInSchema'),
+      body: signInSchema,
+      response: {
+        200: Type.Object({
+          data: userSchema,
+        }),
+      },
     },
     url: '/auth/sign-in',
   });
@@ -22,7 +29,12 @@ export const authRoutesPlugin: FastifyPluginAsync = async (fastify) => {
     method: 'POST',
     handler: registerCredentialsHandler,
     schema: {
-      body: $ref('registerSchema'),
+      body: registerSchema,
+      response: {
+        200: Type.Object({
+          data: userSchema,
+        }),
+      },
     },
     url: '/auth/register',
   });
@@ -30,6 +42,13 @@ export const authRoutesPlugin: FastifyPluginAsync = async (fastify) => {
   fastify.route({
     method: 'GET',
     url: '/auth/me',
+    schema: {
+      response: {
+        200: Type.Object({
+          data: userWithPreferencesSchema,
+        }),
+      },
+    },
     preHandler: [fastify.authorize],
     handler: getCurrentUserHandler,
   });
@@ -37,6 +56,11 @@ export const authRoutesPlugin: FastifyPluginAsync = async (fastify) => {
   fastify.route({
     method: 'DELETE',
     url: '/auth/me',
+    schema: {
+      response: {
+        204: {},
+      },
+    },
     handler: signOutHandler,
   });
 };

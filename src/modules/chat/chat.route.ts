@@ -1,3 +1,4 @@
+import { Type } from '@sinclair/typebox';
 import { FastifyPluginAsync } from 'fastify';
 
 import {
@@ -7,14 +8,31 @@ import {
   createMessageHandler,
   deleteMessageHandler,
 } from './chat.controller.js';
-import { $ref } from './chat.schema.js';
+import {
+  chatMessagesParamsSchema,
+  chatMessagesQuerySchema,
+  chatMessagesResponseSchema,
+  chatRoomInputSchema,
+  chatRoomSchema,
+  chatUsersQuerySchema,
+  chatUsersResponseSchema,
+  createMessageSchema,
+  deleteMessageParamsSchema,
+} from './chat.schema.js';
 
 export const chatRoutesPlugin: FastifyPluginAsync = async (fastify) => {
   fastify.addHook('preHandler', fastify.authorize);
 
   fastify.route({
     method: 'GET',
-    schema: { params: $ref('chatRoomInputSchema') },
+    schema: {
+      params: chatRoomInputSchema,
+      response: {
+        200: Type.Object({
+          data: chatRoomSchema,
+        }),
+      },
+    },
     url: '/chat/check-user/:receiverId',
     handler: createChatRoomHandler,
   });
@@ -22,10 +40,12 @@ export const chatRoutesPlugin: FastifyPluginAsync = async (fastify) => {
   fastify.route({
     method: 'GET',
     schema: {
-      params: $ref('chatMessagesParamsSchema'),
-      querystring: $ref('chatMessagesQuerySchema'),
+      params: chatMessagesParamsSchema,
+      querystring: chatMessagesQuerySchema,
       response: {
-        200: $ref('chatMessagesResponseSchema'),
+        200: Type.Object({
+          data: chatMessagesResponseSchema,
+        }),
       },
     },
     url: '/chat/messages/:receiverId',
@@ -36,9 +56,11 @@ export const chatRoutesPlugin: FastifyPluginAsync = async (fastify) => {
     method: 'GET',
     url: '/chat/users',
     schema: {
-      querystring: $ref('chatUsersQuerySchema'),
+      querystring: chatUsersQuerySchema,
       response: {
-        200: $ref('chatUsersResponseSchema'),
+        200: Type.Object({
+          data: chatUsersResponseSchema,
+        }),
       },
     },
     handler: chatRoomUsersHandler,
@@ -48,7 +70,7 @@ export const chatRoutesPlugin: FastifyPluginAsync = async (fastify) => {
     method: 'POST',
     url: '/chat/message',
     schema: {
-      body: $ref('createMessageSchema'),
+      body: createMessageSchema,
     },
     handler: createMessageHandler,
   });
@@ -57,7 +79,10 @@ export const chatRoutesPlugin: FastifyPluginAsync = async (fastify) => {
     method: 'DELETE',
     url: '/chat/message/:messageId',
     schema: {
-      params: $ref('deleteMessageParamsSchema'),
+      params: deleteMessageParamsSchema,
+      response: {
+        204: {},
+      },
     },
     handler: deleteMessageHandler,
   });

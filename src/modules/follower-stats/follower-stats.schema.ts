@@ -1,26 +1,17 @@
-import { buildJsonSchemas } from 'fastify-zod';
-import { z } from 'zod';
+import { Static, Type } from '@fastify/type-provider-typebox';
 
-const followersInputSchema = z.object({
-  userId: z.string(),
-  skip: z.string(),
+export const followersInputSchema = Type.Object({
+  userId: Type.String(),
+  skip: Type.String(),
 });
 
-export type FollowersInput = z.infer<typeof followersInputSchema>;
+export type FollowersInput = Static<typeof followersInputSchema>;
 
-const followersResponseSchema = z.object({
-  users: z.array(z.string()),
-  totalPages: z.number(),
-  currentPage: z.number(),
-  usersCount: z.number(),
+export const followersResponseSchema = Type.Object({
+  users: Type.Array(Type.String()),
+  totalPages: Type.Number(),
+  currentPage: Type.Number(),
+  usersCount: Type.Number(),
 });
 
-export type FollowersResponse = z.infer<typeof followersResponseSchema>;
-
-export const { schemas: followersSchemas, $ref } = buildJsonSchemas(
-  {
-    followersResponseSchema,
-    followersInputSchema,
-  },
-  { $id: 'followersSchema' },
-);
+export type FollowersResponse = Static<typeof followersResponseSchema>;

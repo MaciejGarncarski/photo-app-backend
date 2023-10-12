@@ -1,3 +1,4 @@
+import { Type } from '@sinclair/typebox';
 import { FastifyPluginAsync } from 'fastify';
 
 import {
@@ -10,7 +11,18 @@ import {
   getPostByIdHandler,
   getUserPostsHandler,
 } from './post.controller.js';
-import { $ref } from './post.schema.js';
+import {
+  deletePostInputSchema,
+  editPostInputSchema,
+  editPostParamsSchema,
+  getHomepagePostsInputSchema,
+  getUserPostsParamsSchema,
+  getUserPostsQuerySchema,
+  postByIdInputSchema,
+  postDetailsSchema,
+  postLikeInputSchema,
+  postsResponseSchema,
+} from './post.schema.js';
 import { postCommentRoutesPlugin } from '../post-comment/post-comment.route.js';
 
 export const postRoutesPlugin: FastifyPluginAsync = async (fastify) => {
@@ -18,11 +30,11 @@ export const postRoutesPlugin: FastifyPluginAsync = async (fastify) => {
 
   fastify.route({
     method: 'GET',
-    url: '/post/homepage-posts',
+    url: '/posts',
     schema: {
-      querystring: $ref('getHomepagePostsInputSchema'),
+      querystring: getHomepagePostsInputSchema,
       response: {
-        200: $ref('postsResponseSchema'),
+        200: postsResponseSchema,
       },
     },
     handler: getHomepagePostsHandler,
@@ -30,12 +42,12 @@ export const postRoutesPlugin: FastifyPluginAsync = async (fastify) => {
 
   fastify.route({
     method: 'GET',
-    url: '/post/user/:authorId',
+    url: '/posts/user/:authorId',
     schema: {
-      params: $ref('getUserPostsParamsSchema'),
-      querystring: $ref('getUserPostsQuerySchema'),
+      params: getUserPostsParamsSchema,
+      querystring: getUserPostsQuerySchema,
       response: {
-        200: $ref('postsResponseSchema'),
+        200: postsResponseSchema,
       },
     },
     handler: getUserPostsHandler,
@@ -43,24 +55,30 @@ export const postRoutesPlugin: FastifyPluginAsync = async (fastify) => {
 
   fastify.route({
     method: 'POST',
-    url: '/post',
+    url: '/posts',
     preHandler: [fastify.authorize],
     handler: createPostHandler,
   });
 
   fastify.route({
-    method: 'POST',
-    url: '/post/edit',
-    schema: { body: $ref('editPostInputSchema') },
+    method: 'PUT',
+    url: '/posts/:postId/edit',
+    schema: {
+      params: editPostParamsSchema,
+      body: editPostInputSchema,
+    },
     preHandler: [fastify.authorize],
     handler: editPostHandler,
   });
 
   fastify.route({
     method: 'DELETE',
-    url: '/post/:postId',
+    url: '/posts/:postId',
     schema: {
-      params: $ref('deletePostInputSchema'),
+      params: deletePostInputSchema,
+      response: {
+        204: {},
+      },
     },
     preHandler: [fastify.authorize],
     handler: deletePostHandler,
@@ -68,11 +86,13 @@ export const postRoutesPlugin: FastifyPluginAsync = async (fastify) => {
 
   fastify.route({
     method: 'GET',
-    url: '/post/:postId',
+    url: '/posts/:postId',
     schema: {
-      params: $ref('postByIdInputSchema'),
+      params: postByIdInputSchema,
       response: {
-        200: $ref('postDetailsSchema'),
+        200: Type.Object({
+          data: postDetailsSchema,
+        }),
       },
     },
     handler: getPostByIdHandler,
@@ -80,14 +100,23 @@ export const postRoutesPlugin: FastifyPluginAsync = async (fastify) => {
 
   fastify.route({
     method: 'POST',
-    url: '/post/:postId/like',
+    url: '/posts/:postId/like',
     preHandler: [fastify.authorize],
+    schema: {
+      params: postLikeInputSchema,
+    },
     handler: addPostLikeHandler,
   });
 
   fastify.route({
     method: 'DELETE',
-    url: '/post/:postId/like',
+    url: '/posts/:postId/like',
+    schema: {
+      params: postLikeInputSchema,
+      response: {
+        204: {},
+      },
+    },
     preHandler: [fastify.authorize],
     handler: deletePostLikeHandler,
   });

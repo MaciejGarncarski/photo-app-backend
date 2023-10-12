@@ -1,20 +1,20 @@
-import { z } from 'zod';
+import { Type } from '@sinclair/typebox';
 
-export const envVariablesSchema = z.object({
-  DATABASE_URL: z.string(),
-  SECRET: z.string(),
-  IMG_KIT_PRIVATE: z.string(),
-  IMG_KIT_PUBLIC: z.string(),
-  IMG_KIT_ENDPOINT: z.string(),
-  APP_URL: z.string().url(),
-  BACKEND_URL: z.string().url(),
-  GOOGLE_CLIENT_ID: z.string(),
-  GOOGLE_CLIENT_SECRET: z.string(),
-  PRODUCTION: z.string(),
+export const envVariablesSchema = Type.Object({
+  DATABASE_URL: Type.String(),
+  SECRET: Type.String(),
+  IMG_KIT_PRIVATE: Type.String(),
+  IMG_KIT_PUBLIC: Type.String(),
+  IMG_KIT_ENDPOINT: Type.String(),
+  APP_URL: Type.String({ format: 'uri' }),
+  BACKEND_URL: Type.String({ format: 'uri' }),
+  GOOGLE_CLIENT_ID: Type.String(),
+  GOOGLE_CLIENT_SECRET: Type.String(),
+  PRODUCTION: Type.String(),
 });
 
 /**
- * @type {{ [k in keyof z.infer<typeof envVariablesSchema>]: z.infer<typeof envVariablesSchema>[k] }}
+ * @type {{ [k in keyof Static<typeof envVariablesSchema>]: Static<typeof envVariablesSchema>[k] }}
  */
 export const envVariables = {
   DATABASE_URL: process.env.DATABASE_URL,

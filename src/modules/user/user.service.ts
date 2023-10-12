@@ -1,7 +1,7 @@
 import { MultipartFile } from '@fastify/multipart';
 import { FastifyRequest } from 'fastify';
 
-import { EditAccountInput, User, UserPreferencesInput } from './user.schema.js';
+import { EditAccountInput, UserPreferencesInput, UserWithStats } from './user.schema.js';
 import { db } from '../../utils/db.js';
 import { getCount } from '../../utils/getCount.js';
 import { imageKit } from '../../utils/imagekit.js';
@@ -56,7 +56,7 @@ export const getUser = async (config: Config, request: FastifyRequest) => {
     isFollowing: isFollowing || false,
     name,
     username: username || '',
-  } satisfies User;
+  } satisfies UserWithStats;
 
   return user;
 };
@@ -111,7 +111,7 @@ export const updateUserPreferences = ({ data, userId }: UpdateUserPreferencesArg
 export const deleteAvatar = async (sessionUserId: string) => {
   await imageKit.deleteFolder(`${sessionUserId}/avatar/custom/`);
 
-  await db.user.update({
+  return db.user.update({
     data: {
       customImage: null,
     },
@@ -144,7 +144,7 @@ export const updateAvatar = async (sessionUserId: string, fileData: MultipartFil
     folder,
   });
 
-  await db.user.update({
+  return db.user.update({
     where: {
       id: sessionUserId,
     },

@@ -1,81 +1,72 @@
-import { buildJsonSchemas } from 'fastify-zod';
-import { z } from 'zod';
+import { Static, Type } from '@fastify/type-provider-typebox';
 
-const chatRoomInputSchema = z.object({
-  receiverId: z.string(),
+export const chatRoomInputSchema = Type.Object({
+  receiverId: Type.String(),
 });
 
-export type ChatRoomInput = z.infer<typeof chatRoomInputSchema>;
+export type ChatRoomInput = Static<typeof chatRoomInputSchema>;
 
-export const createMessageSchema = z.object({
-  receiverId: z.string(),
-  senderId: z.string(),
-  message: z.string(),
+export const createMessageSchema = Type.Object({
+  receiverId: Type.String(),
+  senderId: Type.String(),
+  message: Type.String(),
 });
 
-export type CreateMessage = z.infer<typeof createMessageSchema>;
+export type CreateMessage = Static<typeof createMessageSchema>;
 
-const chatMessagesParamsSchema = z.object({
-  receiverId: z.string(),
+export const chatMessagesParamsSchema = Type.Object({
+  receiverId: Type.String(),
 });
 
-const chatMessagesQuerySchema = z.object({
-  skip: z.string(),
+export const chatMessagesQuerySchema = Type.Object({
+  skip: Type.String(),
 });
 
-const chatUsersQuerySchema = z.object({
-  skip: z.string(),
-  searchedUser: z.string(),
+export const chatUsersQuerySchema = Type.Object({
+  skip: Type.String(),
+  searchedUser: Type.String(),
 });
 
-export type ChatMessagesParams = z.infer<typeof chatMessagesParamsSchema>;
-export type ChatMessagesQuery = z.infer<typeof chatMessagesQuerySchema>;
-export type ChatUsersQuery = z.infer<typeof chatUsersQuerySchema>;
+export type ChatMessagesParams = Static<typeof chatMessagesParamsSchema>;
+export type ChatMessagesQuery = Static<typeof chatMessagesQuerySchema>;
+export type ChatUsersQuery = Static<typeof chatUsersQuerySchema>;
 
-const chatMessageSchema = z.object({
-  senderId: z.string(),
-  receiverId: z.string(),
-  text: z.string(),
-  createdAt: z.date(),
-  id: z.string(),
+export const chatMessageSchema = Type.Object({
+  senderId: Type.String(),
+  receiverId: Type.String(),
+  text: Type.String(),
+  createdAt: Type.String(),
+  id: Type.String(),
 });
 
-export type ChatMessage = z.infer<typeof chatMessageSchema>;
+export type ChatMessage = Static<typeof chatMessageSchema>;
 
-const chatMessagesResponseSchema = z.object({
-  messages: z.array(chatMessageSchema),
-  totalPages: z.number(),
-  currentPage: z.number(),
-  messagesCount: z.number(),
+export const chatMessagesResponseSchema = Type.Object({
+  messages: Type.Array(chatMessageSchema),
+  totalPages: Type.Number(),
+  currentPage: Type.Number(),
+  messagesCount: Type.Number(),
 });
 
-export type ChatMessagesResponse = z.infer<typeof chatMessagesResponseSchema>;
+export type ChatMessagesResponse = Static<typeof chatMessagesResponseSchema>;
 
-const chatUsersResponseSchema = z.object({
-  users: z.array(z.string()),
-  totalPages: z.number(),
-  currentPage: z.number(),
-  usersCount: z.number(),
+export const chatUsersResponseSchema = Type.Object({
+  users: Type.Array(Type.String()),
+  totalPages: Type.Number(),
+  currentPage: Type.Number(),
+  usersCount: Type.Number(),
 });
 
-export type ChatUsersResponse = z.infer<typeof chatUsersResponseSchema>;
+export type ChatUsersResponse = Static<typeof chatUsersResponseSchema>;
 
-const deleteMessageParamsSchema = z.object({
-  messageId: z.string(),
+export const deleteMessageParamsSchema = Type.Object({
+  messageId: Type.String(),
 });
 
-export type DeleteMessageParams = z.infer<typeof deleteMessageParamsSchema>;
+export type DeleteMessageParams = Static<typeof deleteMessageParamsSchema>;
 
-export const { $ref, schemas: chatSchemas } = buildJsonSchemas(
-  {
-    chatRoomInputSchema,
-    chatMessagesQuerySchema,
-    chatMessagesResponseSchema,
-    chatMessagesParamsSchema,
-    chatUsersQuerySchema,
-    chatUsersResponseSchema,
-    deleteMessageParamsSchema,
-    createMessageSchema,
-  },
-  { $id: 'chatSchema' },
-);
+export const chatRoomSchema = Type.Object({
+  id: Type.Number(),
+  senderId: Type.String(),
+  receiverId: Type.String(),
+});
