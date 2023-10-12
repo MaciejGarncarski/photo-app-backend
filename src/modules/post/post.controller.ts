@@ -22,8 +22,6 @@ import {
   getUserPosts,
 } from './post.service.js';
 
-type RequestBody = { images: Array<MultipartFile> | MultipartFile; description: { value: string } };
-
 export const getHomepagePostsHandler = async (request: FastifyRequest<{ Querystring: GetHomepagePostsInput }>) => {
   const response = await getHomepagePosts(parseInt(request.query.skip));
   return response;
@@ -49,6 +47,8 @@ export const getUserPostsHandler = async (
 
   return response;
 };
+
+type RequestBody = { images: Array<MultipartFile> | MultipartFile; description: { value: string } };
 
 export const createPostHandler = async (request: FastifyRequest<{ Body: RequestBody }>, reply: FastifyReply) => {
   const { images, description } = request.body;

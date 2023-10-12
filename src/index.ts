@@ -54,7 +54,7 @@ await server.register(fastifySwaggerUi, {
   },
 });
 
-await server.register(fastifyMultipart, { attachFieldsToBody: 'keyValues' });
+await server.register(fastifyMultipart, { attachFieldsToBody: true });
 await server.register(cors, {
   credentials: true,
   origin: `${envVariables.APP_URL}`,

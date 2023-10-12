@@ -57,6 +57,7 @@ export const postRoutesPlugin: FastifyPluginAsync = async (fastify) => {
     method: 'POST',
     url: '/posts',
     preHandler: [fastify.authorize],
+
     handler: createPostHandler,
   });
 

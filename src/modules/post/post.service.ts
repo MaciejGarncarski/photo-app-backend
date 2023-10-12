@@ -58,9 +58,10 @@ export const createPost = async (
   });
 
   for await (const image of images) {
-    const imageBuffer = await image.toBuffer();
+    const file = await image.toBuffer();
+
     const { fileId, width, height, thumbnailUrl, url, size, name } = await imageKit.upload({
-      file: imageBuffer,
+      file: file,
       fileName: `${v4()}.webp`,
       folder: `post-images/${post.id}/`,
     });

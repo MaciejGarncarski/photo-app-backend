@@ -104,7 +104,6 @@ export const deleteAvatarHandler = async (request: FastifyRequest) => {
 
 export const editAccountHandler = async (request: FastifyRequest<{ Body: EditAccountInput }>) => {
   const { data: sessionData } = request.session;
-  console.log(request.body);
 
   const data = await editAccount(sessionData.id, request.body);
 
