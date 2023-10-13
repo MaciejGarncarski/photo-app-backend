@@ -20,6 +20,16 @@ export const authRoutesPlugin: FastifyPluginAsync = async (fastify) => {
         200: Type.Object({
           data: userSchema,
         }),
+        400: Type.Object({
+          statusCode: Type.Number(),
+          message: Type.String(),
+          error: Type.String(),
+        }),
+        404: Type.Object({
+          statusCode: Type.Number(),
+          message: Type.String(),
+          error: Type.String(),
+        }),
       },
     },
     url: '/auth/sign-in',
@@ -33,6 +43,11 @@ export const authRoutesPlugin: FastifyPluginAsync = async (fastify) => {
       response: {
         200: Type.Object({
           data: userSchema,
+        }),
+        400: Type.Object({
+          statusCode: Type.Number(),
+          message: Type.String(),
+          error: Type.String(),
         }),
       },
     },
