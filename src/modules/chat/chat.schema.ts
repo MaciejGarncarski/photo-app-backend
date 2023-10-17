@@ -1,5 +1,7 @@
 import { Static, Type } from '@fastify/type-provider-typebox';
 
+import { Nullable } from '../../utils/nullable.js';
+
 export const chatRoomInputSchema = Type.Object({
   receiverId: Type.String(),
 });
@@ -24,7 +26,6 @@ export const chatMessagesQuerySchema = Type.Object({
 
 export const chatUsersQuerySchema = Type.Object({
   skip: Type.String(),
-  searchedUser: Type.String(),
 });
 
 export type ChatMessagesParams = Static<typeof chatMessagesParamsSchema>;
@@ -51,7 +52,12 @@ export const chatMessagesResponseSchema = Type.Object({
 export type ChatMessagesResponse = Static<typeof chatMessagesResponseSchema>;
 
 export const chatUsersResponseSchema = Type.Object({
-  users: Type.Array(Type.String()),
+  users: Type.Array(
+    Type.Object({
+      id: Type.String(),
+      message: Nullable(Type.String()),
+    }),
+  ),
   totalPages: Type.Number(),
   currentPage: Type.Number(),
   usersCount: Type.Number(),

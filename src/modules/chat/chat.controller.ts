@@ -47,10 +47,9 @@ export const chatRoomMessagesHandler = async (
 
 export const chatRoomUsersHandler = async (request: FastifyRequest<{ Querystring: ChatUsersQuery }>) => {
   const skip = parseInt(request.query.skip);
-  const { searchedUser } = request.query;
   const { data } = request.session;
 
-  const chatUsersData = await chatUsers(data.id, searchedUser, skip);
+  const chatUsersData = await chatUsers(data.id, skip);
   return { data: chatUsersData };
 };
 

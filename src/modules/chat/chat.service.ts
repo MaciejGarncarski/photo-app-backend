@@ -171,9 +171,14 @@ export const chatMessages = async (sessionUserId: string, receiverId: string, sk
 
 const CHAT_USERS_PER_REQUEST = 10;
 
-export const chatUsers = async (sessionUserId: string, searchedUser: string, skip: number) => {
-  const { users, usersCount } = await getChatUsersByName(searchedUser, skip, sessionUserId);
-  const mappedUsers = users.map(({ id }) => id);
+export const chatUsers = async (sessionUserId: string, skip: number) => {
+  const { users, usersCount } = await getChatUsersByName(skip, sessionUserId);
+  const mappedUsers = users.map(({ id, sentMessages }) => {
+    return {
+      id,
+      message: sentMessages[0] ? sentMessages[0].text : null,
+    };
+  });
 
   const maxPages = usersCount / CHAT_USERS_PER_REQUEST;
   const totalPages = Math.ceil(maxPages) - 1;

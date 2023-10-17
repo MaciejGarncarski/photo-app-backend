@@ -2,9 +2,8 @@ import { db } from './db.js';
 
 const CHAT_USERS_PER_REQUEST = 7;
 
-export const getChatUsersByName = async (searchedUser: string, skip: number, sessionUserId: string) => {
+export const getChatUsersByName = async (skip: number, sessionUserId: string) => {
   const condition = {
-    OR: [{ username: { contains: searchedUser } }, { name: { contains: searchedUser } }],
     NOT: [{ id: sessionUserId }],
   };
 
@@ -16,6 +15,15 @@ export const getChatUsersByName = async (searchedUser: string, skip: number, ses
       id: 'desc',
     },
     include: {
+      sentMessages: {
+        where: {
+          receiverId: sessionUserId,
+        },
+        take: 1,
+        orderBy: {
+          createdAt: 'desc',
+        },
+      },
       _count: {
         select: {
           posts: true,
