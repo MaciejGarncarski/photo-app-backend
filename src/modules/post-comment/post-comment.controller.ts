@@ -41,7 +41,7 @@ export const getCommentsHandler = async (
     params: { postId },
   } = request;
   const { data } = request.session;
-  const commentsData = await getComments(parseInt(postId), parseInt(skip), data.id);
+  const commentsData = await getComments(parseInt(postId), parseInt(skip), data?.id);
   return { data: commentsData };
 };
 

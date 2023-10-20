@@ -19,6 +19,14 @@ export const getPostCommentsQuerySchema = Type.Object({
 
 export const commentTextSchema = Type.String({ maxLength: 100 });
 
+export const addCommentResponseScema = Type.Object({
+  id: Type.Number(),
+  userId: Type.String(),
+  postId: Type.Number(),
+  createdAt: Type.String(),
+  text: Type.String(),
+});
+
 export const commentSchema = Type.Object({
   text: commentTextSchema,
   createdAt: Type.String(),

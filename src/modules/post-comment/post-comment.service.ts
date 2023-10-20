@@ -8,10 +8,6 @@ export const addComment = async (commentText: string, postId: number, sessionUse
       userId: sessionUserId,
       text: commentText,
     },
-    select: {
-      createdAt: true,
-      id: true,
-    },
   });
 
   return data;

@@ -9,6 +9,7 @@ import {
   getCommentsHandler,
 } from './post-comment.controller.js';
 import {
+  addCommentResponseScema,
   addPostCommentInputSchema,
   commentLikeInputSchema,
   commentResponseSchema,
@@ -23,6 +24,11 @@ export const postCommentRoutesPlugin: FastifyPluginAsync = async (fastify) => {
     url: '/post/comment',
     schema: {
       body: addPostCommentInputSchema,
+      response: {
+        200: {
+          data: addCommentResponseScema,
+        },
+      },
     },
     preHandler: [fastify.authorize],
     handler: addPostCommentHandler,
