@@ -74,21 +74,17 @@ export const createMessage = async ({ receiverId, senderId, message }: CreateMes
     return;
   }
 
-  await db.message.create({
+  const createdMessage = await db.message.create({
     data: {
       receiverId,
       senderId,
       text: message,
       chatroomId: chatRoom?.id,
     },
-    select: {
-      createdAt: true,
-      id: true,
-    },
   });
 
   const roomName = `chatRoom-${chatRoom?.id}`;
-  return { roomName };
+  return { roomName, createdMessage };
 };
 
 const MESSAGES_PER_REQUEST = 20;

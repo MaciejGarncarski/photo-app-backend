@@ -13,12 +13,16 @@ import { postRoutesPlugin } from '../post/post.route.js';
 import { userRoutesPlugin } from '../user/user.route.js';
 
 type NewMessage = {
+  id: string;
+  text: string;
   senderId: string;
   receiverId: string;
+  createdAt: Date;
+  chatroomId: number;
 };
 
 type ServerToClientEvents = {
-  'new message': ({ senderId, receiverId }: NewMessage) => void;
+  'new message': ({ senderId, receiverId, text }: NewMessage) => void;
   'new post': () => void;
 };
 

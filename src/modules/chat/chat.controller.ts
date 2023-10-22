@@ -75,10 +75,10 @@ export const deleteMessageHandler = async (
 export const createMessageHandler = async (request: FastifyRequest<{ Body: CreateMessage }>, reply: FastifyReply) => {
   const { receiverId, senderId, message } = request.body;
 
-  const createdMessageRoom = await createMessage({ senderId, receiverId, message });
+  const response = await createMessage({ senderId, receiverId, message });
 
-  if (createdMessageRoom) {
-    request.server.io.to(createdMessageRoom.roomName).emit('new message', { senderId, receiverId });
+  if (response) {
+    request.server.io.to(response.roomName).emit('new message', response.createdMessage);
     return { status: 'ok' };
   }
 
