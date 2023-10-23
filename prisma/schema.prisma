@@ -36,12 +36,12 @@ model Session {
 }
 
 model User {
-  id            String        @id @default(cuid())
+  id            String        @unique @id @default(cuid())
   email         String?       @unique
   emailVerified DateTime?
   name          String?
   password      String?
-  username      String?       @default(cuid())
+  username      String?       @unique @default(cuid())
   bio           String?       @db.Text
   image         String?
   customImage   String?

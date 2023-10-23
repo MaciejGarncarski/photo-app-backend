@@ -3,9 +3,10 @@ import axios from 'axios';
 import { FastifyInstance } from 'fastify';
 
 import { GoogleUser } from './auth.schema.js';
+import { createGoogleUser, signInGoogle } from './auth.service.js';
 import { User } from '../user/user.schema.js';
-import { createOAuthUser } from '../../utils/createOAuthUser.js';
 import { envVariables } from '../../utils/envVariables.js';
+import { retry } from '../../utils/retry.js';
 
 declare module 'fastify' {
   interface Session {
@@ -41,17 +42,25 @@ export const googleAuthPlugin = async (server: FastifyInstance) => {
       const response = await axios.get(googleAPiUrl);
       const data = response.data as GoogleUser;
 
-      const user = await createOAuthUser(data, token);
+      const user = await signInGoogle(data.id);
 
-      if (!user) {
-        return reply.redirect(`${envVariables.APP_URL}/auth/sign-in`);
+      if (user) {
+        await request.session.regenerate();
+        request.session.data = user;
+        return reply.redirect(`${envVariables.APP_URL}`);
       }
 
-      await request.session.regenerate();
+      const createdUser = await retry<User>(() => createGoogleUser(data, token), {
+        retries: 20,
+      });
 
-      request.session.data = user;
+      if (createdUser) {
+        await request.session.regenerate();
+        request.session.data = createdUser;
+        return reply.redirect(`${envVariables.APP_URL}`);
+      }
 
-      return reply.redirect(`${envVariables.APP_URL}`);
+      return reply.redirect(`${envVariables.APP_URL}/auth/sign-in`);
     },
   });
 };

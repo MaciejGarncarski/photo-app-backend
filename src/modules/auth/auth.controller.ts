@@ -22,13 +22,13 @@ export const signInCredentialsHandler = async (
   });
 
   if (!user) {
-    return reply.notFound('User not found');
+    return reply.notFound('Invalid credentials.');
   }
 
   const isPasswordEqual = await verify(user?.password || '', password);
 
   if (!isPasswordEqual) {
-    return reply.badRequest('Passwords do not match.');
+    return reply.badRequest('Invalid credentials.');
   }
 
   const mappedUser = mapPrismaUser(user);

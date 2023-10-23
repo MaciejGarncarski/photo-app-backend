@@ -2,7 +2,7 @@ import { db } from './db.js';
 
 const CHAT_USERS_PER_REQUEST = 7;
 
-export const getChatUsersByName = async (skip: number, sessionUserId: string) => {
+export const getChatUsers = async (skip: number, sessionUserId: string) => {
   const condition = {
     NOT: [{ id: sessionUserId }],
   };
@@ -15,6 +15,15 @@ export const getChatUsersByName = async (skip: number, sessionUserId: string) =>
       id: 'desc',
     },
     include: {
+      receivedMessages: {
+        take: 1,
+        where: {
+          senderId: sessionUserId,
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      },
       sentMessages: {
         where: {
           receiverId: sessionUserId,
