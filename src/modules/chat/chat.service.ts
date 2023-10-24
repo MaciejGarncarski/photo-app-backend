@@ -170,8 +170,6 @@ const CHAT_USERS_PER_REQUEST = 10;
 export const chatUsers = async (sessionUserId: string, skip: number) => {
   const { users, usersCount } = await getChatUsers(skip, sessionUserId);
 
-  // sentMessage ?
-
   const mappedUsers = users.map(({ id, sentMessages, receivedMessages }) => {
     const sentMessage = sentMessages[0] || null;
     const receivedMessage = receivedMessages[0] || null;
@@ -180,6 +178,7 @@ export const chatUsers = async (sessionUserId: string, skip: number) => {
       return {
         id,
         message: 'No messages yet.',
+        messageCreatedAt: null,
       };
     }
 
@@ -187,6 +186,7 @@ export const chatUsers = async (sessionUserId: string, skip: number) => {
       return {
         id,
         message: `You: ${receivedMessage.text}`,
+        messageCreatedAt: receivedMessage.createdAt.toString(),
       };
     }
 
@@ -194,6 +194,7 @@ export const chatUsers = async (sessionUserId: string, skip: number) => {
       return {
         id,
         message: sentMessage.text,
+        messageCreatedAt: sentMessage.createdAt.toString(),
       };
     }
 
@@ -203,6 +204,7 @@ export const chatUsers = async (sessionUserId: string, skip: number) => {
     return {
       id,
       message: message,
+      messageCreatedAt: (hasSentLastMessage ? receivedMessage.createdAt : sentMessage.createdAt).toString(),
     };
   });
 

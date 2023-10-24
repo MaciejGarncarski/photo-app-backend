@@ -55,7 +55,8 @@ export const chatUsersResponseSchema = Type.Object({
   users: Type.Array(
     Type.Object({
       id: Type.String(),
-      message: Nullable(Type.String()),
+      message: Type.String(),
+      messageCreatedAt: Nullable(Type.String()),
     }),
   ),
   totalPages: Type.Number(),

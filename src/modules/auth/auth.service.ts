@@ -49,16 +49,17 @@ export const createGoogleUser = async (googleUserData: GoogleUser, token: Token)
   const { randomUUID } = new ShortUniqueId({ length: 6 });
   const temporaryUsername = `user${randomUUID().toUpperCase()}`;
 
-  const accountExists = Boolean(
-    await db.account.count({
-      where: {
-        providerAccountId: id,
-      },
-    }),
-  );
+  const account = await db.account.findFirst({
+    where: {
+      providerAccountId: id,
+    },
+  });
+
+  const accountExists = Boolean(account);
 
   const createdUser = await db.user.create({
     data: {
+      id: account?.userId,
       image: picture,
       name: name,
       username: temporaryUsername,
