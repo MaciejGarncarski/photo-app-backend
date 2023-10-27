@@ -11,9 +11,6 @@ export const getChatUsers = async (skip: number, sessionUserId: string) => {
     skip: skip * CHAT_USERS_PER_REQUEST,
     take: CHAT_USERS_PER_REQUEST,
     where: condition,
-    orderBy: {
-      id: 'desc',
-    },
     include: {
       receivedMessages: {
         take: 1,

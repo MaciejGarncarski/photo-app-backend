@@ -170,43 +170,59 @@ const CHAT_USERS_PER_REQUEST = 10;
 export const chatUsers = async (sessionUserId: string, skip: number) => {
   const { users, usersCount } = await getChatUsers(skip, sessionUserId);
 
-  const mappedUsers = users.map(({ id, sentMessages, receivedMessages }) => {
-    const sentMessage = sentMessages[0] || null;
-    const receivedMessage = receivedMessages[0] || null;
+  const mappedUsers = users
+    .map(({ id, sentMessages, receivedMessages }) => {
+      const sentMessage = sentMessages[0] || null;
+      const receivedMessage = receivedMessages[0] || null;
 
-    if (!sentMessage && !receivedMessage) {
+      if (!sentMessage && !receivedMessage) {
+        return {
+          id,
+          message: 'No messages yet.',
+          messageCreatedAt: null,
+        };
+      }
+
+      if (!sentMessage && receivedMessage) {
+        return {
+          id,
+          message: `You: ${receivedMessage.text}`,
+          messageCreatedAt: receivedMessage.createdAt.toString(),
+        };
+      }
+
+      if (!receivedMessage && sentMessage) {
+        return {
+          id,
+          message: sentMessage.text,
+          messageCreatedAt: sentMessage.createdAt.toString(),
+        };
+      }
+
+      const hasSentLastMessage = sentMessage.createdAt < receivedMessage.createdAt;
+      const message = hasSentLastMessage ? `You: ${receivedMessage.text}` : sentMessage.text;
+
       return {
         id,
-        message: 'No messages yet.',
-        messageCreatedAt: null,
+        message: message,
+        messageCreatedAt: (hasSentLastMessage ? receivedMessage.createdAt : sentMessage.createdAt).toString(),
       };
-    }
+    })
+    .sort((a, b) => {
+      if (a.messageCreatedAt && !b.messageCreatedAt) {
+        return -1;
+      }
 
-    if (!sentMessage && receivedMessage) {
-      return {
-        id,
-        message: `You: ${receivedMessage.text}`,
-        messageCreatedAt: receivedMessage.createdAt.toString(),
-      };
-    }
+      if (!a.messageCreatedAt && b.messageCreatedAt) {
+        return 1;
+      }
 
-    if (!receivedMessage && sentMessage) {
-      return {
-        id,
-        message: sentMessage.text,
-        messageCreatedAt: sentMessage.createdAt.toString(),
-      };
-    }
+      if (!a.messageCreatedAt && !b.messageCreatedAt) {
+        return -1;
+      }
 
-    const hasSentLastMessage = sentMessage.createdAt < receivedMessage.createdAt;
-    const message = hasSentLastMessage ? `You: ${receivedMessage.text}` : sentMessage.text;
-
-    return {
-      id,
-      message: message,
-      messageCreatedAt: (hasSentLastMessage ? receivedMessage.createdAt : sentMessage.createdAt).toString(),
-    };
-  });
+      return new Date(a.messageCreatedAt || '').getTime() > new Date(b.messageCreatedAt || '').getTime() ? 1 : -1;
+    });
 
   const maxPages = usersCount / CHAT_USERS_PER_REQUEST;
   const totalPages = Math.ceil(maxPages) - 1;
