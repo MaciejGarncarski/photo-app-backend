@@ -57,6 +57,7 @@ export const routerPlugin: FastifyPluginAsync = async (fastify) => {
   const originalErrorHandler = fastify.errorHandler;
 
   fastify.setErrorHandler((error, req, rep) => {
+    console.log(error);
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       return rep.internalServerError(`Something went wrong with Prisma. Error code: ${error.code}`);
     }

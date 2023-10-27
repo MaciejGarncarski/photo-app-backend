@@ -1,7 +1,7 @@
 import { Static, Type } from '@fastify/type-provider-typebox';
 
-import { Nullable } from '../../utils/nullable.js';
 import { username } from '../auth/auth.schema.js';
+import { Nullable } from '../../utils/nullable.js';
 
 export const getUserInputSchema = Type.Object({
   userId: Type.String(),
@@ -17,8 +17,7 @@ export const userSchema = Type.Object({
   username: Type.String(),
   name: Nullable(Type.String()),
   id: Type.String(),
-  image: Nullable(Type.String({ format: 'uri' })),
-  customImage: Nullable(Type.String({ format: 'uri' })),
+  avatar: Nullable(Type.String()),
   bio: Nullable(Type.String()),
   createdAt: Type.String(),
 });
@@ -27,8 +26,7 @@ export const userWithStatsSchema = Type.Object({
   username: Type.String(),
   name: Nullable(Type.String()),
   id: Type.String(),
-  image: Nullable(Type.String({ format: 'uri' })),
-  customImage: Nullable(Type.String({ format: 'uri' })),
+  avatar: Nullable(Type.String()),
   bio: Nullable(Type.String()),
   createdAt: Type.String(),
   postsCount: Type.Number(),
@@ -44,8 +42,7 @@ export const userWithPreferencesSchema = Type.Object({
   username: Type.String(),
   name: Nullable(Type.String()),
   id: Type.String(),
-  image: Nullable(Type.String({ format: 'uri' })),
-  customImage: Nullable(Type.String({ format: 'uri' })),
+  avatar: Nullable(Type.String()),
   bio: Nullable(Type.String()),
   createdAt: Type.String(),
   theme: themeUnion,

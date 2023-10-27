@@ -91,8 +91,8 @@ export const updateAvatarHandler = async (
     return reply.badRequest('No image provided.');
   }
 
-  const updatedUser = await updateAvatar(data.id, fileData);
-  return { data: updatedUser };
+  const updatedAvatar = await updateAvatar(data.id, fileData);
+  return { data: updatedAvatar };
 };
 
 export const deleteAvatarHandler = async (request: FastifyRequest) => {

@@ -15,6 +15,14 @@ export const registerUser = async ({ email, username, password }: RegisterValues
       email,
       username,
       password: hashedPassword,
+      avatar: {
+        create: {
+          url: '',
+        },
+      },
+    },
+    include: {
+      avatar: true,
     },
   });
 
@@ -29,9 +37,8 @@ export const registerUser = async ({ email, username, password }: RegisterValues
   const mappedUser = {
     bio: createdUser.bio,
     createdAt: createdUser.createdAt.toString(),
-    customImage: createdUser.customImage,
     id: createdUser.id,
-    image: createdUser.image,
+    avatar: createdUser.avatar?.url || null,
     name: createdUser.name,
     username: createdUser.username || '',
   } satisfies User;
@@ -60,9 +67,15 @@ export const createGoogleUser = async (googleUserData: GoogleUser, token: Token)
   const createdUser = await db.user.create({
     data: {
       id: account?.userId,
-      image: picture,
       name: name,
       username: temporaryUsername,
+    },
+  });
+
+  const createAvatar = await db.avatar.create({
+    data: {
+      url: picture,
+      userId: account?.userId,
     },
   });
 
@@ -81,7 +94,7 @@ export const createGoogleUser = async (googleUserData: GoogleUser, token: Token)
     });
   }
 
-  const mappedUser = mapPrismaUser(createdUser);
+  const mappedUser = mapPrismaUser({ ...createdUser, avatar: createAvatar });
   return mappedUser;
 };
 
@@ -93,9 +106,12 @@ export const signInGoogle = async (googleId: string) => {
       },
     });
 
-    const user = await db.user.findFirst({
+    const user = await db.user.findUnique({
       where: {
         id: account?.userId,
+      },
+      include: {
+        avatar: true,
       },
     });
 

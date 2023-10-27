@@ -25,8 +25,7 @@ export const getUser = async (config: Config, request: FastifyRequest) => {
       bio: true,
       createdAt: true,
       id: true,
-      customImage: true,
-      image: true,
+      avatar: true,
       name: true,
       username: true,
       toUser: true,
@@ -37,7 +36,7 @@ export const getUser = async (config: Config, request: FastifyRequest) => {
     return null;
   }
 
-  const { bio, createdAt, customImage, id, image, name, username } = userData;
+  const { bio, createdAt, avatar, id, name, username } = userData;
 
   const counts = await getCount(userData.id);
 
@@ -49,10 +48,9 @@ export const getUser = async (config: Config, request: FastifyRequest) => {
   const user = {
     bio,
     createdAt: createdAt.toString(),
-    customImage,
     ...counts,
     id,
-    image,
+    avatar: avatar?.url || null,
     isFollowing: isFollowing || false,
     name,
     username: username || '',
@@ -111,12 +109,17 @@ export const updateUserPreferences = ({ data, userId }: UpdateUserPreferencesArg
 export const deleteAvatar = async (sessionUserId: string) => {
   await imageKit.deleteFolder(`${sessionUserId}/avatar/custom/`);
 
-  return db.user.update({
-    data: {
-      customImage: null,
+  return db.avatar.upsert({
+    create: {
+      url: '',
+      userId: sessionUserId,
+    },
+    update: {
+      url: '',
+      userId: sessionUserId,
     },
     where: {
-      id: sessionUserId,
+      userId: sessionUserId,
     },
   });
 };
@@ -144,12 +147,17 @@ export const updateAvatar = async (sessionUserId: string, fileData: MultipartFil
     folder,
   });
 
-  return db.user.update({
-    where: {
-      id: sessionUserId,
+  return db.avatar.upsert({
+    create: {
+      url: image.url,
+      userId: sessionUserId,
     },
-    data: {
-      customImage: image.url,
+    update: {
+      url: image.url,
+      userId: sessionUserId,
+    },
+    where: {
+      userId: sessionUserId,
     },
   });
 };

@@ -19,6 +19,9 @@ export const signInCredentialsHandler = async (
     where: {
       email,
     },
+    include: {
+      avatar: true,
+    },
   });
 
   if (!user) {
@@ -81,9 +84,12 @@ export const registerCredentialsHandler = async (
 export const getCurrentUserHandler = async (request: FastifyRequest, reply: FastifyReply) => {
   const { data } = request.session;
 
-  const userData = await db.user.findFirst({
+  const userData = await db.user.findUnique({
     where: {
       id: data?.id,
+    },
+    include: {
+      avatar: true,
     },
   });
 
