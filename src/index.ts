@@ -54,7 +54,12 @@ await server.register(fastifySwaggerUi, {
   },
 });
 
-await server.register(fastifyMultipart, { attachFieldsToBody: true });
+await server.register(fastifyMultipart, {
+  attachFieldsToBody: true,
+  limits: {
+    fileSize: 6500000,
+  },
+});
 await server.register(cors, {
   credentials: true,
   origin: `${envVariables.APP_URL}`,

@@ -221,7 +221,7 @@ export const chatUsers = async (sessionUserId: string, skip: number) => {
         return -1;
       }
 
-      return new Date(a.messageCreatedAt || '').getTime() > new Date(b.messageCreatedAt || '').getTime() ? 1 : -1;
+      return new Date(a.messageCreatedAt || '').getTime() > new Date(b.messageCreatedAt || '').getTime() ? -1 : 1;
     });
 
   const maxPages = usersCount / CHAT_USERS_PER_REQUEST;

@@ -139,6 +139,7 @@ export const editAccount = (sessionUserId: string, { bio, name, username }: Edit
 
 export const updateAvatar = async (sessionUserId: string, fileData: MultipartFile) => {
   const folder = `${sessionUserId}/avatar/custom/`;
+
   const fileBuffer = await fileData.toBuffer();
 
   const image = await imageKit.upload({
