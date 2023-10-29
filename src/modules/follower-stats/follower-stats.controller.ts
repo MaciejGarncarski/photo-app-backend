@@ -8,6 +8,7 @@ export const getFollowersStatsHandler = async (request: FastifyRequest<{ Queryst
   const sessionUserId = request.session.data?.id;
 
   const data = await getFollowersStats(userId, parseInt(skip), sessionUserId);
+
   return { data };
 };
 
