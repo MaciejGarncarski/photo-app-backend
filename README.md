@@ -4,10 +4,6 @@
 
 # PhotoApp - backend
 
-## Frontend repo
-
-[Frontend repo](https://github.com/MaciejGarncarski/photo-app)
-
 - [PhotoApp - backend](#photoapp---backend)
   - [Overview](#overview)
   - [Live](#live)
@@ -69,6 +65,10 @@ pnpm dev
 ```
 
 ## Tech used
+
+### Frontend
+
+[Frontend repo](https://github.com/MaciejGarncarski/photo-app)
 
 ### Backend
 
