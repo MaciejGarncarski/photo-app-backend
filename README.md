@@ -4,6 +4,10 @@
 
 # PhotoApp - backend
 
+## Frontend repo
+
+[Frontend repo](https://github.com/MaciejGarncarski/photo-app)
+
 - [PhotoApp - backend](#photoapp---backend)
   - [Overview](#overview)
   - [Live](#live)
@@ -64,25 +68,7 @@ PRODUCTION=
 pnpm dev
 ```
 
-## Features
-
-- Authentication
-- Chat
-- Uploading post system
-- Post likes system
-- Post comments system
-
 ## Tech used
-
-### Frontend
-
-[Frontend repo](https://github.com/MaciejGarncarski/photo-app)
-
-- TypeScript
-- SASS with css-modules
-- [Next.js](https://nextjs.org/)
-- [Tanstack Query React](https://tanstack.com/query/latest/docs/react/overview)
-- [Tabler icons](https://tabler-icons.io/)
 
 ### Backend
 
@@ -103,7 +89,6 @@ pnpm dev
 - Husky
 - Conventional Commits config
 - Github Actions CI
-- Vercel
 
 ## Screenshots
 

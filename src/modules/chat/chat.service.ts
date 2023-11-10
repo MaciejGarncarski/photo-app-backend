@@ -171,7 +171,6 @@ export const CHAT_USERS_PER_REQUEST = 10;
 
 export const chatUsers = async (sessionUserId: string, skip: number) => {
   const { users, usersCount } = await getChatUsers(skip, sessionUserId);
-
   const mappedUsers = users.map(mapChatUsers).sort(sortChatUsers);
 
   const maxPages = usersCount / CHAT_USERS_PER_REQUEST;

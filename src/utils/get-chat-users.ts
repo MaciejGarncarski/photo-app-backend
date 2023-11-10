@@ -14,6 +14,9 @@ export const getChatUsers = async (skip: number, sessionUserId: string) => {
         id: sessionUserId,
       },
     },
+    orderBy: {
+      receivedMessages: { _count: 'desc' },
+    },
     select: {
       id: true,
       receivedMessages: {
