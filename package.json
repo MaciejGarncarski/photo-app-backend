@@ -4,7 +4,6 @@
     "start": "node ./dist",
     "dev": "pnpm nodemon ./src/index.ts"
   },
-  "packageManager": "pnpm@8.7.6",
   "type": "module",
   "dependencies": {
     "@fastify/cookie": "^8.3.0",
