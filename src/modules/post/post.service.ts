@@ -6,7 +6,7 @@ import { CreatePostInput, GetUserPostsInput, PostDetails, PostsResponse } from '
 import { db } from '../../utils/db.js';
 import { imageKit } from '../../utils/imagekit.js';
 
-const POSTS_PER_SCROLL = 2;
+const POSTS_PER_SCROLL = 3;
 
 export const getHomepagePosts = async (skip: number) => {
   const postsRequest = db.post.findMany({
@@ -129,9 +129,11 @@ export const getPostById = async (postId: number, request: FastifyRequest) => {
       author: true,
       images: true,
       postsLikes: {
-        where: {
-          userId: sessionUser?.id || '',
-        },
+        where: sessionUser?.id
+          ? {
+              userId: sessionUser.id,
+            }
+          : {},
       },
       _count: {
         select: {
@@ -158,13 +160,13 @@ export const getPostById = async (postId: number, request: FastifyRequest) => {
 
   const data: PostDetails = {
     authorId: authorId,
-    commentsCount,
-    likesCount,
+    commentsCount: commentsCount || 0,
+    likesCount: likesCount || 0,
     createdAt: createdAt.toString(),
     description,
     images,
     id,
-    isLiked: Boolean(postsLikes[0]),
+    isLiked: sessionUser ? Boolean(postsLikes[0]) : false,
   };
 
   return data;

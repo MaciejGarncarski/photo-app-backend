@@ -48,7 +48,7 @@ model User {
   postsComments PostComment[]
   fromUser      Follower[]    @relation("Follower")
   toUser        Follower[]    @relation("Following")
-  createdAt     DateTime      @default(now()) @db.Timestamp(0)
+  createdAt     DateTime      @default(now()) @db.Timestamptz()
   commentLike   CommentLike[]
 
   sentMessages     Message[] @relation("Sent")
@@ -88,7 +88,7 @@ model UserPreferences {
 model Post {
   id            Int           @id @default(autoincrement()) @db.Integer @unique
   author        User          @relation(fields: [authorId], references: [userId], onDelete: Cascade)
-  authorId      String        @db.Uuid
+  authorId      String        @db.Uuid @unique
   description   String        @db.Text
   createdAt     DateTime      @default(now()) @db.Timestamp(0)
   images        PostImage[]
