@@ -18,8 +18,8 @@ export const createChatRoom = async (receiverId: string, senderId: string) => {
     return chatRoom;
   }
 
-  const senderRequest = db.user.findFirst({ where: { id: senderId } });
-  const receiverRequest = db.user.findFirst({ where: { id: receiverId } });
+  const senderRequest = db.user.findFirst({ where: { userId: senderId } });
+  const receiverRequest = db.user.findFirst({ where: { userId: receiverId } });
   const [sender, receiver] = await Promise.all([senderRequest, receiverRequest]);
 
   if (!sender || !receiver) {
@@ -133,8 +133,8 @@ export const chatMessages = async (sessionUserId: string, receiverId: string, sk
       id,
       text,
       createdAt: createdAt.toString(),
-      receiverId: receiver.id,
-      senderId: sender.id,
+      receiverId: receiver.userId,
+      senderId: sender.userId,
     };
 
     return message;

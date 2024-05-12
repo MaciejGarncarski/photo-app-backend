@@ -3,7 +3,7 @@ import { CHAT_USERS_PER_REQUEST } from '../modules/chat/chat.service.js';
 
 export const getChatUsers = async (skip: number, sessionUserId: string) => {
   const condition = {
-    NOT: [{ id: sessionUserId }],
+    NOT: [{ userId: sessionUserId }],
   };
 
   const users = await db.user.findMany({
@@ -11,14 +11,14 @@ export const getChatUsers = async (skip: number, sessionUserId: string) => {
     take: CHAT_USERS_PER_REQUEST,
     where: {
       NOT: {
-        id: sessionUserId,
+        userId: sessionUserId,
       },
     },
     orderBy: {
       receivedMessages: { _count: 'desc' },
     },
     select: {
-      id: true,
+      userId: true,
       receivedMessages: {
         select: {
           createdAt: true,

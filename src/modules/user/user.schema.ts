@@ -25,7 +25,7 @@ export const userSchema = Type.Object({
 export const userWithStatsSchema = Type.Object({
   username: Type.String(),
   name: Nullable(Type.String()),
-  id: Type.String(),
+  userId: Type.String(),
   avatar: Nullable(Type.String()),
   bio: Nullable(Type.String()),
   createdAt: Type.String(),

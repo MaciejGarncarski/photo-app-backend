@@ -15,14 +15,14 @@ export const registerUser = async ({ email, username, password }: RegisterValues
       email,
       username,
       password: hashedPassword,
-      avatar: {
+      Avatar: {
         create: {
           url: '',
         },
       },
     },
     include: {
-      avatar: true,
+      Avatar: true,
     },
   });
 
@@ -30,15 +30,15 @@ export const registerUser = async ({ email, username, password }: RegisterValues
     data: {
       notificationSound: 'ON',
       theme: 'LIGHT',
-      userId: createdUser.id,
+      userId: createdUser.userId,
     },
   });
 
   const mappedUser = {
     bio: createdUser.bio,
     createdAt: createdUser.createdAt.toString(),
-    id: createdUser.id,
-    avatar: createdUser.avatar?.url || null,
+    id: createdUser.userId,
+    avatar: createdUser.Avatar?.url || null,
     name: createdUser.name,
     username: createdUser.username || '',
   } satisfies User;
@@ -66,7 +66,7 @@ export const createGoogleUser = async (googleUserData: GoogleUser, token: Token)
 
   const createdUser = await db.user.create({
     data: {
-      id: account?.userId,
+      userId: account?.userId,
       name: name,
       username: temporaryUsername,
     },
@@ -82,7 +82,7 @@ export const createGoogleUser = async (googleUserData: GoogleUser, token: Token)
   if (!accountExists) {
     await db.account.create({
       data: {
-        userId: createdUser.id,
+        userId: createdUser.userId,
         type: 'oauth',
         provider: 'google',
         providerAccountId: id,
@@ -94,7 +94,7 @@ export const createGoogleUser = async (googleUserData: GoogleUser, token: Token)
     });
   }
 
-  const mappedUser = mapPrismaUser({ ...createdUser, avatar: createAvatar });
+  const mappedUser = mapPrismaUser({ ...createdUser, Avatar: createAvatar });
   return mappedUser;
 };
 
@@ -108,10 +108,10 @@ export const signInGoogle = async (googleId: string) => {
 
     const user = await db.user.findUnique({
       where: {
-        id: account?.userId,
+        userId: account?.userId,
       },
       include: {
-        avatar: true,
+        Avatar: true,
       },
     });
 

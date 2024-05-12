@@ -1,5 +1,5 @@
 type ChatUser = {
-  id: string;
+  userId: string;
   sentMessages: {
     createdAt: Date;
     text: string;
@@ -10,13 +10,13 @@ type ChatUser = {
   }[];
 };
 
-export const mapChatUsers = ({ id, sentMessages, receivedMessages }: ChatUser) => {
+export const mapChatUsers = ({ userId, sentMessages, receivedMessages }: ChatUser) => {
   const sentMessage = sentMessages[0] || null;
   const receivedMessage = receivedMessages[0] || null;
 
   if (!sentMessage && !receivedMessage) {
     return {
-      id,
+      userId,
       message: 'No messages yet.',
       messageCreatedAt: null,
     };
@@ -24,7 +24,7 @@ export const mapChatUsers = ({ id, sentMessages, receivedMessages }: ChatUser) =
 
   if (!sentMessage && receivedMessage) {
     return {
-      id,
+      userId,
       message: `You: ${receivedMessage.text}`,
       messageCreatedAt: receivedMessage.createdAt.toString(),
     };
@@ -32,7 +32,7 @@ export const mapChatUsers = ({ id, sentMessages, receivedMessages }: ChatUser) =
 
   if (!receivedMessage && sentMessage) {
     return {
-      id,
+      userId,
       message: sentMessage.text,
       messageCreatedAt: sentMessage.createdAt.toString(),
     };
@@ -42,7 +42,7 @@ export const mapChatUsers = ({ id, sentMessages, receivedMessages }: ChatUser) =
   const message = hasSentLastMessage ? `You: ${receivedMessage.text}` : sentMessage.text;
 
   return {
-    id,
+    userId,
     message: message,
     messageCreatedAt: (hasSentLastMessage ? receivedMessage.createdAt : sentMessage.createdAt).toString(),
   };

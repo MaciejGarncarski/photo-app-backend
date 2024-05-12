@@ -54,7 +54,7 @@ export type ChatMessagesResponse = Static<typeof chatMessagesResponseSchema>;
 export const chatUsersResponseSchema = Type.Object({
   users: Type.Array(
     Type.Object({
-      id: Type.String(),
+      userId: Type.String(),
       message: Type.String(),
       messageCreatedAt: Nullable(Type.String()),
     }),

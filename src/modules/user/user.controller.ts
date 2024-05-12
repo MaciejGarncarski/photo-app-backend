@@ -28,7 +28,7 @@ export const getUserHandler = async (
     params: { userId },
   } = request;
 
-  const data = await getUser({ id: userId }, request);
+  const data = await getUser({ userId: userId }, request);
 
   if (data) {
     return { data };

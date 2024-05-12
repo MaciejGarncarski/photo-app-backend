@@ -20,7 +20,7 @@ export const signInCredentialsHandler = async (
       email,
     },
     include: {
-      avatar: true,
+      Avatar: true,
     },
   });
 
@@ -86,10 +86,10 @@ export const getCurrentUserHandler = async (request: FastifyRequest, reply: Fast
 
   const userData = await db.user.findUnique({
     where: {
-      id: data?.id,
+      userId: data?.id,
     },
     include: {
-      avatar: true,
+      Avatar: true,
     },
   });
 

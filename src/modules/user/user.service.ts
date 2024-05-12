@@ -8,12 +8,12 @@ import { imageKit } from '../../utils/imagekit.js';
 
 type Config =
   | {
-      id?: never;
+      userId?: never;
       username: string;
     }
   | {
       username?: never;
-      id: string;
+      userId: string;
     };
 
 export const getUser = async (config: Config, request: FastifyRequest) => {
@@ -24,8 +24,8 @@ export const getUser = async (config: Config, request: FastifyRequest) => {
     select: {
       bio: true,
       createdAt: true,
-      id: true,
-      avatar: true,
+      userId: true,
+      Avatar: true,
       name: true,
       username: true,
       toUser: true,
@@ -36,21 +36,21 @@ export const getUser = async (config: Config, request: FastifyRequest) => {
     return null;
   }
 
-  const { bio, createdAt, avatar, id, name, username } = userData;
+  const { bio, createdAt, Avatar, userId, name, username } = userData;
 
-  const counts = await getCount(userData.id);
+  const counts = await getCount(userId);
 
   const isFollowing =
     sessionUser &&
-    sessionUser?.id !== userData.id &&
+    sessionUser?.id !== userId &&
     Boolean(userData.toUser.find((follower) => follower.from === sessionUser.id));
 
   const user = {
     bio,
     createdAt: createdAt.toString(),
     ...counts,
-    id,
-    avatar: avatar?.url || null,
+    userId,
+    avatar: Avatar?.url || null,
     isFollowing: isFollowing || false,
     name,
     username: username || '',
@@ -127,7 +127,7 @@ export const deleteAvatar = async (sessionUserId: string) => {
 export const editAccount = (sessionUserId: string, { bio, name, username }: EditAccountInput) => {
   return db.user.update({
     where: {
-      id: sessionUserId,
+      userId: sessionUserId,
     },
     data: {
       bio,

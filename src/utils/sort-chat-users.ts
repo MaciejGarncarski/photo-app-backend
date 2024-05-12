@@ -1,5 +1,5 @@
 type MappedChatUser = {
-  id: string;
+  userId: string;
   message: string;
   messageCreatedAt: string | null;
 };
