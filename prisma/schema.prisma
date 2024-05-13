@@ -9,7 +9,7 @@ datasource db {
 
 model Account {
   id                String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid @unique
-  userId            String  @db.Uuid
+  userId            String  @db.Uuid 
   type              String
   provider          String
   providerAccountId String
@@ -22,10 +22,11 @@ model Account {
   sessionState      String?
 
   user User @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  @@index([userId])
 }
 
 model Session {
-  id        String   @id
+  id        String   @id @unique
   sid       String   @unique
   data      String   @db.Text
   expiresAt DateTime
@@ -40,9 +41,7 @@ model User {
   username        String?           @unique(map: "username_unique") @db.VarChar(50)
   bio             String?
   Account         Account[]
-  Avatar          Avatar?           @relation(fields: [avatarUserId], references: [userId])
-  avatarUserId    String?           @db.Uuid
-  UserPreferences UserPreferences[]
+  avatarUrl    String?
 
   postsLikes    PostLike[]
   postsComments PostComment[]
@@ -58,37 +57,15 @@ model User {
   receiver ChatRoom[] @relation("UserTwo")
 
   Post Post[]
+
+  @@index([username])
 }
 
-model Avatar {
-  userId String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid @unique
-  url    String?
-  User   User[]
-}
-
-enum Theme {
-  DARK
-  LIGHT
-}
-
-enum NotificationSound {
-  ON
-  OFF
-}
-
-model UserPreferences {
-  userId            String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid @unique
-  user              User              @relation(fields: [userId], references: [userId], onDelete: Cascade)
-  theme             Theme             @default(LIGHT)
-  notificationSound NotificationSound @default(ON)
-
-  @@index([userId])
-}
 
 model Post {
   id            Int           @id @default(autoincrement()) @db.Integer @unique
   author        User          @relation(fields: [authorId], references: [userId], onDelete: Cascade)
-  authorId      String        @db.Uuid @unique
+  authorId      String        @db.Uuid 
   description   String        @db.Text
   createdAt     DateTime      @default(now()) @db.Timestamp(0)
   images        PostImage[]

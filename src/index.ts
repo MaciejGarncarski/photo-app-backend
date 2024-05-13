@@ -24,7 +24,6 @@ declare module 'fastify' {
 const PrismaStore = new PrismaSessionStore(new PrismaClient(), {
   checkPeriod: 2 * 60 * 1000,
   dbRecordIdIsSessionId: true,
-  dbRecordIdFunction: undefined,
 });
 
 const server = Fastify({
@@ -81,8 +80,10 @@ const port = parseInt(process.env.PORT || '3001');
 
 server.listen({ port, host: '0.0.0.0' }, (err) => {
   if (err) {
+    // eslint-disable-next-line no-console
     console.log(err);
     process.exit(1);
   }
+  // eslint-disable-next-line no-console
   console.log('App running on port: ', port);
 });

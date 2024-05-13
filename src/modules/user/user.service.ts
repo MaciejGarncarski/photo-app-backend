@@ -1,7 +1,7 @@
 import { MultipartFile } from '@fastify/multipart';
 import { FastifyRequest } from 'fastify';
 
-import { EditAccountInput, UserPreferencesInput, UserWithStats } from './user.schema.js';
+import { EditAccountInput, UserWithStats } from './user.schema.js';
 import { db } from '../../utils/db.js';
 import { getCount } from '../../utils/getCount.js';
 import { imageKit } from '../../utils/imagekit.js';
@@ -25,7 +25,7 @@ export const getUser = async (config: Config, request: FastifyRequest) => {
       bio: true,
       createdAt: true,
       userId: true,
-      Avatar: true,
+      avatarUrl: true,
       name: true,
       username: true,
       toUser: true,
@@ -36,7 +36,7 @@ export const getUser = async (config: Config, request: FastifyRequest) => {
     return null;
   }
 
-  const { bio, createdAt, Avatar, userId, name, username } = userData;
+  const { bio, createdAt, avatarUrl, userId, name, username } = userData;
 
   const counts = await getCount(userId);
 
@@ -50,7 +50,7 @@ export const getUser = async (config: Config, request: FastifyRequest) => {
     createdAt: createdAt.toString(),
     ...counts,
     userId,
-    avatar: Avatar?.url || null,
+    avatar: avatarUrl,
     isFollowing: isFollowing || false,
     name,
     username: username || '',
@@ -81,42 +81,12 @@ export const unfollowUser = async (userId: string, sessionUserId: string) => {
   });
 };
 
-type UpdateUserPreferencesArguments = {
-  data: UserPreferencesInput;
-  userId?: string;
-};
-
-export const updateUserPreferences = ({ data, userId }: UpdateUserPreferencesArguments) => {
-  if (!userId) {
-    return null;
-  }
-
-  return db.userPreferences.upsert({
-    where: {
-      userId,
-    },
-    create: {
-      userId,
-      theme: data.theme || 'LIGHT',
-      notificationSound: data.notificationSound || 'ON',
-    },
-    update: {
-      ...data,
-    },
-  });
-};
-
 export const deleteAvatar = async (sessionUserId: string) => {
   await imageKit.deleteFolder(`${sessionUserId}/avatar/custom/`);
 
-  return db.avatar.upsert({
-    create: {
-      url: '',
-      userId: sessionUserId,
-    },
-    update: {
-      url: '',
-      userId: sessionUserId,
+  return db.user.update({
+    data: {
+      avatarUrl: null,
     },
     where: {
       userId: sessionUserId,
@@ -148,17 +118,14 @@ export const updateAvatar = async (sessionUserId: string, fileData: MultipartFil
     folder,
   });
 
-  return db.avatar.upsert({
-    create: {
-      url: image.url,
-      userId: sessionUserId,
-    },
-    update: {
-      url: image.url,
-      userId: sessionUserId,
+  const created = await db.user.update({
+    data: {
+      avatarUrl: image.url,
     },
     where: {
       userId: sessionUserId,
     },
   });
+
+  return created;
 };

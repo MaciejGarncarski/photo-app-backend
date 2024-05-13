@@ -9,14 +9,12 @@ import {
   getUserHandler,
   unfollowUserHandler,
   updateAvatarHandler,
-  updateUserPreferencesHandler,
 } from './user.controller.js';
 import {
   editAccountInputSchema,
   followUserInputSchema,
   getUserByUsernameInputSchema,
   getUserInputSchema,
-  userPreferencesInputSchema,
   userWithStatsSchema,
 } from './user.schema.js';
 
@@ -114,15 +112,5 @@ export const userRoutesPlugin: FastifyPluginAsync = async (fastify) => {
     },
     preHandler: [fastify.authorize],
     handler: unfollowUserHandler,
-  });
-
-  fastify.route({
-    method: 'PUT',
-    url: '/user/preferences',
-    schema: {
-      body: userPreferencesInputSchema,
-    },
-    preHandler: [fastify.authorize],
-    handler: updateUserPreferencesHandler,
   });
 };

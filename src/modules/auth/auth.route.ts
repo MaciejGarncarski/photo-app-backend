@@ -8,7 +8,7 @@ import {
   signOutHandler,
 } from './auth.controller.js';
 import { registerSchema, signInSchema } from './auth.schema.js';
-import { userSchema, userWithPreferencesSchema } from '../user/user.schema.js';
+import { userSchema } from '../user/user.schema.js';
 
 export const authRoutesPlugin: FastifyPluginAsync = async (fastify) => {
   fastify.withTypeProvider<TypeBoxTypeProvider>().route({
@@ -60,7 +60,7 @@ export const authRoutesPlugin: FastifyPluginAsync = async (fastify) => {
     schema: {
       response: {
         200: Type.Object({
-          data: userWithPreferencesSchema,
+          data: userSchema,
         }),
       },
     },

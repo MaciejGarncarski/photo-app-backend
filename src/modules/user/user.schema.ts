@@ -35,27 +35,8 @@ export const userWithStatsSchema = Type.Object({
   isFollowing: Type.Boolean(),
 });
 
-const themeUnion = Type.Union([Type.Literal('LIGHT'), Type.Literal('DARK')]);
-const notificationSoundUnion = Type.Union([Type.Literal('ON'), Type.Literal('OFF')]);
-
-export const userWithPreferencesSchema = Type.Object({
-  username: Type.String(),
-  name: Nullable(Type.String()),
-  id: Type.String(),
-  avatar: Nullable(Type.String()),
-  bio: Nullable(Type.String()),
-  createdAt: Type.String(),
-  theme: themeUnion,
-  notificationSound: notificationSoundUnion,
-});
-
 export const followUserInputSchema = Type.Object({
   userId: Type.String(),
-});
-
-export const userPreferencesInputSchema = Type.Object({
-  theme: Type.Optional(themeUnion),
-  notificationSound: Type.Optional(notificationSoundUnion),
 });
 
 export const editAccountInputSchema = Type.Object({
@@ -66,8 +47,6 @@ export const editAccountInputSchema = Type.Object({
 
 export type User = Static<typeof userSchema>;
 export type UserWithStats = Static<typeof userWithStatsSchema>;
-export type UserWithPreferences = Static<typeof userWithPreferencesSchema>;
-export type UserPreferencesInput = Static<typeof userPreferencesInputSchema>;
 export type EditAccountInput = Static<typeof editAccountInputSchema>;
 export type FollowUserInput = Static<typeof followUserInputSchema>;
 export type GetUserInput = Static<typeof getUserInputSchema>;

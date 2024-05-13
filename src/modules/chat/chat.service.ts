@@ -131,7 +131,7 @@ export const chatMessages = async (sessionUserId: string, receiverId: string, sk
   const mappedMessages = chatMessages.map(({ id, text, sender, receiver, createdAt }) => {
     const message: ChatMessage = {
       id,
-      text,
+      text: text,
       createdAt: createdAt.toString(),
       receiverId: receiver.userId,
       senderId: sender.userId,

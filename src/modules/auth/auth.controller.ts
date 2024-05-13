@@ -3,7 +3,6 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 
 import { RegisterValues, SignInValues } from './auth.schema.js';
 import { registerUser } from './auth.service.js';
-import { UserWithPreferences } from '../user/user.schema.js';
 import { db } from '../../utils/db.js';
 import { mapPrismaUser } from '../../utils/map-prisma-user.js';
 
@@ -18,9 +17,6 @@ export const signInCredentialsHandler = async (
   const user = await db.user.findFirst({
     where: {
       email,
-    },
-    include: {
-      Avatar: true,
     },
   });
 
@@ -88,34 +84,14 @@ export const getCurrentUserHandler = async (request: FastifyRequest, reply: Fast
     where: {
       userId: data?.id,
     },
-    include: {
-      Avatar: true,
-    },
   });
 
   if (!userData) {
     return reply.notFound('User not found.');
   }
 
-  const userPreferences = await db.userPreferences.findFirst({
-    where: {
-      userId: data?.id,
-    },
-    select: {
-      notificationSound: true,
-      theme: true,
-    },
-  });
-
   const mappedUser = mapPrismaUser(userData);
-
-  const userWithPreferences: UserWithPreferences = {
-    ...mappedUser,
-    notificationSound: userPreferences?.notificationSound || 'ON',
-    theme: userPreferences?.theme || 'LIGHT',
-  };
-
-  return { data: userWithPreferences };
+  return { data: mappedUser };
 };
 
 export const signOutHandler = async (request: FastifyRequest, reply: FastifyReply) => {

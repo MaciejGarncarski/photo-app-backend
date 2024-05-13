@@ -1,22 +1,8 @@
 import { MultipartFile } from '@fastify/multipart';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
-import {
-  EditAccountInput,
-  FollowUserInput,
-  GetUserInput,
-  GetUserInputByUsername,
-  UserPreferencesInput,
-} from './user.schema.js';
-import {
-  deleteAvatar,
-  editAccount,
-  followUser,
-  getUser,
-  unfollowUser,
-  updateAvatar,
-  updateUserPreferences,
-} from './user.service.js';
+import { EditAccountInput, FollowUserInput, GetUserInput, GetUserInputByUsername } from './user.schema.js';
+import { deleteAvatar, editAccount, followUser, getUser, unfollowUser, updateAvatar } from './user.service.js';
 
 export const getUserHandler = async (
   request: FastifyRequest<{
@@ -71,13 +57,6 @@ export const unfollowUserHandler = async (
 
   await unfollowUser(request.params.userId, data.id);
   return reply.status(204).send();
-};
-
-export const updateUserPreferencesHandler = async (request: FastifyRequest<{ Body: UserPreferencesInput }>) => {
-  const sessionUserId = request.session.data?.id;
-
-  const data = await updateUserPreferences({ data: request.body, userId: sessionUserId });
-  return { data };
 };
 
 export const updateAvatarHandler = async (
