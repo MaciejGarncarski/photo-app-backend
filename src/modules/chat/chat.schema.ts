@@ -3,7 +3,7 @@ import { Static, Type } from '@fastify/type-provider-typebox';
 import { Nullable } from '../../utils/nullable.js';
 
 export const chatRoomInputSchema = Type.Object({
-  receiverId: Type.String(),
+  username: Type.String(),
 });
 
 export type ChatRoomInput = Static<typeof chatRoomInputSchema>;

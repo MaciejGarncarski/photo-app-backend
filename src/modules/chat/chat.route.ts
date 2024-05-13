@@ -33,7 +33,7 @@ export const chatRoutesPlugin: FastifyPluginAsync = async (fastify) => {
         }),
       },
     },
-    url: '/chat/check-user/:receiverId',
+    url: '/chat/check-user/:username',
     handler: createChatRoomHandler,
   });
 

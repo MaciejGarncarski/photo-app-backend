@@ -14,14 +14,14 @@ export const createChatRoomHandler = async (
   request: FastifyRequest<{ Params: ChatRoomInput }>,
   reply: FastifyReply,
 ) => {
-  const { receiverId } = request.params;
+  const { username } = request.params;
   const { data } = request.session;
 
-  if (data.id === receiverId) {
+  if (data.username === username) {
     return reply.badRequest('Receiver is sender.');
   }
 
-  const chatRoom = await createChatRoom(receiverId, data.id);
+  const chatRoom = await createChatRoom(username, data.id);
 
   if (!chatRoom) {
     return reply.notFound('Chat room not found.');
@@ -76,7 +76,6 @@ export const createMessageHandler = async (request: FastifyRequest<{ Body: Creat
   const { receiverId, senderId, message } = request.body;
 
   const response = await createMessage({ senderId, receiverId, message });
-
   if (response) {
     request.server.io.to(response.roomName).emit('new message', response.createdMessage);
     return { status: 'ok' };

@@ -4,12 +4,18 @@ import { getChatUsers } from '../../utils/get-chat-users.js';
 import { mapChatUsers } from '../../utils/map-chat-users.js';
 import { sortChatUsers } from '../../utils/sort-chat-users.js';
 
-export const createChatRoom = async (receiverId: string, senderId: string) => {
+export const createChatRoom = async (username: string, senderId: string) => {
+  const receiverData = await db.user.findFirst({
+    where: {
+      username,
+    },
+  });
+
   const chatRoom = await db.chatRoom.findFirst({
     where: {
       OR: [
-        { senderId, receiverId },
-        { receiverId: senderId, senderId: receiverId },
+        { senderId, receiverId: receiverData?.userId },
+        { receiverId: senderId, senderId: receiverData?.userId },
       ],
     },
   });
@@ -19,17 +25,17 @@ export const createChatRoom = async (receiverId: string, senderId: string) => {
   }
 
   const senderRequest = db.user.findFirst({ where: { userId: senderId } });
-  const receiverRequest = db.user.findFirst({ where: { userId: receiverId } });
+  const receiverRequest = db.user.findFirst({ where: { userId: receiverData?.userId } });
   const [sender, receiver] = await Promise.all([senderRequest, receiverRequest]);
 
-  if (!sender || !receiver) {
+  if (!sender || !receiver || !receiverData?.userId) {
     return null;
   }
 
   const createdChatRoom = await db.chatRoom.create({
     data: {
       senderId: senderId,
-      receiverId: receiverId,
+      receiverId: receiverData?.userId,
     },
   });
 
